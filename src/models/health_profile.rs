@@ -11,6 +11,8 @@ pub struct PublicHealthProfile {
     pub smart_healthcard_pk: String,
     // OR
     pub vaccination_history: Vec<Vaccination>,
+    pub quarantine_plan: QuarantinePlan,
+    pub testing_history: Vec<TestingHistory>,
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
@@ -39,6 +41,16 @@ pub struct QuarantinePlan {
     pub confirmation_quarantine: bool,
     pub confirmation_no_vulnerable: bool,
     pub address: Address,
+    pub compliance_check: bool,
+    pub compliance_check_result: bool,
+    pub check_in_results: Vec<CheckInResult>,
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct CheckInResult {
+    pub uid: String,
+    pub date_time: NaiveDateTime,
+    pub check_in_complete: bool,
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]

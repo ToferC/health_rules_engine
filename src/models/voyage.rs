@@ -2,8 +2,6 @@ use chrono::prelude::*;
 use serde::{Deserialize, Serialize};
 // use diesel::prelude::*;
 
-use super::health_profile::{QuarantinePlan, TestingHistory};
-
 #[derive(Debug, Clone, Deserialize, Serialize)]
 /// People travelling together
 /// Referenced through Person and links to voyage
@@ -23,7 +21,7 @@ pub struct Voyage {
     pub booking_id: Option<String>,
     pub travel_mode: TravelMode,
     pub origin: TravelHub,
-    pub transit_points: Vec<Transit>,
+    pub transit_points: Vec<TransitPoint>,
     pub destination: TravelHub,
     pub border_point: TravelHub,
     pub travel_intent: TravelIntent,
@@ -32,15 +30,11 @@ pub struct Voyage {
     pub departure_datetime: Option<NaiveDateTime>,
     pub arrival_datetime: Option<NaiveDateTime>,
     pub voyage_state: VoyageState,
-
-    // Where should these go??
-    pub quarantine_plan: QuarantinePlan,
-    pub testing_history: Vec<TestingHistory>,
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct Transit {
-    pub transit_point: TravelHub,
+pub struct TransitPoint {
+    pub travel_hub: TravelHub,
     pub transit_date: NaiveDate,
 }
 
@@ -56,6 +50,7 @@ pub enum VoyageState {
 pub enum TravelIntent {
     Entry,
     Exit,
+    Transit,
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
@@ -72,6 +67,7 @@ pub enum Country {
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 /// Should get this info from an API
+/// Could be a struct with company info, contact info, API key, etc.
 pub enum TravelProvider {
     Private,
     // Air
