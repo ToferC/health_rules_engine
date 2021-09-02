@@ -5,11 +5,11 @@ use serde::{Deserialize, Serialize};
 use super::health_profile::{QuarantinePlan, TestingHistory};
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
-// People travelling together
+/// People travelling together
+/// Referenced through Person and links to voyage
 pub struct TravelGroup {
     pub uid: String,
     pub voyage_uid: String,
-    pub people_uids: Vec<String>,
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
@@ -23,7 +23,7 @@ pub struct Voyage {
     pub booking_id: Option<String>,
     pub travel_mode: TravelMode,
     pub origin: TravelHub,
-    pub transit_points: Vec<TravelHub>,
+    pub transit_points: Vec<Transit>,
     pub destination: TravelHub,
     pub border_point: TravelHub,
     pub travel_intent: TravelIntent,
@@ -36,6 +36,12 @@ pub struct Voyage {
     // Where should these go??
     pub quarantine_plan: QuarantinePlan,
     pub testing_history: Vec<TestingHistory>,
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct Transit {
+    pub transit_point: TravelHub,
+    pub transit_date: NaiveDate,
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
@@ -94,6 +100,3 @@ pub enum TravelMode {
     Sea(String),
     Land(String),
 }
-
-#[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct Address{}
