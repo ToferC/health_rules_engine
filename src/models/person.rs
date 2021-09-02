@@ -21,12 +21,6 @@ pub struct PublicHealthProfile {
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct QuarantinePlan {
-    pub uid: String,
-
-}
-
-#[derive(Debug, Clone, Deserialize, Serialize)]
 // Will assess Vaccine History against health rules engine
 pub struct Vaccination {
     uid: String,
@@ -77,6 +71,24 @@ pub struct Voyage {
     // Where should these go??
     pub quarantine_plan: QuarantinePlan,
     pub testing_history: Vec<TestingHistory>,
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct QuarantinePlan {
+    pub uid: String,
+    pub date_created: NaiveDateTime,
+    pub confirmation_quarantine: bool,
+    pub confirmation_no_vulnerable: bool,
+    pub address: Address,
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct Address {
+    pub street_number: i32,
+    pub unit_number: Option<i32>,
+    pub city: TravelHub,
+    pub province_state: String,
+    pub country: Country,
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
