@@ -4,10 +4,13 @@ extern crate diesel;
 use std::env;
 use actix_web::{App, HttpServer, web, middleware, web::Json};
 use tera::{Tera};
+use tera_text_filters::snake_case;
+
 use diesel::prelude::*;
 use diesel::r2d2::{self, ConnectionManager};
 
 mod models;
+mod handlers;
 
 use models::*;
 
@@ -55,16 +58,17 @@ async fn main() -> std::io::Result<()> {
 
     HttpServer::new(move || {
         
-        let tera = Tera::new(
+        let mut tera = Tera::new(
             "templates/**/*").unwrap();
+
+        tera.register_filter("snake_case", snake_case);
+        tera.full_reload().expect("Error running auto reload with Tera");
 
         App::new()
             .data(ctx.clone())
             .data(AppData {tmpl: tera})
             .wrap(middleware::Logger::default())
-            .service(handlers::index)
-            .service(web::resource("/playground").route(web::get().to(handlers::playground_handler)))
-
+            .configure(handlers::init_routes)
     })
     .bind(format!("{}:{}", host, port))?
     .run()

@@ -1,0 +1,23 @@
+{% extands "base.html" %}
+
+{% block title %}
+    <title>API Documentation</title>
+{% endblock title %}
+
+{% block content %}
+    <col class="col m-md-2 m-1">
+        <h1>API Documentation</h1>
+        <h2>[UNDER CONSTRUCTION]</h2>
+            <p>This is a placeholder page for complete API documentation.</p>
+
+            <h2>Currently Available API Routes</h2>
+            <ul>
+                <li>/api/experiences -> Return JSON of all experiences with associated phrases in English </li>
+                <li>/api/phrases -> Return JSON of all phrases (translations) </li>
+                <li>/api/experience/id -> Return JSON of specific experience </li>
+                <li>/api/person/{code} -> Return JSON of person, including experiences and nodes</li>
+            </ul>
+        
+            <p>More to come...</p>
+        </col>
+{% endblock content %}
