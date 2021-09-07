@@ -14,7 +14,7 @@ mod handlers;
 
 use models::*;
 
-struct AppData {
+pub struct AppData {
     tmpl: Tera
 }
 

@@ -3,6 +3,7 @@ use serde::{Deserialize, Serialize};
 // use diesel::prelude::*;
 
 use super::voyage::{Country};
+use super::access_log::{AccessLevel, Granularity};
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 /// Linked from HealthProfile
@@ -12,4 +13,6 @@ pub struct Person {
     pub travel_document_issuer: Country,
     pub travel_document_uid: String,
     pub travel_group_uid: String,
+    pub approved_access_level: AccessLevel,
+    pub approved_access_granularity: Granularity,
 }
