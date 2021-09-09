@@ -7,39 +7,32 @@ use serde::{Deserialize, Serialize};
 /// Referenced through Person and links to voyage
 pub struct TravelGroup {
     pub uid: String,
-    pub voyage_uid: String,
+    pub trip_uid: String,
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 /// Travel information for a TravelGroup
 /// CBSA responsible, but important for public health surveillance
-pub struct Voyage {
+pub struct Trip {
     pub uid: String,
-    pub travel_provider: TravelProvider,
+    pub provider: TravelProvider,
     // None for travel_identifier == private travel
     pub travel_identifier: Option<String>,
     pub booking_id: Option<String>,
     pub travel_mode: TravelMode,
-    pub origin: TravelHub,
-    pub transit_points: Vec<TransitPoint>,
-    pub destination: TravelHub,
-    pub border_point: TravelHub,
+    pub origin: Place,
+    pub transit_points: Vec<Place>,
+    pub destination: Place,
     pub travel_intent: TravelIntent,
-    pub scheduled_departure_datetime: Option<NaiveDateTime>,
-    pub scheduled_arrival_datetime: Option<NaiveDateTime>,
-    pub departure_datetime: Option<NaiveDateTime>,
-    pub arrival_datetime: Option<NaiveDateTime>,
-    pub voyage_state: VoyageState,
+    pub scheduled_departure_time: Option<NaiveDateTime>,
+    pub scheduled_arrival_time: Option<NaiveDateTime>,
+    pub departure_time: Option<NaiveDateTime>,
+    pub arrival_time: Option<NaiveDateTime>,
+    pub trip_state: TripState,
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct TransitPoint {
-    pub travel_hub: TravelHub,
-    pub transit_date: NaiveDate,
-}
-
-#[derive(Debug, Clone, Deserialize, Serialize)]
-pub enum VoyageState {
+pub enum TripState {
     Planned,
     InProgress,
     Completed,
@@ -81,7 +74,7 @@ pub enum TravelProvider {
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 /// Will be cities, airports, ports of entry, destinations
-pub enum TravelHub {
+pub enum Place {
     NewYorkCity,
     PearsonT1,
     PearsonT2,

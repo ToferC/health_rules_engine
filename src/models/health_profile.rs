@@ -2,7 +2,7 @@ use chrono::prelude::*;
 use serde::{Deserialize, Serialize};
 // use diesel::prelude::*;
 
-use super::voyage::{Country, TravelHub};
+use super::trip::{Country, Place};
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct PublicHealthProfile {
@@ -40,7 +40,7 @@ pub struct QuarantinePlan {
     pub date_created: NaiveDateTime,
     pub quarantine_required: bool,
     pub confirmation_no_vulnerable: bool,
-    pub address: Address,
+    pub address: PostalAddress,
     pub compliance_check: bool,
     pub compliance_check_result: bool,
 }
@@ -79,13 +79,20 @@ pub enum TestType {
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct Address {
-    pub street_number: i32,
-    pub unit_number: Option<i32>,
-    pub street_name: String,
+pub struct GeoCoordinates {
+    pub latitude: f32,
+    pub longitude: f32,
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct PostalAddress {
+    pub uid: String,
+    pub street_address: String,
+    pub address_locality: Place,
+    pub address_region: String,
+    pub address_country: Country,
+    pub postal_code: String,
+    pub geo: GeoCoordinates,
     pub additional_info: Option<String>,
-    pub city: TravelHub,
-    pub province_state: String,
-    pub country: Country,
 }
 

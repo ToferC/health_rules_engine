@@ -33,7 +33,7 @@ pub async fn api_base(
 
 #[get("/playground")]
 pub async fn playground_handler() -> HttpResponse {
-    let html = playground_source("/graphql");
+    let html = playground_source("/graphql", Some("/subscriptions"));
     HttpResponse::Ok()
         .content_type("text/html; charset=utf-8")
         .body(html)
