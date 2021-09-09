@@ -2,7 +2,7 @@ extern crate juniper;
 extern crate diesel;
 
 use std::env;
-use actix_web::{App, HttpServer, web, middleware, web::Json};
+use actix_web::{App, HttpServer, middleware};
 use tera::{Tera};
 use tera_text_filters::snake_case;
 
@@ -11,8 +11,6 @@ use diesel::r2d2::{self, ConnectionManager};
 
 mod models;
 mod handlers;
-
-use models::*;
 
 pub struct AppData {
     tmpl: Tera

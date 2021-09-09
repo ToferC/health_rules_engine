@@ -9,7 +9,6 @@ use juniper::http::playground::playground_source;
 
 use tera::Context;
 
-use crate::models::{Person};
 use crate::AppData;
 
 #[get("/")]
@@ -21,13 +20,14 @@ pub async fn index(data: web::Data<AppData>, _req:HttpRequest) -> impl Responder
 
 #[get("/{lang}/api")]
 pub async fn api_base(
-    data: web::Data<AppData>,
-    lang: web::Path<String>,
-    req: HttpRequest,
+    _data: web::Data<AppData>,
+    _lang: web::Path<String>,
+    _req: HttpRequest,
     // id: Identity,
 ) -> impl Responder {
 
     let data= "Base String";
+    
     HttpResponse::Ok().json(data)
 }
 
