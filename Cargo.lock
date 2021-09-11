@@ -983,6 +983,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "diesel-derive-enum"
+version = "1.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "70806b70be328e646f243680a3fc93b3cfdd6db373faa5110660a5dd5af243bc"
+dependencies = [
+ "heck",
+ "proc-macro2",
+ "quote",
+ "syn",
+]
+
+[[package]]
 name = "diesel_derives"
 version = "1.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1462,6 +1474,7 @@ dependencies = [
  "csv",
  "derive_more",
  "diesel",
+ "diesel-derive-enum",
  "dotenv",
  "env_logger",
  "futures",
@@ -1474,6 +1487,7 @@ dependencies = [
  "serde_json",
  "tera",
  "tera-text-filters",
+ "uuid",
 ]
 
 [[package]]
@@ -3293,6 +3307,10 @@ name = "uuid"
 version = "0.8.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "bc5cf98d8186244414c848017f0e2676b3fcb46807f6668a97dfe67359a3c4b7"
+dependencies = [
+ "getrandom 0.2.3",
+ "serde",
+]
 
 [[package]]
 name = "vcpkg"

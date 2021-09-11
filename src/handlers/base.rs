@@ -20,15 +20,15 @@ pub async fn index(data: web::Data<AppData>, _req:HttpRequest) -> impl Responder
 
 #[get("/{lang}/api")]
 pub async fn api_base(
-    _data: web::Data<AppData>,
+    data: web::Data<AppData>,
     _lang: web::Path<String>,
     _req: HttpRequest,
     // id: Identity,
 ) -> impl Responder {
 
-    let data= "Base String";
-    
-    HttpResponse::Ok().json(data)
+    let ctx = Context::new(); 
+    let rendered = data.tmpl.render("api_base.html", &ctx).unwrap();
+    HttpResponse::Ok().body(rendered)
 }
 
 #[get("/playground")]
