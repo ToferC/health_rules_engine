@@ -1,5 +1,6 @@
-extern crate juniper;
+#[macro_use]
 extern crate diesel;
+extern crate juniper;
 
 use std::env;
 use actix_web::{App, HttpServer, middleware};
@@ -11,7 +12,7 @@ use diesel::r2d2::{self, ConnectionManager};
 
 mod models;
 mod handlers;
-mod errors;
+//mod errors;
 mod schema;
 
 pub struct AppData {

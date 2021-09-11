@@ -1,8 +1,10 @@
 use chrono::prelude::*;
 use serde::{Deserialize, Serialize};
 // use diesel::prelude::*;
+use diesel_derive_enum::DbEnum;
 
 use super::trip::{Country, Place};
+
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct PublicHealthProfile {
@@ -63,8 +65,9 @@ pub struct TestingHistory{
     pub test_result: bool,
 }
 
-#[derive(Debug, Clone, Deserialize, Serialize)]
-pub enum AccessLevel {
+#[derive(Debug, Clone, Deserialize, Serialize, DbEnum)]
+#[DieselType = "Access_level_enum"]
+pub enum AccessLevelEnum {
     Adminstrator,
     Analyst,
     Employee,
