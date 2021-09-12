@@ -7,17 +7,17 @@ use std::env;
 
 use crate::errors::error_handler::CustomError;
 
-type Pool = r2d2::Pool<ConnectionManager<PgConnection>>;
+pub type PostgresPool = r2d2::Pool<ConnectionManager<PgConnection>>;
 pub type DbConnection = r2d2::PooledConnection<ConnectionManager<PgConnection>>;
 
 #[macro_use]
 embed_migrations!();
 
 lazy_static! {
-    static ref POOL: Pool = {
+    pub static ref POOL: PostgresPool = {
         let db_url = env::var("DATABASE_URL").expect("Database url not set");
         let manager = ConnectionManager::<PgConnection>::new(db_url);
-        Pool::new(manager).expect("Failed to create DB Pool")
+        PostgresPool::new(manager).expect("Failed to create DB Pool")
     };
 }
 

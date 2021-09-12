@@ -27,7 +27,7 @@ CREATE TABLE IF NOT EXISTS trips (
     booking_id VARCHAR,
     travel_mode VARCHAR NOT NULL,
     origin VARCHAR NOT NULL,
-    transit_points TEXT[],
+    transit_points TEXT[] NOT NULL,
     destination VARCHAR NOT NULL,
     travel_intent VARCHAR NOT NULL,
     scheduled_departure_time TIMESTAMP,

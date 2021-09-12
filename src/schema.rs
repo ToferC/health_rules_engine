@@ -6,7 +6,7 @@ table! {
         booking_id -> Nullable<Varchar>,
         travel_mode -> Varchar,
         origin -> Varchar,
-        transit_points -> Nullable<Array<Text>>,
+        transit_points -> Array<Text>,
         destination -> Varchar,
         travel_intent -> Varchar,
         scheduled_departure_time -> Nullable<Timestamp>,
@@ -18,8 +18,8 @@ table! {
 }
 
 table! {
-    use diesel::sql_types::*;
     use crate::models::Access_level_enum;
+    use diesel::sql_types::*;
     users (uid) {
         uid -> Uuid,
         user_instance_uid -> Uuid,

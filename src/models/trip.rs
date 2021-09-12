@@ -1,11 +1,13 @@
 use chrono::{Duration, prelude::*};
 use serde::{Deserialize, Serialize};
-use diesel::{self, Queryable, Insertable};
+use diesel::{self, Insertable, PgConnection, Queryable};
+use diesel::{RunQueryDsl};
 use uuid::Uuid;
 use diesel_derive_enum::DbEnum;
-use juniper::{graphql_object};
+use juniper::{FieldResult, graphql_object, graphql_value};
 
 use crate::schema::*;
+use crate::graphql::graphql_translate;
 
 #[derive(Debug, Clone, Deserialize, Serialize, GraphQLObject)]
 #[serde(rename_all= "snake_case")]
@@ -16,10 +18,10 @@ pub struct TravelGroup {
     pub trip_uid: String,
 }
 
-#[derive(Debug, Clone, Deserialize, Serialize, GraphQLObject)]
+#[derive(Debug, Clone, Deserialize, Serialize, GraphQLObject, Queryable)]
 /// Travel information for a TravelGroup
 /// CBSA responsible, but important for public health surveillance
-pub struct Trip {
+pub struct Trips {
     pub id: Uuid,
     pub trip_provider: String,
     // None for travel_identifier == private travel
@@ -35,6 +37,19 @@ pub struct Trip {
     pub departure_time: Option<NaiveDateTime>,
     pub arrival_time: Option<NaiveDateTime>,
     pub trip_state: String,
+}
+
+impl Trips {
+    pub fn id(&self) -> Uuid {
+        self.id
+    }
+
+    pub fn all_trips(conn: &PgConnection) -> FieldResult<Vec<Trips>> {
+        let res = trips::table.load::<Trips>(conn);
+
+        graphql_translate(res)
+    }
+
 }
 
 #[derive(Insertable, Debug, GraphQLInputObject)]
