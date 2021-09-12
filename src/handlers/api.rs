@@ -3,7 +3,8 @@ use crate::AppData;
 
 #[post("/add_trip")]
 pub async fn add_trip(
-    data: web::Data<AppData>, req: HttpRequest,
+    data: web::Data<AppData>,
+    req: HttpRequest,
 ) -> HttpResponse {
     let data= "Base String";
     

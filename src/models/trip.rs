@@ -3,10 +3,12 @@ use serde::{Deserialize, Serialize};
 use diesel::{self, Queryable, Insertable};
 use uuid::Uuid;
 use diesel_derive_enum::DbEnum;
+use juniper::{graphql_object};
 
 use crate::schema::*;
 
-#[derive(Debug, Clone, Deserialize, Serialize)]
+#[derive(Debug, Clone, Deserialize, Serialize, GraphQLObject)]
+#[serde(rename_all= "snake_case")]
 /// People travelling together
 /// Referenced through Person and links to voyage
 pub struct TravelGroup {
@@ -14,7 +16,7 @@ pub struct TravelGroup {
     pub trip_uid: String,
 }
 
-#[derive(Debug, Clone, Deserialize, Serialize)]
+#[derive(Debug, Clone, Deserialize, Serialize, GraphQLObject)]
 /// Travel information for a TravelGroup
 /// CBSA responsible, but important for public health surveillance
 pub struct Trip {
@@ -35,47 +37,47 @@ pub struct Trip {
     pub trip_state: String,
 }
 
-#[derive(Insertable, Debug)]
+#[derive(Insertable, Debug, GraphQLInputObject)]
 #[table_name = "trips"]
-pub struct NewTrip<'a> {
-    pub trip_provider: &'a str,
+pub struct NewTrip {
+    pub trip_provider: String,
     // None for travel_identifier == private travel
-    pub travel_identifier: Option<&'a str>,
-    pub booking_id: Option<&'a str>,
-    pub travel_mode: &'a str,
-    pub origin: &'a str,
-    pub transit_points: Vec<&'a str>,
-    pub destination: &'a str,
-    pub travel_intent: &'a str,
+    pub travel_identifier: Option<String>,
+    pub booking_id: Option<String>,
+    pub travel_mode: String,
+    pub origin: String,
+    pub transit_points: Vec<String>,
+    pub destination: String,
+    pub travel_intent: String,
     pub scheduled_departure_time: Option<NaiveDateTime>,
     pub scheduled_arrival_time: Option<NaiveDateTime>,
     pub departure_time: Option<NaiveDateTime>,
     pub arrival_time: Option<NaiveDateTime>,
-    pub trip_state: &'a str,
+    pub trip_state: String,
 }
 
-impl<'a> NewTrip<'a> {
+impl<'a> NewTrip {
     pub fn default() -> Self {
 
         let depart: NaiveDateTime = Utc::now().naive_utc() - Duration::days(1);
         let arrive: NaiveDateTime = Utc::now().naive_utc() + Duration::days(1);
 
         NewTrip { 
-            trip_provider: "Air Canada", 
-            travel_identifier: Some("ADX-Q6)Y"), 
-            booking_id: Some("678326432632"), 
-            travel_mode: "AIR", 
-            origin: "London", 
-            transit_points: vec!["Montreal"], 
+            trip_provider: "Air Canada".to_string(), 
+            travel_identifier: Some("ADX-Q6)Y".to_string()), 
+            booking_id: Some("678326432632".to_string()), 
+            travel_mode: "AIR".to_string(), 
+            origin: "London".to_string(), 
+            transit_points: vec!["Montreal".to_string()], 
             
-            destination: "Winnipeg", 
+            destination: "Winnipeg".to_string(), 
             
-            travel_intent: "Entry", 
+            travel_intent: "Entry".to_string(), 
             scheduled_departure_time: Some(depart), 
             scheduled_arrival_time: Some(arrive + Duration::hours(4)), 
             departure_time: Some(depart), 
             arrival_time: Some(arrive), 
-            trip_state: "planned",
+            trip_state: "planned".to_string(),
         }
     }
 }

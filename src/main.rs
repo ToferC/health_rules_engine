@@ -1,5 +1,10 @@
 #[macro_use]
 extern crate diesel;
+
+#[macro_use]
+extern crate diesel_migrations;
+
+#[macro_use]
 extern crate juniper;
 
 use std::env;
@@ -12,8 +17,9 @@ use diesel::r2d2::{self, ConnectionManager};
 
 mod models;
 mod handlers;
-//mod errors;
+mod errors;
 mod schema;
+mod database;
 
 pub struct AppData {
     tmpl: Tera

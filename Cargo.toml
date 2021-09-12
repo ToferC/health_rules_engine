@@ -17,7 +17,9 @@ chrono = { version = "0.4.11", features = ["serde"] }
 diesel = { version = "1.4.2", features = ["postgres", "uuidv07", "r2d2", "chrono"]}
 r2d2 = "0.8.8"
 diesel-derive-enum = { version = "1", features = ["postgres"]}
+diesel_migrations = "1.4.0"
 uuid = { version = "0.8", features = ["serde", "v4"]}
+lazy_static = "1.4"
 
 dotenv = "0.15.0"
 futures = "0.3.5"
