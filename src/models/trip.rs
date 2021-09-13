@@ -50,6 +50,14 @@ impl Trips {
         graphql_translate(res)
     }
 
+    pub fn create_trip(conn: &PgConnection, trip: NewTrip) -> FieldResult<Trips> {
+        let res = diesel::insert_into(trips::table)
+            .values(trip)
+            .get_result(conn);
+
+        graphql_translate(res)
+    }
+
 }
 
 #[derive(Insertable, Debug, GraphQLInputObject)]

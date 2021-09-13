@@ -26,7 +26,7 @@ pub async fn playground_handler() -> HttpResponse {
 #[post("/graphql")]
 async fn graphql(
     pool: web::Data<PostgresPool>,
-    schema: web::Data<Arc<Schema>>,
+    //schema: web::Data<Arc<Schema>>,
     data: web::Json<GraphQLRequest>,
 ) -> Result<HttpResponse, Error> {
     let ctx = GraphQLContext {

@@ -1,4 +1,4 @@
-use crate::{GraphQLContext, errors::error_handler::CustomError};
+use crate::{GraphQLContext, errors::error_handler::CustomError, models::NewTrip};
 use diesel::pg::PgConnection;
 use juniper::{FieldResult, FieldError, RootNode};
 
@@ -17,7 +17,21 @@ impl Query {
     }
 }
 
-pub fn graphql_translate<T>(res: Result<T, CustomError>) -> FieldResult<T> {
+pub struct Mutation;
+
+#[juniper::graphql_object(Context = GraphQLContext)]
+impl Mutation {
+    #[graphql(name = "createTrip")]
+    pub fn create_trip(
+    context: &GraphQLContext,
+    _input: String, // CreateTripInput
+    ) -> FieldResult<Trips> {
+        let conn  = &context.pool.get().unwrap();
+
+        Trips::create_trip(conn, NewTrip::default())
+}
+
+pub fn graphql_translate<T>(res: Result<T, diesel::result::Error>) -> FieldResult<T> {
     match res {
         Ok(t) => Ok(t),
         Err(e) => Err(FieldError::from(e)),

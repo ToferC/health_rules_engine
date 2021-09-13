@@ -3,6 +3,7 @@ pub mod error_handler {
     use actix_web::http::StatusCode;
     use actix_web::{HttpResponse, ResponseError};
     use diesel::result::Error as DieselError;
+    use juniper::FieldError;
     use serde::Deserialize;
     use std::fmt;
 
@@ -37,6 +38,15 @@ pub mod error_handler {
                     CustomError::new(502, "Record not found".to_string())
                 },
                 err => CustomError::new(500, format!("Unknown Diesel Error: {}", err)),
+            }
+        }
+    }
+
+    impl From<FieldError> for CustomError {
+        fn from(error: FieldError) -> CustomError {
+            CustomError {
+                error_status_code: 511,
+                error_message: "GraphQL FieldError".to_string(),
             }
         }
     }
