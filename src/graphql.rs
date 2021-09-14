@@ -1,6 +1,6 @@
 use crate::{GraphQLContext, errors::error_handler::CustomError, models::NewTrip};
 use diesel::pg::PgConnection;
-use juniper::{FieldResult, FieldError, RootNode};
+use juniper::{EmptySubscription, FieldError, FieldResult, RootNode};
 
 use super::models::{Trips, TripState};
 
@@ -29,6 +29,7 @@ impl Mutation {
         let conn  = &context.pool.get().unwrap();
 
         Trips::create_trip(conn, NewTrip::default())
+    }
 }
 
 pub fn graphql_translate<T>(res: Result<T, diesel::result::Error>) -> FieldResult<T> {
@@ -36,4 +37,10 @@ pub fn graphql_translate<T>(res: Result<T, diesel::result::Error>) -> FieldResul
         Ok(t) => Ok(t),
         Err(e) => Err(FieldError::from(e)),
     }
+}
+
+pub type Schema = RootNode<'static, Query, Mutation, EmptySubscription>;
+
+pub fn create_schema() -> Schema {
+    Schema::new(Query, Mutation, EmptySubscription::default())
 }

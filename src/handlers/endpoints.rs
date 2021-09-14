@@ -7,13 +7,14 @@ use actix_web::{web, get, post, HttpResponse, HttpRequest, Responder,
 use juniper::http::graphiql::graphiql_source;
 use juniper::http::{GraphQLRequest};
 use juniper::http::playground::playground_source;
+use std::sync::Arc;
 
 use tera::Context;
 
 use crate::{AppData, GraphQLContext};
 use crate::errors::error_handler::CustomError;
 use crate::database::PostgresPool;
-
+use crate::graphql::Schema;
 
 #[get("/playground")]
 pub async fn playground_handler() -> HttpResponse {
@@ -24,9 +25,9 @@ pub async fn playground_handler() -> HttpResponse {
 }
 
 #[post("/graphql")]
-async fn graphql(
+pub async fn graphql(
     pool: web::Data<PostgresPool>,
-    //schema: web::Data<Arc<Schema>>,
+    schema: web::Data<Arc<Schema>>,
     data: web::Json<GraphQLRequest>,
 ) -> Result<HttpResponse, Error> {
     let ctx = GraphQLContext {

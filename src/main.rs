@@ -24,6 +24,7 @@ mod database;
 mod graphql;
 
 use crate::database::{POOL, PostgresPool};
+use crate::graphql::{Schema, create_schema};
 
 pub struct AppData {
     tmpl: Tera
@@ -64,6 +65,9 @@ async fn main() -> std::io::Result<()> {
 
     println!("Serving on: {}:{}", &host, &port);
 
+    // Create Schema
+    let schema = std::sync::Arc::new(create_schema());
+
     HttpServer::new(move || {
         
         let mut tera = Tera::new(
@@ -74,6 +78,7 @@ async fn main() -> std::io::Result<()> {
 
         App::new()
             .data(POOL.clone())
+            .data(schema.clone())
             .data(AppData {tmpl: tera})
             .wrap(middleware::Logger::default())
             .configure(handlers::init_routes)
