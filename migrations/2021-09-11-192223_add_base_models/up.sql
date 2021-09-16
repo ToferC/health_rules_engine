@@ -18,6 +18,14 @@ CREATE TABLE users (
     approved_by_user_uid UUID
 );
 
+CREATE TABLE IF NOT EXISTS travel_groups (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY
+);
+
+INSERT INTO travel_groups VALUES (
+    gen_random_uuid()
+);
+
 CREATE TYPE trip_state_enum AS ENUM ('planned', 'in_progress', 'completed', 'cancelled');
 
 CREATE TABLE IF NOT EXISTS trips (
@@ -34,7 +42,8 @@ CREATE TABLE IF NOT EXISTS trips (
     scheduled_arrival_time TIMESTAMP,
     departure_time TIMESTAMP,
     arrival_time TIMESTAMP,
-    trip_state VARCHAR(64) NOT NULL
+    trip_state VARCHAR(64) NOT NULL,
+    travel_group_id UUID NOT NULL
 );
 
 INSERT INTO trips VALUES (
@@ -51,5 +60,6 @@ INSERT INTO trips VALUES (
     TIMESTAMP '2004-10-20 10:23:54',
     TIMESTAMP '2004-10-19 10:23:54',
     TIMESTAMP '2004-10-20 11:23:54',
-    'complete'
+    'complete',
+    gen_random_uuid()
 );

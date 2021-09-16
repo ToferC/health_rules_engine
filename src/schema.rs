@@ -1,4 +1,10 @@
 table! {
+    travel_groups (id) {
+        id -> Uuid,
+    }
+}
+
+table! {
     trips (id) {
         id -> Uuid,
         trip_provider -> Varchar,
@@ -14,6 +20,7 @@ table! {
         departure_time -> Nullable<Timestamp>,
         arrival_time -> Nullable<Timestamp>,
         trip_state -> Varchar,
+        travel_group_id -> Uuid,
     }
 }
 
@@ -34,6 +41,7 @@ table! {
 }
 
 allow_tables_to_appear_in_same_query!(
+    travel_groups,
     trips,
     users,
 );

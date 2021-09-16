@@ -9,15 +9,6 @@ use juniper::{FieldResult, graphql_object, graphql_value};
 use crate::schema::*;
 use crate::graphql::graphql_translate;
 
-#[derive(Debug, Clone, Deserialize, Serialize, GraphQLObject)]
-#[serde(rename_all= "snake_case")]
-/// People travelling together
-/// Referenced through Person and links to voyage
-pub struct TravelGroup {
-    pub uid: String,
-    pub trip_uid: String,
-}
-
 #[derive(Debug, Clone, Deserialize, Serialize, GraphQLObject, Queryable)]
 /// Travel information for a TravelGroup
 /// CBSA responsible, but important for public health surveillance
@@ -37,6 +28,7 @@ pub struct Trips {
     pub departure_time: Option<NaiveDateTime>,
     pub arrival_time: Option<NaiveDateTime>,
     pub trip_state: String,
+    pub travel_group_id: Uuid,
 }
 
 impl Trips {
@@ -77,6 +69,7 @@ pub struct NewTrip {
     pub departure_time: Option<NaiveDateTime>,
     pub arrival_time: Option<NaiveDateTime>,
     pub trip_state: String,
+    pub travel_group_id: Uuid,
 }
 
 impl<'a> NewTrip {
@@ -101,6 +94,7 @@ impl<'a> NewTrip {
             departure_time: Some(depart), 
             arrival_time: Some(arrive), 
             trip_state: "planned".to_string(),
+            travel_group_id: Uuid::new_v4(),
         }
     }
 }
