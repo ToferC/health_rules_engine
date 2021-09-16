@@ -1,4 +1,5 @@
 use diesel::prelude::*;
+use diesel::serialize::Result;
 use diesel::{QueryDsl, BelongingToDsl};
 use actix_web::{web, get, post, HttpResponse, HttpRequest, Responder,
     Error,    
@@ -11,12 +12,12 @@ use std::sync::Arc;
 
 use tera::Context;
 
-use crate::{AppData, GraphQLContext};
+use crate::{AppData, GraphQLContext, schema};
 use crate::errors::error_handler::CustomError;
 use crate::database::PostgresPool;
-use crate::graphql::Schema;
+use crate::graphql::{Schema, create_context};
 
-#[get("/playground")]
+
 pub async fn playground_handler() -> HttpResponse {
     let html = playground_source("/graphql", Some("/subscriptions"));
     HttpResponse::Ok()
@@ -24,24 +25,16 @@ pub async fn playground_handler() -> HttpResponse {
         .body(html)
 }
 
-#[post("/graphql")]
 pub async fn graphql(
-    pool: web::Data<PostgresPool>,
+    pg_pool: web::Data<PostgresPool>,
     schema: web::Data<Arc<Schema>>,
-    data: web::Json<GraphQLRequest>,
-) -> Result<HttpResponse, Error> {
-    let ctx = GraphQLContext {
-        pool: pool.get_ref().to_owned(),
-    };
+    data_query: web::Json<GraphQLRequest>,
+) -> HttpResponse {
+    let ctx = create_context(pg_pool.as_ref().to_owned());
 
-    let res = web::block(move || {
-        let res = data.execute(&schema, &ctx);
-        Ok::<_, serde_json::error::Error>(serde_json::to_string(&res)?)
-    })
-    .await
-    .map_err(Error::from)?;
+    let res = data_query.execute(&schema, &ctx).await;
 
-    Ok(HttpResponse::Ok()
+    HttpResponse::Ok()
         .content_type("application/json")
-        .body(res))
+        .json(res)
 }

@@ -18,8 +18,10 @@ table! {
 }
 
 table! {
+
     use crate::models::Access_level_enum;
     use diesel::sql_types::*;
+
     users (uid) {
         uid -> Uuid,
         user_instance_uid -> Uuid,

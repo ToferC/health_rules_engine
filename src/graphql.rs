@@ -1,4 +1,4 @@
-use crate::{GraphQLContext, errors::error_handler::CustomError, models::NewTrip};
+use crate::{GraphQLContext, database::PostgresPool, errors::error_handler::CustomError, models::NewTrip};
 use diesel::pg::PgConnection;
 use juniper::{EmptySubscription, FieldError, FieldResult, RootNode};
 
@@ -39,8 +39,12 @@ pub fn graphql_translate<T>(res: Result<T, diesel::result::Error>) -> FieldResul
     }
 }
 
-pub type Schema = RootNode<'static, Query, Mutation, EmptySubscription>;
+pub type Schema = RootNode<'static, Query, Mutation, EmptySubscription<GraphQLContext>>;
 
 pub fn create_schema() -> Schema {
-    Schema::new(Query, Mutation, EmptySubscription::default())
+    Schema::new(Query, Mutation, EmptySubscription::new())
+}
+
+pub fn create_context(pg_pool: PostgresPool) -> GraphQLContext {
+    GraphQLContext { pool: pg_pool }
 }

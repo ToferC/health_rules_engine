@@ -36,3 +36,20 @@ CREATE TABLE IF NOT EXISTS trips (
     arrival_time TIMESTAMP,
     trip_state VARCHAR(64) NOT NULL
 );
+
+INSERT INTO trips VALUES (
+    gen_random_uuid(),
+    'Air Canada',
+    'YYVJKL',
+    '11100000',
+    'Flight',
+    'London',
+    '{"Toronto", "Calgary"}',
+    'Edmonton',
+    'Recreation',
+    TIMESTAMP '2004-10-19 10:23:54',
+    TIMESTAMP '2004-10-20 10:23:54',
+    TIMESTAMP '2004-10-19 10:23:54',
+    TIMESTAMP '2004-10-20 11:23:54',
+    'complete'
+);
