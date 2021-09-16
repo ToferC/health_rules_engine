@@ -1,21 +1,24 @@
-use chrono::{Duration, prelude::*};
 use serde::{Deserialize, Serialize};
+use diesel::prelude::*;
 use diesel::{self, Insertable, PgConnection, Queryable};
-use diesel::{RunQueryDsl};
+use diesel::{RunQueryDsl, QueryDsl};
 use uuid::Uuid;
-use diesel_derive_enum::DbEnum;
-use juniper::{FieldResult, graphql_object, graphql_value};
+use juniper::{FieldResult};
 
+use crate::database::PostgresPool;
 use crate::schema::*;
 use crate::graphql::graphql_translate;
 use super::{Trips};
 
-#[derive(Debug, Clone, Deserialize, Serialize, GraphQLObject)]
+type PG = diesel::pg::Pg;
+
+#[derive(Debug, Clone, Deserialize, Serialize, GraphQLObject, Queryable, PartialEq, PartialOrd, Identifiable, Eq, Ord)]
 #[serde(rename_all= "snake_case")]
+#[table_name = "travel_groups"]
 /// People travelling together
 /// Referenced through Person, Trip and links to voyage
 pub struct TravelGroups {
-    pub id: String,
+    pub id: Uuid,
 }
 
 impl TravelGroups {
@@ -29,7 +32,14 @@ impl TravelGroups {
         graphql_translate(res)
     }
 
-    pub fn create_travel_group(conn: &PgConnection, travel_group: NewTravelGroup) -> FieldResult<TravelGroup> {
+    pub fn travel_group_by_id(conn: &PgConnection, id: Uuid) -> FieldResult<TravelGroups> {
+        let res = travel_groups::table.filter(travel_groups::id.eq(&id))
+            .first(conn);
+
+        graphql_translate(res)
+    }
+
+    pub fn create_travel_group(conn: &PgConnection, travel_group: NewTravelGroup) -> FieldResult<TravelGroups> {
         let res = diesel::insert_into(travel_groups::table)
             .values(travel_group)
             .get_result(conn);
@@ -42,5 +52,5 @@ impl TravelGroups {
 #[derive(Insertable, Debug, GraphQLInputObject)]
 #[table_name = "travel_groups"]
 pub struct NewTravelGroup {
-    pub id: String,
+    pub id: Uuid,
 }

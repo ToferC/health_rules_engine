@@ -1,6 +1,7 @@
 mod person;
 mod health_profile;
 mod trip;
+mod travel_group;
 mod access_log;
 mod user;
 

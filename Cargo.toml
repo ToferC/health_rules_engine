@@ -14,7 +14,7 @@ actix-multipart = "0.2.0"
 actix-service = "1.0.6"
 
 chrono = { version = "0.4.11", features = ["serde"] }
-diesel = { version = "1.4.2", features = ["postgres", "uuidv07", "r2d2", "chrono"]}
+diesel = { version = "1.4.2", features = ["postgres", "uuidv07", "r2d2", "chrono", "uuid"]}
 r2d2 = "0.8.8"
 diesel-derive-enum = { version = "1", features = ["postgres"]}
 diesel_migrations = "1.4.0"

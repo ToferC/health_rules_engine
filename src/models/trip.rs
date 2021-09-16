@@ -1,10 +1,11 @@
 use chrono::{Duration, prelude::*};
 use serde::{Deserialize, Serialize};
+use diesel::prelude::*;
 use diesel::{self, Insertable, PgConnection, Queryable};
-use diesel::{RunQueryDsl};
+use diesel::{RunQueryDsl, QueryDsl};
 use uuid::Uuid;
 use diesel_derive_enum::DbEnum;
-use juniper::{FieldResult, graphql_object, graphql_value};
+use juniper::{FieldResult};
 
 use crate::schema::*;
 use crate::graphql::graphql_translate;
@@ -41,6 +42,13 @@ impl Trips {
 
         graphql_translate(res)
     }
+
+    pub fn trip_by_id(conn: &PgConnection, id: &Uuid) -> FieldResult<Trips> {
+        let res = trips::table.filter(trips::id.eq(id))
+            .first(conn);
+
+        graphql_translate(res)
+    } 
 
     pub fn create_trip(conn: &PgConnection, trip: NewTrip) -> FieldResult<Trips> {
         let res = diesel::insert_into(trips::table)
