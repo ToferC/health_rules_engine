@@ -4,10 +4,13 @@ use crate::{GraphQLContext,
 };
 
 use diesel::{pg::PgConnection, RunQueryDsl};
+use diesel::{QueryDsl, ExpressionMethods};
+use juniper::http::GraphQLBatchRequest;
 use juniper::{EmptySubscription, FieldError, FieldResult, RootNode};
 use crate::schema::*;
 
 use crate::models::{Trips, TripState, NewTrip, TravelGroup};
+use uuid::Uuid;
 
 pub struct Query;
 
@@ -22,12 +25,22 @@ impl Query {
     }
 
     #[graphql(name = "travelGroups")]
-    pub fn travel_groups(context: &GraphQLContext) -> FieldResult<Vec<TravelGroup>> {
+    pub fn all_travel_groups(context: &GraphQLContext) -> FieldResult<Vec<TravelGroup>> {
         let conn = context.pool.get().expect("Unable to connect to db");
 
         let res = travel_groups::table.load::<TravelGroup>(&conn);
 
         graphql_translate(res)
+    }
+
+    pub fn travel_group_by_id(context: &GraphQLContext, id: Uuid) -> FieldResult<TravelGroup> {
+        let conn = context.pool.get().expect("Unable to connect to db");
+        let res = travel_groups::table
+            .filter(travel_groups::id.eq(&id))
+            .first(&conn);
+        
+        graphql_translate(res)
+
     }
 }
 

@@ -46,6 +46,7 @@ impl TravelGroup {
         graphql_translate(res)
     }
 
+    /*
     pub fn travel_group_by_id(&self, ctx: &GraphQLContext, id: Uuid) -> FieldResult<TravelGroup> {
         
         let conn = ctx.pool.get().expect("Unable to connect to DB");
@@ -54,6 +55,7 @@ impl TravelGroup {
 
         graphql_translate(res)
     }
+     */
 
     pub fn create_travel_group(&self, ctx: &GraphQLContext, travel_group: NewTravelGroup) -> FieldResult<TravelGroup> {
         
