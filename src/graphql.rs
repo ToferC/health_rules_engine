@@ -1,8 +1,13 @@
-use crate::{GraphQLContext, database::PostgresPool, errors::error_handler::CustomError, models::NewTrip};
-use diesel::pg::PgConnection;
-use juniper::{EmptySubscription, FieldError, FieldResult, RootNode};
+use crate::{GraphQLContext, 
+    database::PostgresPool, 
+    errors::error_handler::CustomError
+};
 
-use super::models::{Trips, TripState};
+use diesel::{pg::PgConnection, RunQueryDsl};
+use juniper::{EmptySubscription, FieldError, FieldResult, RootNode};
+use crate::schema::*;
+
+use crate::models::{Trips, TripState, NewTrip, TravelGroup};
 
 pub struct Query;
 
@@ -14,6 +19,15 @@ impl Query {
         let conn  = &context.pool.get().unwrap();
 
         Trips::all_trips(conn)
+    }
+
+    #[graphql(name = "travelGroups")]
+    pub fn travel_groups(context: &GraphQLContext) -> FieldResult<Vec<TravelGroup>> {
+        let conn = context.pool.get().expect("Unable to connect to db");
+
+        let res = travel_groups::table.load::<TravelGroup>(&conn);
+
+        graphql_translate(res)
     }
 }
 
@@ -28,7 +42,7 @@ impl Mutation {
     ) -> FieldResult<Trips> {
         let conn  = &context.pool.get().unwrap();
 
-        Trips::create_trip(conn, NewTrip::default())
+        Trips::create_trip(conn, &NewTrip::default())
     }
 }
 

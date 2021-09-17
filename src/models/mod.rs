@@ -10,3 +10,4 @@ pub use self::trip::*;
 pub use self::health_profile::*;
 pub use self::access_log::*;
 pub use self::user::*;
+pub use self::travel_group::{TravelGroup, NewTravelGroup};

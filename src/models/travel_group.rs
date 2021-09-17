@@ -13,17 +13,17 @@ use super::{Trips};
 
 type PG = diesel::pg::Pg;
 
-#[derive(Debug, Clone, Deserialize, Serialize, Queryable, PartialEq, PartialOrd, Identifiable, Eq, Ord)]
+#[derive(Debug, Clone, Deserialize, Serialize, Queryable, PartialEq, PartialOrd, Identifiable)]
 #[serde(rename_all= "snake_case")]
 #[table_name = "travel_groups"]
 /// People travelling together
 /// Referenced through Person, Trip and links to voyage
-pub struct TravelGroups {
+pub struct TravelGroup {
     pub id: Uuid,
 }
 
 #[juniper::graphql_object(Context = GraphQLContext)]
-impl TravelGroups {
+impl TravelGroup {
     pub fn id(&self) -> Uuid {
         self.id
     }
@@ -38,15 +38,15 @@ impl TravelGroups {
         res.unwrap()
     }
 
-    pub fn all_travel_groups(ctx: &GraphQLContext) -> FieldResult<Vec<TravelGroups>> {
+    pub fn travel_groups(&self, ctx: &GraphQLContext) -> FieldResult<Vec<TravelGroup>> {
         
         let conn = ctx.pool.get().expect("Unable to connect to DB");
-        let res = travel_groups::table.load::<TravelGroups>(&conn);
+        let res = travel_groups::table.load::<TravelGroup>(&conn);
 
         graphql_translate(res)
     }
 
-    pub fn travel_group_by_id(ctx: &GraphQLContext, id: Uuid) -> FieldResult<TravelGroups> {
+    pub fn travel_group_by_id(&self, ctx: &GraphQLContext, id: Uuid) -> FieldResult<TravelGroup> {
         
         let conn = ctx.pool.get().expect("Unable to connect to DB");
         let res = travel_groups::table.filter(travel_groups::id.eq(&id))
@@ -55,7 +55,7 @@ impl TravelGroups {
         graphql_translate(res)
     }
 
-    pub fn create_travel_group(ctx: &GraphQLContext, travel_group: NewTravelGroup) -> FieldResult<TravelGroups> {
+    pub fn create_travel_group(&self, ctx: &GraphQLContext, travel_group: NewTravelGroup) -> FieldResult<TravelGroup> {
         
         let conn = ctx.pool.get().expect("Unable to connect to DB");
         let res = diesel::insert_into(travel_groups::table)
@@ -71,4 +71,12 @@ impl TravelGroups {
 #[table_name = "travel_groups"]
 pub struct NewTravelGroup {
     pub id: Uuid,
+}
+
+impl NewTravelGroup {
+    pub fn new() -> Self {
+        NewTravelGroup {
+            id: Uuid::new_v4()
+        }
+    }
 }

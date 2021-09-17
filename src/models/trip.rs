@@ -50,7 +50,7 @@ impl Trips {
         graphql_translate(res)
     } 
 
-    pub fn create_trip(conn: &PgConnection, trip: NewTrip) -> FieldResult<Trips> {
+    pub fn create_trip(conn: &PgConnection, trip: &NewTrip) -> FieldResult<Trips> {
         let res = diesel::insert_into(trips::table)
             .values(trip)
             .get_result(conn);
@@ -103,6 +103,31 @@ impl<'a> NewTrip {
             arrival_time: Some(arrive), 
             trip_state: "planned".to_string(),
             travel_group_id: Uuid::new_v4(),
+        }
+    }
+
+    pub fn new(travel_group_id: &Uuid) -> Self {
+
+        let depart: NaiveDateTime = Utc::now().naive_utc() - Duration::days(1);
+        let arrive: NaiveDateTime = Utc::now().naive_utc() + Duration::days(1);
+
+        NewTrip { 
+            trip_provider: "Air Canada".to_string(), 
+            travel_identifier: Some("ADX-Q6)Y".to_string()), 
+            booking_id: Some("678326432632".to_string()), 
+            travel_mode: "AIR".to_string(), 
+            origin: "London".to_string(), 
+            transit_points: vec!["Montreal".to_string()], 
+            
+            destination: "Winnipeg".to_string(), 
+            
+            travel_intent: "Entry".to_string(), 
+            scheduled_departure_time: Some(depart), 
+            scheduled_arrival_time: Some(arrive + Duration::hours(4)), 
+            departure_time: Some(depart), 
+            arrival_time: Some(arrive), 
+            trip_state: "planned".to_string(),
+            travel_group_id: travel_group_id.to_owned(),
         }
     }
 }
