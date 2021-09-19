@@ -9,10 +9,13 @@ use juniper::{FieldResult};
 
 use crate::schema::*;
 use crate::graphql::graphql_translate;
+use super::health_profile::PostalAddress;
+use super::Place;
 
-#[derive(Debug, Clone, Deserialize, Serialize, GraphQLObject, Queryable)]
 /// Travel information for a TravelGroup
 /// CBSA responsible, but important for public health surveillance
+#[derive(Debug, Clone, Deserialize, Serialize, GraphQLObject, Queryable, Insertable)]
+#[table_name = "trips"]
 pub struct Trips {
     pub id: Uuid,
     pub trip_provider: String,
@@ -20,9 +23,9 @@ pub struct Trips {
     pub travel_identifier: Option<String>,
     pub booking_id: Option<String>,
     pub travel_mode: String,
-    pub origin: String,
-    pub transit_points: Vec<String>,
-    pub destination: String,
+    pub origin_place_id: Uuid,
+    pub transit_point_place_ids: Vec<Uuid>,
+    pub destination_place_id: Uuid,
     pub travel_intent: String,
     pub scheduled_departure_time: Option<NaiveDateTime>,
     pub scheduled_arrival_time: Option<NaiveDateTime>,
@@ -49,7 +52,10 @@ impl Trips {
 
         graphql_translate(res)
     } 
+}
 
+// Non Graphql
+impl Trips {
     pub fn create_trip(conn: &PgConnection, trip: &NewTrip) -> FieldResult<Trips> {
         let res = diesel::insert_into(trips::table)
             .values(trip)
@@ -57,7 +63,6 @@ impl Trips {
 
         graphql_translate(res)
     }
-
 }
 
 #[derive(Insertable, Debug, GraphQLInputObject)]
@@ -68,9 +73,9 @@ pub struct NewTrip {
     pub travel_identifier: Option<String>,
     pub booking_id: Option<String>,
     pub travel_mode: String,
-    pub origin: String,
-    pub transit_points: Vec<String>,
-    pub destination: String,
+    pub origin_place_id: Uuid,
+    pub transit_point_place_ids: Vec<Uuid>,
+    pub destination_place_id: Uuid,
     pub travel_intent: String,
     pub scheduled_departure_time: Option<NaiveDateTime>,
     pub scheduled_arrival_time: Option<NaiveDateTime>,
@@ -91,10 +96,9 @@ impl<'a> NewTrip {
             travel_identifier: Some("ADX-Q6)Y".to_string()), 
             booking_id: Some("678326432632".to_string()), 
             travel_mode: "AIR".to_string(), 
-            origin: "London".to_string(), 
-            transit_points: vec!["Montreal".to_string()], 
-            
-            destination: "Winnipeg".to_string(), 
+            origin_place_id: Uuid::new_v4(),
+            transit_point_place_ids: vec![Uuid::new_v4()],
+            destination_place_id: Uuid::new_v4(), 
             
             travel_intent: "Entry".to_string(), 
             scheduled_departure_time: Some(depart), 
@@ -116,10 +120,10 @@ impl<'a> NewTrip {
             travel_identifier: Some("ADX-Q6)Y".to_string()), 
             booking_id: Some("678326432632".to_string()), 
             travel_mode: "AIR".to_string(), 
-            origin: "London".to_string(), 
-            transit_points: vec!["Montreal".to_string()], 
+            origin_place_id: Uuid::new_v4(), 
+            transit_point_place_ids: vec![Uuid::new_v4()], 
             
-            destination: "Winnipeg".to_string(), 
+            destination_place_id: Uuid::new_v4(), 
             
             travel_intent: "Entry".to_string(), 
             scheduled_departure_time: Some(depart), 
@@ -131,6 +135,7 @@ impl<'a> NewTrip {
         }
     }
 }
+
 #[derive(Debug, Clone, Deserialize, Serialize, DbEnum)]
 pub enum TripState {
     Planned,
@@ -147,38 +152,12 @@ pub enum TravelIntent {
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
-/// Should get this from an API
-pub enum Country {
-    Canada,
-    UnitedStates,
-    France,
-    Morocco,
-    Spain,
-    Brazil,
-    CoteDIvoire,
-}
-
-#[derive(Debug, Clone, Deserialize, Serialize)]
 /// Should get this info from an API
 /// Could be a struct with company info, contact info, API key, etc.
-pub enum TravelProvider {
-    Private,
-    // Air
-    AirCanada,
-    AirFrance,
-    United,
-    PersonalCharter,
-    // Sea
-    RoyalCarribean,
-}
-
-#[derive(Debug, Clone, Deserialize, Serialize)]
-/// Will be cities, airports, ports of entry, destinations
-pub enum Place {
-    NewYorkCity,
-    PearsonT1,
-    PearsonT2,
-    BillyBishop,
+pub struct TravelProvider {
+    id: Uuid,
+    name: String,
+    description: String,
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]

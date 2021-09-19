@@ -33,6 +33,7 @@ impl Query {
         graphql_translate(res)
     }
 
+    #[graphql(name = "travelGroupByID")]
     pub fn travel_group_by_id(context: &GraphQLContext, id: Uuid) -> FieldResult<TravelGroup> {
         let conn = context.pool.get().expect("Unable to connect to db");
         let res = travel_groups::table

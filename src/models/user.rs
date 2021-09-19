@@ -5,12 +5,12 @@ use super::access_log::AccessLevel;
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct UserInstance {
-    uid: String,
+    id: String,
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct User {
-    uid: String,
+    id: String,
     user_instance_uid: String,
     email: String,
     access_level: AccessLevel,

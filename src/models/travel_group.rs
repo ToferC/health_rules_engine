@@ -5,13 +5,10 @@ use diesel::{RunQueryDsl, QueryDsl};
 use uuid::Uuid;
 use juniper::{FieldResult};
 
-use crate::database::PostgresPool;
 use crate::schema::*;
 use crate::graphql::{graphql_translate};
 use crate::GraphQLContext;
 use super::{Trips};
-
-type PG = diesel::pg::Pg;
 
 #[derive(Debug, Clone, Deserialize, Serialize, Queryable, PartialEq, PartialOrd, Identifiable)]
 #[serde(rename_all= "snake_case")]
@@ -37,26 +34,10 @@ impl TravelGroup {
 
         res.unwrap()
     }
+}
 
-    pub fn travel_groups(&self, ctx: &GraphQLContext) -> FieldResult<Vec<TravelGroup>> {
-        
-        let conn = ctx.pool.get().expect("Unable to connect to DB");
-        let res = travel_groups::table.load::<TravelGroup>(&conn);
-
-        graphql_translate(res)
-    }
-
-    /*
-    pub fn travel_group_by_id(&self, ctx: &GraphQLContext, id: Uuid) -> FieldResult<TravelGroup> {
-        
-        let conn = ctx.pool.get().expect("Unable to connect to DB");
-        let res = travel_groups::table.filter(travel_groups::id.eq(&id))
-            .first(&conn);
-
-        graphql_translate(res)
-    }
-     */
-
+/// Non-Graphql
+impl TravelGroup {
     pub fn create_travel_group(&self, ctx: &GraphQLContext, travel_group: NewTravelGroup) -> FieldResult<TravelGroup> {
         
         let conn = ctx.pool.get().expect("Unable to connect to DB");
@@ -66,7 +47,6 @@ impl TravelGroup {
 
         graphql_translate(res)
     }
-
 }
 
 #[derive(Insertable, Debug, GraphQLInputObject)]

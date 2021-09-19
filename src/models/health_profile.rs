@@ -2,13 +2,14 @@ use chrono::prelude::*;
 use serde::{Deserialize, Serialize};
 // use diesel::prelude::*;
 use diesel_derive_enum::DbEnum;
+use uuid::Uuid;
 
-use super::trip::{Country, Place};
+use super::{Place, Country};
 
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct PublicHealthProfile {
-    pub uid: String,
+    pub id: String,
     pub person_uuid: String,
     pub smart_healthcard_pk: String,
     // OR
@@ -20,7 +21,7 @@ pub struct PublicHealthProfile {
 #[derive(Debug, Clone, Deserialize, Serialize)]
 // Will assess Vaccine History against health rules engine
 pub struct Vaccination {
-    uid: String,
+    id: Uuid,
     dose: Vaccine,
     provider: String,
     location_provided: String, // or TravelHub renamed
@@ -30,7 +31,7 @@ pub struct Vaccination {
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct Vaccine {
-    uid: String,
+    id: Uuid,
     maker: String,
     approved: bool,
     details: String,
@@ -38,7 +39,7 @@ pub struct Vaccine {
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct QuarantinePlan {
-    pub uid: String,
+    pub id: Uuid,
     pub date_created: NaiveDateTime,
     pub quarantine_required: bool,
     pub confirmation_no_vulnerable: bool,
@@ -49,7 +50,7 @@ pub struct QuarantinePlan {
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct CheckInResult {
-    pub uid: String,
+    pub id: Uuid,
     pub quarantine_plan_uid: String,
     pub date_time: NaiveDateTime,
     pub check_in_complete: bool,
@@ -57,7 +58,7 @@ pub struct CheckInResult {
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct TestingHistory{
-    pub uid: String,
+    pub id: Uuid,
     pub public_health_profile_uid: String,
     pub test: String,
     pub test_type: TestType,
@@ -89,7 +90,7 @@ pub struct GeoCoordinates {
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct PostalAddress {
-    pub uid: String,
+    pub id: Uuid,
     pub street_address: String,
     pub address_locality: Place,
     pub address_region: String,

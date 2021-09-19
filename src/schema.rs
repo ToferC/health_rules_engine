@@ -1,4 +1,23 @@
 table! {
+    persons (id) {
+        id -> Uuid,
+        birth_date -> Timestamp,
+        travel_document_issuer -> Uuid,
+        approved_access_level -> Varchar,
+        approved_access_granularity -> Varchar,
+        trip_id -> Uuid,
+        travel_document_id -> Uuid,
+    }
+}
+
+table! {
+    places (id) {
+        id -> Uuid,
+        place_name -> Varchar,
+    }
+}
+
+table! {
     travel_groups (id) {
         id -> Uuid,
     }
@@ -11,9 +30,9 @@ table! {
         travel_identifier -> Nullable<Varchar>,
         booking_id -> Nullable<Varchar>,
         travel_mode -> Varchar,
-        origin -> Varchar,
-        transit_points -> Array<Text>,
-        destination -> Varchar,
+        origin_place_id -> Uuid,
+        transit_point_place_ids -> Array<Uuid>,
+        destination_place_id -> Uuid,
         travel_intent -> Varchar,
         scheduled_departure_time -> Nullable<Timestamp>,
         scheduled_arrival_time -> Nullable<Timestamp>,
@@ -25,12 +44,10 @@ table! {
 }
 
 table! {
-
     use crate::models::Access_level_enum;
     use diesel::sql_types::*;
-
-    users (uid) {
-        uid -> Uuid,
+    users (id) {
+        id -> Uuid,
         user_instance_uid -> Uuid,
         email -> Varchar,
         access_level -> Access_level_enum,
@@ -41,6 +58,8 @@ table! {
 }
 
 allow_tables_to_appear_in_same_query!(
+    persons,
+    places,
     travel_groups,
     trips,
     users,

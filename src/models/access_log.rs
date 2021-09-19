@@ -1,11 +1,11 @@
 use chrono::NaiveDateTime;
 use serde::{Serialize, Deserialize};
+use uuid::Uuid;
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct AccessLog {
-    uuid: String,
-    person_uid: String,
-    voyage_uid: String,
+    id: Uuid,
+    person_id: Uuid,
     access_key: String,
     rationale: AccessRationale,
     granularity: Granularity,
