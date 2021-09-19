@@ -12,7 +12,7 @@ use crate::errors::error_handler::CustomError;
 pub type PostgresPool = r2d2::Pool<ConnectionManager<PgConnection>>;
 pub type DbConnection = r2d2::PooledConnection<ConnectionManager<PgConnection>>;
 
-use crate::models::{NewTrip, TravelGroup, NewTravelGroup, Trips};
+use crate::models::{NewTrip, TravelGroup, NewTravelGroup, Trips, NewPerson, Person};
 use crate::GraphQLContext;
 use crate::schema::*;
 
@@ -51,7 +51,11 @@ pub fn populate_db_with_demo_data(conn: &PgConnection) {
     let travel_group = res.unwrap();
 
     for i in 0..4 {
-        let nt = NewTrip::new(&travel_group.id);
+        let person = NewPerson::new();
+
+        let created_p = Person::create(conn, &person).expect("Unable to create person");
+
+        let nt = NewTrip::new(&travel_group.id, &created_p.id);
 
         Trips::create_trip(conn, &nt);
     }

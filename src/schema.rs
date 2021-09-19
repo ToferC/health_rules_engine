@@ -2,10 +2,9 @@ table! {
     persons (id) {
         id -> Uuid,
         birth_date -> Timestamp,
-        travel_document_issuer -> Uuid,
+        travel_document_issuer_id -> Uuid,
         approved_access_level -> Varchar,
         approved_access_granularity -> Varchar,
-        trip_id -> Uuid,
         travel_document_id -> Uuid,
     }
 }
@@ -40,6 +39,7 @@ table! {
         arrival_time -> Nullable<Timestamp>,
         trip_state -> Varchar,
         travel_group_id -> Uuid,
+        person_id -> Uuid,
     }
 }
 

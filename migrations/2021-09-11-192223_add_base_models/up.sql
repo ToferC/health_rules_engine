@@ -44,15 +44,15 @@ CREATE TABLE IF NOT EXISTS trips (
     departure_time TIMESTAMP,
     arrival_time TIMESTAMP,
     trip_state VARCHAR(64) NOT NULL,
-    travel_group_id UUID NOT NULL
+    travel_group_id UUID NOT NULL,
+    person_id UUID NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS persons (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     birth_date TIMESTAMP NOT NULL,
-    travel_document_issuer UUID NOT NULL,
+    travel_document_issuer_id UUID NOT NULL,
     approved_access_level VARCHAR NOT NULL,
     approved_access_granularity VARCHAR NOT NULL,
-    trip_id UUID NOT NULL,
     travel_document_id UUID NOT NULL
 );

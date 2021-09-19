@@ -10,7 +10,7 @@ use juniper::{FieldResult};
 use crate::schema::*;
 use crate::graphql::graphql_translate;
 use super::health_profile::PostalAddress;
-use super::Place;
+use super::{Place, Person};
 
 /// Travel information for a TravelGroup
 /// CBSA responsible, but important for public health surveillance
@@ -33,6 +33,7 @@ pub struct Trips {
     pub arrival_time: Option<NaiveDateTime>,
     pub trip_state: String,
     pub travel_group_id: Uuid,
+    pub person_id: Uuid,
 }
 
 impl Trips {
@@ -51,7 +52,16 @@ impl Trips {
             .first(conn);
 
         graphql_translate(res)
-    } 
+    }
+
+    pub fn person(&self, conn: &PgConnection) -> FieldResult<Person> {
+
+        let res = persons::table.
+            filter(persons::id.eq(self.person_id))
+            .first(conn);
+
+        graphql_translate(res)
+    }
 }
 
 // Non Graphql
@@ -83,6 +93,7 @@ pub struct NewTrip {
     pub arrival_time: Option<NaiveDateTime>,
     pub trip_state: String,
     pub travel_group_id: Uuid,
+    pub person_id: Uuid,
 }
 
 impl<'a> NewTrip {
@@ -107,10 +118,11 @@ impl<'a> NewTrip {
             arrival_time: Some(arrive), 
             trip_state: "planned".to_string(),
             travel_group_id: Uuid::new_v4(),
+            person_id: Uuid::new_v4(),
         }
     }
 
-    pub fn new(travel_group_id: &Uuid) -> Self {
+    pub fn new(travel_group_id: &Uuid, person_id: &Uuid) -> Self {
 
         let depart: NaiveDateTime = Utc::now().naive_utc() - Duration::days(1);
         let arrive: NaiveDateTime = Utc::now().naive_utc() + Duration::days(1);
@@ -132,6 +144,7 @@ impl<'a> NewTrip {
             arrival_time: Some(arrive), 
             trip_state: "planned".to_string(),
             travel_group_id: travel_group_id.to_owned(),
+            person_id: person_id.to_owned(),
         }
     }
 }

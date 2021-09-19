@@ -1705,6 +1705,7 @@ dependencies = [
  "juniper",
  "lazy_static 1.4.0",
  "r2d2",
+ "rand 0.8.4",
  "reqwest",
  "serde",
  "serde_derive",
