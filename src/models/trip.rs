@@ -122,8 +122,13 @@ impl<'a> NewTrip {
         }
     }
 
-    pub fn new(travel_group_id: &Uuid, person_id: &Uuid) -> Self {
-
+    pub fn new(
+        travel_group_id: &Uuid,
+        person_id: &Uuid,
+        origin_place_id: &Uuid,
+        destination_place_id: &Uuid
+    ) -> Self 
+    {
         let depart: NaiveDateTime = Utc::now().naive_utc() - Duration::days(1);
         let arrive: NaiveDateTime = Utc::now().naive_utc() + Duration::days(1);
 
@@ -132,10 +137,10 @@ impl<'a> NewTrip {
             travel_identifier: Some("ADX-Q6)Y".to_string()), 
             booking_id: Some("678326432632".to_string()), 
             travel_mode: "AIR".to_string(), 
-            origin_place_id: Uuid::new_v4(), 
-            transit_point_place_ids: vec![Uuid::new_v4()], 
+            origin_place_id: origin_place_id.to_owned(), 
+            transit_point_place_ids: Vec::new(), 
             
-            destination_place_id: Uuid::new_v4(), 
+            destination_place_id: destination_place_id.to_owned(), 
             
             travel_intent: "Entry".to_string(), 
             scheduled_departure_time: Some(depart), 

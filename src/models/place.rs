@@ -18,6 +18,16 @@ pub struct Place {
     name: String,
 }
 
+impl Place {
+    pub fn create(conn: &PgConnection, place: &NewPlace) -> FieldResult<Self> {
+        let res = diesel::insert_into(places::table)
+            .values(place)
+            .get_result(conn);
+
+        graphql_translate(res)
+    }
+}
+
 #[derive(Debug, Clone, Deserialize, Serialize, Insertable)]
 /// Will be cities, airports, ports of entry, destinations
 /// Referenced by PostalAddress
@@ -29,14 +39,6 @@ pub struct NewPlace {
 impl NewPlace {
     pub fn new(place_name: String) -> Self {
         NewPlace { place_name }
-    }
-
-    pub fn create_place(conn: &PgConnection, place: &NewPlace) -> FieldResult<Place> {
-        let res = diesel::insert_into(places::table)
-            .values(place)
-            .get_result(conn);
-
-        graphql_translate(res)
     }
 }
 

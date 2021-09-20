@@ -10,6 +10,7 @@ use rand::{Rng, thread_rng};
 use crate::schema::*;
 use crate::graphql::graphql_translate;
 use crate::GraphQLContext;
+use crate::models::{Country};
 
 // use super::trip::{Country};
 // use super::access_log::{AccessLevel, Granularity};
@@ -86,6 +87,10 @@ impl Person {
 
     pub fn approved_access_granularity() -> FieldResult<String> {
         Ok(self.approved_access_granularity.to_owned())
+    }
+
+    pub fn country() -> FieldResult<Country> {
+        Ok(Country::new())
     }
 
 
