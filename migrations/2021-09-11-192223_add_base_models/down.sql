@@ -3,6 +3,7 @@
 DROP TABLE IF EXISTS persons;
 DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS trips;
+DROP TABLE IF EXISTS countries;
 DROP TABLE IF EXISTS places;
 
 DROP TYPE IF EXISTS access_level_enum;

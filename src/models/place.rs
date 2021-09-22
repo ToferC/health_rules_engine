@@ -14,8 +14,8 @@ use crate::schema::*;
 /// Will be cities, airports, ports of entry, destinations
 /// Referenced by PostalAddress
 pub struct Place {
-    id: Uuid,
-    name: String,
+    pub id: Uuid,
+    pub name: String,
 }
 
 impl Place {
@@ -33,18 +33,11 @@ impl Place {
 /// Referenced by PostalAddress
 #[table_name = "places"]
 pub struct NewPlace {
-    place_name: String,
+    pub place_name: String,
 }
 
 impl NewPlace {
     pub fn new(place_name: String) -> Self {
         NewPlace { place_name }
     }
-}
-
-#[derive(Debug, Clone, Deserialize, Serialize)]
-/// Should get this from an API
-pub struct Country {
-    id: Uuid,
-    place_name: String,
 }

@@ -1,7 +1,6 @@
 use chrono::{Duration, prelude::*};
 use serde::{Deserialize, Serialize};
-use diesel::prelude::*;
-use diesel::{self, Insertable, PgConnection, Queryable};
+use diesel::{self, Insertable, PgConnection, Queryable, ExpressionMethods};
 use diesel::{RunQueryDsl, QueryDsl};
 use uuid::Uuid;
 use diesel_derive_enum::DbEnum;
@@ -9,12 +8,13 @@ use juniper::{FieldResult};
 
 use crate::schema::*;
 use crate::graphql::graphql_translate;
+use crate::GraphQLContext;
 use super::health_profile::PostalAddress;
-use super::{Place, Person};
+use crate::models::{Place, Person};
 
 /// Travel information for a TravelGroup
 /// CBSA responsible, but important for public health surveillance
-#[derive(Debug, Clone, Deserialize, Serialize, GraphQLObject, Queryable, Insertable)]
+#[derive(Debug, Clone, Deserialize, Serialize, Queryable, Insertable)]
 #[table_name = "trips"]
 pub struct Trips {
     pub id: Uuid,
@@ -36,29 +36,19 @@ pub struct Trips {
     pub person_id: Uuid,
 }
 
+#[graphql_object(Context = GraphQLContext)]
 impl Trips {
-    pub fn id(&self) -> Uuid {
-        self.id
+    pub fn id(&self) -> FieldResult<Uuid> {
+        Ok(self.id)
     }
 
-    pub fn all_trips(conn: &PgConnection) -> FieldResult<Vec<Trips>> {
-        let res = trips::table.load::<Trips>(conn);
+    pub fn person(&self, context: &GraphQLContext) -> FieldResult<Person> {
 
-        graphql_translate(res)
-    }
-
-    pub fn trip_by_id(conn: &PgConnection, id: &Uuid) -> FieldResult<Trips> {
-        let res = trips::table.filter(trips::id.eq(id))
-            .first(conn);
-
-        graphql_translate(res)
-    }
-
-    pub fn person(&self, conn: &PgConnection) -> FieldResult<Person> {
+        let conn = context.pool.get().expect("Unable to connect to DB");
 
         let res = persons::table.
             filter(persons::id.eq(self.person_id))
-            .first(conn);
+            .first(&conn);
 
         graphql_translate(res)
     }

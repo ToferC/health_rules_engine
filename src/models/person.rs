@@ -1,10 +1,11 @@
+use std::fmt::Debug;
+
 use chrono::{Duration, prelude::*};
 use serde::{Deserialize, Serialize};
-use diesel::prelude::*;
-use diesel::{self, Insertable, PgConnection, Queryable};
+use diesel::{self, Insertable, PgConnection, Queryable, ExpressionMethods};
 use diesel::{RunQueryDsl, QueryDsl};
 use uuid::Uuid;
-use juniper::{FieldError, FieldResult};
+use juniper::{FieldResult};
 use rand::{Rng, thread_rng};
 
 use crate::schema::*;
@@ -30,7 +31,7 @@ pub struct Person {
     pub travel_document_id: Uuid,
 }
 
-#[derive(Debug, Clone, Deserialize, Serialize, Insertable)]
+#[derive(Debug, Clone, Deserialize, Serialize, Insertable, GraphQLInputObject)]
 /// Linked from HealthProfile
 /// Linked to Trip
 #[table_name = "persons"]
@@ -77,20 +78,27 @@ impl Person {
 
 #[graphql_object(Context = GraphQLContext)]
 impl Person {
-    pub fn birth_date() -> FieldResult<NaiveDateTime> {
+    pub fn birth_date(&self) -> FieldResult<NaiveDateTime> {
         Ok(self.birth_date)
     }
 
-    pub fn approved_access_level() -> FieldResult<String> {
+    pub fn approved_access_level(&self) -> FieldResult<String> {
         Ok(self.approved_access_level.to_owned())
     }
 
-    pub fn approved_access_granularity() -> FieldResult<String> {
+    pub fn approved_access_granularity(&self) -> FieldResult<String> {
         Ok(self.approved_access_granularity.to_owned())
     }
 
-    pub fn country() -> FieldResult<Country> {
-        Ok(Country::new())
+    pub fn country(&self, context: &GraphQLContext) -> FieldResult<Country> {
+
+        let conn = context.pool.get().expect("Unable to connect to DB");
+
+        let res = countries::table
+            .filter(countries::id.eq(self.travel_document_issuer_id))
+            .first(&conn);
+
+        graphql_translate(res)
     }
 
 

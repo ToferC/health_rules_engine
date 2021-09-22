@@ -21,7 +21,21 @@ impl Query {
     pub fn all_trips(context: &GraphQLContext) -> FieldResult<Vec<Trips>> {
         let conn  = &context.pool.get().unwrap();
 
-        Trips::all_trips(conn)
+        let res = trips::table
+            .load::<Trips>(conn);
+
+        graphql_translate(res)
+    }
+
+    #[graphql(name = "tripById")]
+    pub fn trip_by_id(context: &GraphQLContext, id: Uuid) -> FieldResult<Trips> {
+
+        let conn = context.pool.get().expect("Unable to connect to DB");
+
+        let res = trips::table.filter(trips::id.eq(id))
+            .first(&conn);
+
+        graphql_translate(res)
     }
 
     #[graphql(name = "travelGroups")]
@@ -41,7 +55,6 @@ impl Query {
             .first(&conn);
         
         graphql_translate(res)
-
     }
 }
 

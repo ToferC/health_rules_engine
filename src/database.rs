@@ -7,15 +7,14 @@ use diesel::result::Error;
 use lazy_static::lazy_static;
 use r2d2::{self, PooledConnection};
 use std::env;
-use rand::thread_rng;
+use rand::{thread_rng, seq::SliceRandom};
 
 use crate::errors::error_handler::CustomError;
 
 pub type PostgresPool = r2d2::Pool<ConnectionManager<PgConnection>>;
 pub type DbConnection = r2d2::PooledConnection<ConnectionManager<PgConnection>>;
 
-use crate::models::{NewTrip, TravelGroup, NewTravelGroup, 
-    Trips, NewPerson, Person, NewPlace, Place};
+use crate::models::{NewCountry, NewPerson, NewPlace, NewTravelGroup, NewTrip, Person, Place, TravelGroup, Trips};
 use crate::GraphQLContext;
 use crate::schema::*;
 
@@ -41,7 +40,7 @@ pub fn init() {
     let mut response = String::new();
     stdin().read_line(&mut response).expect("Unable to read input");
     
-    if response.as_str() == "yes" || response.as_str() == "y" {
+    if response.trim() == "yes" || response.trim() == "y" {
         println!("Adding Demo Data");
         populate_db_with_demo_data(&conn);
     };
@@ -56,6 +55,11 @@ pub fn connection() -> Result<DbConnection, CustomError> {
 }
 
 pub fn populate_db_with_demo_data(conn: &PgConnection) {
+
+    let mut new_countries: Vec<NewCountry> = Vec::new();
+
+    new_countries.push(NewCountry::new("Canada".to_string()));
+    
 
     let mut new_places:Vec<NewPlace> = Vec::new();
     new_places.push(NewPlace::new("London".to_string()));
@@ -79,6 +83,9 @@ pub fn populate_db_with_demo_data(conn: &PgConnection) {
 
     };
 
+    let mut rng = thread_rng();
+
+
     let tg = crate::models::NewTravelGroup::new();
 
     let res: Result<TravelGroup, Error> = diesel::insert_into(travel_groups::table)
@@ -92,7 +99,15 @@ pub fn populate_db_with_demo_data(conn: &PgConnection) {
 
         let created_p = Person::create(conn, &person).expect("Unable to create person");
 
-        let nt = NewTrip::new(&travel_group.id, &created_p.id, origin: Place, destination: Place);
+        let origin  = places.choose(&mut rng).unwrap();
+        let destination = places.choose(&mut rng).unwrap();
+
+        let nt = NewTrip::new(
+            &travel_group.id, 
+            &created_p.id, 
+            &origin.id, 
+            &destination.id
+        );
 
         Trips::create_trip(conn, &nt);
     }

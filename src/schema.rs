@@ -1,4 +1,11 @@
 table! {
+    countries (id) {
+        id -> Uuid,
+        country_name -> Varchar,
+    }
+}
+
+table! {
     persons (id) {
         id -> Uuid,
         birth_date -> Timestamp,
@@ -58,6 +65,7 @@ table! {
 }
 
 allow_tables_to_appear_in_same_query!(
+    countries,
     persons,
     places,
     travel_groups,
