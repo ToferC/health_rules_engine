@@ -24,7 +24,8 @@ CREATE TABLE IF NOT EXISTS travel_groups (
 
 CREATE TABLE IF NOT EXISTS places (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-    place_name VARCHAR NOT NULL
+    place_name VARCHAR NOT NULL,
+    country_id UUID NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS countries (

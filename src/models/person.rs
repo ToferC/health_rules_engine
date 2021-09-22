@@ -90,7 +90,7 @@ impl Person {
         Ok(self.approved_access_granularity.to_owned())
     }
 
-    pub fn country(&self, context: &GraphQLContext) -> FieldResult<Country> {
+    pub fn travel_document_issuer(&self, context: &GraphQLContext) -> FieldResult<Country> {
 
         let conn = context.pool.get().expect("Unable to connect to DB");
 

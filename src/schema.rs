@@ -20,6 +20,7 @@ table! {
     places (id) {
         id -> Uuid,
         place_name -> Varchar,
+        country_id -> Uuid,
     }
 }
 

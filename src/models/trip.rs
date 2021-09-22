@@ -42,12 +42,80 @@ impl Trips {
         Ok(self.id)
     }
 
+    pub fn trip_provider(&self) -> FieldResult<String> {
+        Ok(self.trip_provider.to_owned())
+    }
+
+    pub fn travel_mode(&self) -> FieldResult<String> {
+        Ok(self.travel_mode.to_owned())
+    }
+
+    pub fn travel_identifier(&self) -> FieldResult<String> {
+        match &self.travel_identifier {
+            Some(i) => Ok(i.to_owned()),
+            None => Ok("None".to_string()),
+        }
+    }
+
+    pub fn booking_id(&self) -> FieldResult<String> {
+        match &self.booking_id {
+            Some(i) => Ok(i.to_owned()),
+            None => Ok("None".to_string()),
+        }
+    }
+
+    pub fn scheduled_departure_time(&self) -> FieldResult<Option<NaiveDateTime>> {
+        Ok(self.scheduled_arrival_time) 
+    }
+
+    pub fn scheduled_arrival_time(&self) -> FieldResult<Option<NaiveDateTime>> {
+        Ok(self.scheduled_departure_time) 
+    }
+
+    pub fn departure_time(&self) -> FieldResult<Option<NaiveDateTime>> {
+        Ok(self.departure_time) 
+    }
+
+    pub fn arrival_time(&self) -> FieldResult<Option<NaiveDateTime>> {
+        Ok(self.arrival_time) 
+    }
+
+    pub fn travel_intent(&self) -> FieldResult<String> {
+        Ok(self.travel_intent.to_owned())
+    }
+
+    pub fn trip_state(&self) -> FieldResult<String> {
+        Ok(self.trip_state.to_owned())
+    }
+
     pub fn person(&self, context: &GraphQLContext) -> FieldResult<Person> {
 
         let conn = context.pool.get().expect("Unable to connect to DB");
 
         let res = persons::table.
             filter(persons::id.eq(self.person_id))
+            .first(&conn);
+
+        graphql_translate(res)
+    }
+
+    pub fn origin(&self, context: &GraphQLContext) -> FieldResult<Place> {
+
+        let conn = context.pool.get().expect("Unable to connect to DB");
+
+        let res = places::table.
+            filter(places::id.eq(self.origin_place_id))
+            .first(&conn);
+
+        graphql_translate(res)
+    }
+
+    pub fn destination(&self, context: &GraphQLContext) -> FieldResult<Place> {
+
+        let conn = context.pool.get().expect("Unable to connect to DB");
+
+        let res = places::table.
+            filter(places::id.eq(self.destination_place_id))
             .first(&conn);
 
         graphql_translate(res)

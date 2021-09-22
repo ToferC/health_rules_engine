@@ -14,7 +14,8 @@ use crate::errors::error_handler::CustomError;
 pub type PostgresPool = r2d2::Pool<ConnectionManager<PgConnection>>;
 pub type DbConnection = r2d2::PooledConnection<ConnectionManager<PgConnection>>;
 
-use crate::models::{NewCountry, NewPerson, NewPlace, NewTravelGroup, NewTrip, Person, Place, TravelGroup, Trips};
+use crate::models::{Country, NewCountry, NewPerson, NewPlace, NewTravelGroup, NewTrip, 
+    Person, Place, TravelGroup, Trips};
 use crate::GraphQLContext;
 use crate::schema::*;
 
@@ -58,22 +59,34 @@ pub fn populate_db_with_demo_data(conn: &PgConnection) {
 
     let mut new_countries: Vec<NewCountry> = Vec::new();
 
+    new_countries.push(NewCountry::new("United Kingdom".to_string()));
     new_countries.push(NewCountry::new("Canada".to_string()));
-    
+    new_countries.push(NewCountry::new("Singapore".to_string()));
+    new_countries.push(NewCountry::new("USA".to_string()));
+    new_countries.push(NewCountry::new("France".to_string()));
+    new_countries.push(NewCountry::new("Brazil".to_string()));
+   
+    let mut countries: Vec<Country> = Vec::new();
+
+    for np in new_countries {
+        let c = Country::create(conn, &np).unwrap();
+        countries.push(c);
+    };
+
 
     let mut new_places:Vec<NewPlace> = Vec::new();
-    new_places.push(NewPlace::new("London".to_string()));
-    new_places.push(NewPlace::new("Singapore".to_string()));
-    new_places.push(NewPlace::new("Florida".to_string()));
-    new_places.push(NewPlace::new("Paris".to_string()));
-    new_places.push(NewPlace::new("Chicago".to_string()));
-    new_places.push(NewPlace::new("Brazil".to_string()));
-    new_places.push(NewPlace::new("New York".to_string()));
-    new_places.push(NewPlace::new("Ottawa".to_string()));
-    new_places.push(NewPlace::new("Montreal".to_string()));
-    new_places.push(NewPlace::new("Vancouver".to_string()));
-    new_places.push(NewPlace::new("Calgary".to_string()));
-    new_places.push(NewPlace::new("Toronto".to_string()));
+    new_places.push(NewPlace::new("London".to_string(), countries[0].id));
+    new_places.push(NewPlace::new("Singapore".to_string(), countries[2].id));
+    new_places.push(NewPlace::new("Florida".to_string(), countries[3].id));
+    new_places.push(NewPlace::new("Paris".to_string(), countries[4].id));
+    new_places.push(NewPlace::new("Chicago".to_string(), countries[3].id));
+    new_places.push(NewPlace::new("Rio".to_string(), countries[5].id));
+    new_places.push(NewPlace::new("New York".to_string(), countries[3].id));
+    new_places.push(NewPlace::new("Ottawa".to_string(), countries[1].id));
+    new_places.push(NewPlace::new("Montreal".to_string(), countries[1].id));
+    new_places.push(NewPlace::new("Vancouver".to_string(), countries[1].id));
+    new_places.push(NewPlace::new("Calgary".to_string(), countries[1].id));
+    new_places.push(NewPlace::new("Toronto".to_string(), countries[1].id));
 
     let mut places: Vec<Place> = Vec::new();
 

@@ -27,8 +27,8 @@ impl NewCountry {
 #[table_name = "countries"]
 /// Should get this from an API
 pub struct Country {
-    id: Uuid,
-    country_name: String,
+    pub id: Uuid,
+    pub country_name: String,
 }
 
 impl Country {
