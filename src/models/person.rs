@@ -78,8 +78,8 @@ impl Person {
 
 #[graphql_object(Context = GraphQLContext)]
 impl Person {
-    pub fn birth_date(&self) -> FieldResult<NaiveDateTime> {
-        Ok(self.birth_date)
+    pub fn birth_date(&self) -> FieldResult<String> {
+        Ok(self.birth_date.format("%Y-%m-%d").to_string())
     }
 
     pub fn approved_access_level(&self) -> FieldResult<String> {

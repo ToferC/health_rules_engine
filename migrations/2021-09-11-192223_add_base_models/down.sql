@@ -1,5 +1,10 @@
 -- This file should undo anything in `up.sql`
 
+
+DROP TABLE IF EXISTS vaccines;
+DROP TABLE IF EXISTS vaccinations;
+DROP TABLE IF EXISTS public_health_profiles;
+
 DROP TABLE IF EXISTS persons;
 DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS trips;

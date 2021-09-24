@@ -25,6 +25,14 @@ table! {
 }
 
 table! {
+    public_health_profiles (id) {
+        id -> Uuid,
+        person_id -> Uuid,
+        smart_healthcard_pk -> Nullable<Varchar>,
+    }
+}
+
+table! {
     travel_groups (id) {
         id -> Uuid,
     }
@@ -65,11 +73,35 @@ table! {
     }
 }
 
+table! {
+    vaccinations (id) {
+        id -> Uuid,
+        vaccine_id -> Uuid,
+        dose_provider -> Varchar,
+        location_provided_id -> Uuid,
+        country_provided_id -> Uuid,
+        date_time -> Timestamp,
+        public_health_profile_id -> Uuid,
+    }
+}
+
+table! {
+    vaccines (id) {
+        id -> Uuid,
+        maker -> Varchar,
+        approved -> Bool,
+        details -> Text,
+    }
+}
+
 allow_tables_to_appear_in_same_query!(
     countries,
     persons,
     places,
+    public_health_profiles,
     travel_groups,
     trips,
     users,
+    vaccinations,
+    vaccines,
 );

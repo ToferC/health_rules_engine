@@ -64,20 +64,32 @@ impl Trips {
         }
     }
 
-    pub fn scheduled_departure_time(&self) -> FieldResult<Option<NaiveDateTime>> {
-        Ok(self.scheduled_arrival_time) 
+    pub fn scheduled_departure_time(&self) -> FieldResult<String> {
+        match self.scheduled_arrival_time {
+            Some(t) => Ok(t.format("%Y-%m-%d %H:%M:%S").to_string()),
+            None => Ok("NA".to_string()),
+        } 
     }
 
-    pub fn scheduled_arrival_time(&self) -> FieldResult<Option<NaiveDateTime>> {
-        Ok(self.scheduled_departure_time) 
+    pub fn scheduled_arrival_time(&self) -> FieldResult<String> {
+        match self.scheduled_departure_time {
+            Some(t) => Ok(t.format("%Y-%m-%d %H:%M:%S").to_string()),
+            None => Ok("NA".to_string()),
+        } 
     }
 
-    pub fn departure_time(&self) -> FieldResult<Option<NaiveDateTime>> {
-        Ok(self.departure_time) 
+    pub fn departure_time(&self) -> FieldResult<String> {
+        match self.arrival_time {
+            Some(t) => Ok(t.format("%Y-%m-%d %H:%M:%S").to_string()),
+            None => Ok("NA".to_string()),
+        } 
     }
 
-    pub fn arrival_time(&self) -> FieldResult<Option<NaiveDateTime>> {
-        Ok(self.arrival_time) 
+    pub fn arrival_time(&self) -> FieldResult<String> {
+        match self.departure_time {
+            Some(t) => Ok(t.format("%Y-%m-%d %H:%M:%S").to_string()),
+            None => Ok("NA".to_string()),
+        } 
     }
 
     pub fn travel_intent(&self) -> FieldResult<String> {
@@ -157,8 +169,8 @@ pub struct NewTrip {
 impl<'a> NewTrip {
     pub fn default() -> Self {
 
-        let depart: NaiveDateTime = Utc::now().naive_utc() - Duration::days(1);
-        let arrive: NaiveDateTime = Utc::now().naive_utc() + Duration::days(1);
+        let depart: NaiveDateTime = Utc::now().naive_utc() - Duration::hours(8);
+        let arrive: NaiveDateTime = Utc::now().naive_utc() + Duration::hours(4);
 
         NewTrip { 
             trip_provider: "Air Canada".to_string(), 

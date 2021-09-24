@@ -62,3 +62,26 @@ CREATE TABLE IF NOT EXISTS persons (
     approved_access_granularity VARCHAR NOT NULL,
     travel_document_id UUID NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS public_health_profiles (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    person_id UUID NOT NULL,
+    smart_healthcard_pk VARCHAR
+);
+
+CREATE TABLE IF NOT EXISTS vaccinations (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    vaccine_id UUID NOT NULL,
+    dose_provider VARCHAR NOT NULL,
+    location_provided_id UUID NOT NULL,
+    country_provided_id UUID NOT NULL,
+    date_time TIMESTAMP NOT NULL,
+    public_health_profile_id UUID NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS vaccines (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    maker VARCHAR NOT NULL,
+    approved bool NOT NULL,
+    details TEXT NOT NULL
+)
