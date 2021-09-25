@@ -1,6 +1,7 @@
 use chrono::prelude::*;
 use juniper::FieldResult;
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
 use diesel::{QueryDsl, RunQueryDsl, ExpressionMethods};
 use diesel_derive_enum::DbEnum;
 use uuid::Uuid;
@@ -43,6 +44,26 @@ impl PublicHealthProfile {
         graphql_translate(res)
     }
 
+    pub fn testing_history(&self, context: &GraphQLContext) -> FieldResult<Vec<TestingHistory>> {
+        let conn = context.pool.get().expect("Unable to connect to DB");
+
+        let res = testing_history::table
+            .filter(testing_history::public_health_profile_id.eq(self.id))
+            .load::<TestingHistory>(&conn);
+
+        graphql_translate(res)
+    }
+
+    pub fn quarantine_plans(&self, context: &GraphQLContext) -> FieldResult<Vec<QuarantinePlan>> {
+        let conn = context.pool.get().expect("Unable to connect to DB");
+
+        let res = quarantine_plans::table
+            .filter(quarantine_plans::public_health_profile_id.eq(self.id))
+            .load::<QuarantinePlan>(&conn);
+
+        graphql_translate(res)
+    }
+
 
 }
 
@@ -67,32 +88,36 @@ pub struct Vaccine {
     pub details: String,
 }
 
-#[derive(Debug, Clone, Deserialize, Serialize, GraphQLObject)]
+#[derive(Debug, Clone, Deserialize, Serialize, GraphQLObject, Insertable, Queryable)]
+#[table_name = "quarantine_plans"]
 pub struct QuarantinePlan {
     pub id: Uuid,
+    pub public_health_profile_id: Uuid,
     pub date_created: NaiveDateTime,
     pub quarantine_required: bool,
     pub confirmation_no_vulnerable: bool,
-    pub address: PostalAddress,
+    pub postal_address_id: Uuid, // PostalAddress
     pub compliance_check: bool,
     pub compliance_check_result: bool,
-    pub public_health_profile_id: Uuid,
+    pub active: bool,
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize, GraphQLObject)]
 pub struct CheckInResult {
     pub id: Uuid,
-    pub quarantine_plan_id: String,
+    pub quarantine_plan_id: Uuid,
+    pub user_id: Uuid,
     pub date_time: NaiveDateTime,
     pub check_in_complete: bool,
 }
 
-#[derive(Debug, Clone, Deserialize, Serialize, GraphQLObject)]
+#[derive(Debug, Clone, Deserialize, Serialize, GraphQLObject, Insertable, Queryable)]
+#[table_name = "testing_history"]
 pub struct TestingHistory{
     pub id: Uuid,
     pub public_health_profile_id: Uuid,
     pub test: String,
-    pub test_type: TestType,
+    pub test_type: String,
     pub date_taken: NaiveDateTime,
     pub test_result: bool,
 }
@@ -125,9 +150,10 @@ pub struct PostalAddress {
     pub street_address: String,
     pub address_locality_id: Uuid,
     pub address_region: String,
-    pub address_country: Country,
+    pub address_country_id: Uuid,
     pub postal_code: String,
-    pub geo: GeoCoordinates,
+    pub lattitude: f64,
+    pub longitude: f64,
     pub additional_info: Option<String>,
 }
 

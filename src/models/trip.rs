@@ -182,10 +182,12 @@ impl<'a> NewTrip {
             destination_place_id: Uuid::new_v4(), 
             
             travel_intent: "Entry".to_string(), 
+
             scheduled_departure_time: Some(depart), 
             scheduled_arrival_time: Some(arrive + Duration::hours(4)), 
             departure_time: Some(depart), 
             arrival_time: Some(arrive), 
+            
             trip_state: "planned".to_string(),
             travel_group_id: Uuid::new_v4(),
             person_id: Uuid::new_v4(),

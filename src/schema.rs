@@ -1,4 +1,14 @@
 table! {
+    check_in_results (id) {
+        id -> Uuid,
+        quarantine_plan_id -> Uuid,
+        user_id -> Uuid,
+        date_time -> Timestamp,
+        check_in_complete -> Bool,
+    }
+}
+
+table! {
     countries (id) {
         id -> Uuid,
         country_name -> Varchar,
@@ -25,10 +35,49 @@ table! {
 }
 
 table! {
+    postal_addresses (id) {
+        id -> Uuid,
+        street_address -> Varchar,
+        address_locality_id -> Uuid,
+        address_region -> Varchar,
+        address_country_id -> Uuid,
+        postal_code -> Varchar,
+        lattitude -> Float8,
+        longitude -> Float8,
+        additional_info -> Nullable<Text>,
+    }
+}
+
+table! {
     public_health_profiles (id) {
         id -> Uuid,
         person_id -> Uuid,
         smart_healthcard_pk -> Nullable<Varchar>,
+    }
+}
+
+table! {
+    quarantine_plans (id) {
+        id -> Uuid,
+        public_health_profile_id -> Uuid,
+        date_created -> Timestamp,
+        quarantine_required -> Bool,
+        confirmation_no_vulnerable -> Bool,
+        postal_address_id -> Uuid,
+        compliance_check -> Bool,
+        compliance_check_result -> Bool,
+        active -> Bool,
+    }
+}
+
+table! {
+    testing_history (id) {
+        id -> Uuid,
+        public_health_profile_id -> Uuid,
+        test -> Varchar,
+        test_type -> Varchar,
+        date_taken -> Timestamp,
+        test_result -> Bool,
     }
 }
 
@@ -95,10 +144,14 @@ table! {
 }
 
 allow_tables_to_appear_in_same_query!(
+    check_in_results,
     countries,
     persons,
     places,
+    postal_addresses,
     public_health_profiles,
+    quarantine_plans,
+    testing_history,
     travel_groups,
     trips,
     users,

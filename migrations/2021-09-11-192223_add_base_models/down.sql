@@ -1,6 +1,8 @@
 -- This file should undo anything in `up.sql`
 
-
+DROP TABLE IF EXISTS testing_history;
+DROP TABLE IF EXISTS check_in_results;
+DROP TABLE IF EXISTS quarantine_plans;
 DROP TABLE IF EXISTS vaccines;
 DROP TABLE IF EXISTS vaccinations;
 DROP TABLE IF EXISTS public_health_profiles;
