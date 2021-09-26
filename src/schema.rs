@@ -109,13 +109,11 @@ table! {
 }
 
 table! {
-    use crate::models::Access_level_enum;
-    use diesel::sql_types::*;
     users (id) {
         id -> Uuid,
         user_instance_uid -> Uuid,
         email -> Varchar,
-        access_level -> Access_level_enum,
+        access_level -> Varchar,
         created_on -> Timestamp,
         access_key -> Varchar,
         approved_by_user_uid -> Nullable<Uuid>,
@@ -129,7 +127,7 @@ table! {
         dose_provider -> Varchar,
         location_provided_id -> Uuid,
         country_provided_id -> Uuid,
-        date_time -> Timestamp,
+        provided_on -> Timestamp,
         public_health_profile_id -> Uuid,
     }
 }
@@ -137,8 +135,12 @@ table! {
 table! {
     vaccines (id) {
         id -> Uuid,
-        maker -> Varchar,
+        vaccine_name -> Varchar,
+        manufacturer -> Varchar,
+        vaccine_type -> Varchar,
+        required_doses -> Int4,
         approved -> Bool,
+        approved_on -> Timestamp,
         details -> Text,
     }
 }

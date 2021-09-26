@@ -1,12 +1,17 @@
 
 use std::{io::stdin};
+use diesel::dsl::count;
+use chrono::prelude::*;
+use chrono::Duration;
 use diesel::pg::PgConnection;
 use diesel::r2d2::ConnectionManager;
 use diesel::prelude::*;
 use diesel::result::Error;
 use lazy_static::lazy_static;
 use r2d2::{self, PooledConnection};
+use rand::Rng;
 use std::env;
+use uuid::Uuid;
 use rand::{thread_rng, seq::SliceRandom};
 
 use crate::errors::error_handler::CustomError;
@@ -14,8 +19,10 @@ use crate::errors::error_handler::CustomError;
 pub type PostgresPool = r2d2::Pool<ConnectionManager<PgConnection>>;
 pub type DbConnection = r2d2::PooledConnection<ConnectionManager<PgConnection>>;
 
-use crate::models::{Country, NewCountry, NewPerson, NewPlace, NewTravelGroup, NewTrip, 
-    Person, Place, TravelGroup, Trips};
+use crate::models::{Country, NewCountry, NewPerson, NewPlace, 
+    NewPublicHealthProfile, NewTravelGroup, NewTrip, NewVaccination, 
+    NewVaccine, Person, Place, PublicHealthProfile, TravelGroup, 
+    Trips, Vaccine, Vaccination};
 use crate::GraphQLContext;
 use crate::schema::*;
 
@@ -57,6 +64,7 @@ pub fn connection() -> Result<DbConnection, CustomError> {
 
 pub fn populate_db_with_demo_data(conn: &PgConnection) {
 
+    // Set up countries
     let mut new_countries: Vec<NewCountry> = Vec::new();
 
     new_countries.push(NewCountry::new("United Kingdom".to_string()));
@@ -73,7 +81,7 @@ pub fn populate_db_with_demo_data(conn: &PgConnection) {
         countries.push(c);
     };
 
-
+    // Set up places
     let mut new_places:Vec<NewPlace> = Vec::new();
     new_places.push(NewPlace::new("London".to_string(), countries[0].id));
     new_places.push(NewPlace::new("Singapore".to_string(), countries[2].id));
@@ -88,16 +96,78 @@ pub fn populate_db_with_demo_data(conn: &PgConnection) {
     new_places.push(NewPlace::new("Calgary".to_string(), countries[1].id));
     new_places.push(NewPlace::new("Toronto".to_string(), countries[1].id));
 
-    let mut places: Vec<Place> = Vec::new();
+    let mut origins: Vec<Place> = Vec::new();
+    let mut destinations: Vec<Place> = Vec::new();
 
     for np in new_places {
         let p = Place::create(conn, &np).unwrap();
-        places.push(p);
 
+        if p.country_id != countries[1].id {
+            origins.push(p);
+        } else {
+            destinations.push(p);
+        }
     };
 
+    // Set up RNG
     let mut rng = thread_rng();
 
+    // Add Vaccines
+
+    let mut new_vaccines = Vec::new();
+
+    let approved_on: NaiveDateTime = Utc.ymd(2021, 09, 21).and_hms(1, 1, 1).naive_utc();
+
+    let mut vaccines: Vec<Vaccine> = Vec::new();
+
+    new_vaccines.push(
+        NewVaccine::new(
+            "Comirnaty".to_string(),
+            "Phizer".to_string(),
+            "mRNA".to_string(),
+            2,
+            true,
+            approved_on,
+            "XXX YYY".to_string()
+    ));
+
+    new_vaccines.push(
+        NewVaccine::new(
+            "SpikeVax".to_string(),
+            "Moderna".to_string(),
+            "mRNA".to_string(),
+            2,
+            true,
+            approved_on,
+            "XXX YYY".to_string()
+    ));
+
+    new_vaccines.push(
+        NewVaccine::new(
+            "Vaxzeria".to_string(),
+            "AstraZeneca".to_string(),
+            "Viral Vector-based".to_string(),
+            2,
+            true,
+            approved_on,
+            "XXX YYY".to_string()
+    ));
+
+    new_vaccines.push(
+        NewVaccine::new(
+            "Jannsen".to_string(),
+            "Johnson & Johnson".to_string(),
+            "mRNA".to_string(),
+            1,
+            true,
+            approved_on,
+            "XXX YYY".to_string()
+    ));
+
+    for v in new_vaccines {
+        let res = Vaccine::create(conn, &v).unwrap();
+        vaccines.push(res);
+    }
 
     let tg = crate::models::NewTravelGroup::new();
 
@@ -108,21 +178,52 @@ pub fn populate_db_with_demo_data(conn: &PgConnection) {
     let travel_group = res.unwrap();
 
     for i in 0..4 {
-        let person = NewPerson::fake(countries.choose(&mut rng).unwrap().id);
+
+        let country = countries.choose(&mut rng).unwrap();
+
+        // Create person
+        let person = NewPerson::fake(
+            country.id
+        );
 
         let created_p = Person::create(conn, &person).expect("Unable to create person");
-
-        let origin  = places.choose(&mut rng).unwrap();
-        let destination = places.choose(&mut rng).unwrap();
-
+            
+        // Create trip
+        let origin  = origins.choose(&mut rng).unwrap();
+        let destination = destinations.choose(&mut rng).unwrap();
+        
         let nt = NewTrip::new(
             &travel_group.id, 
             &created_p.id, 
             &origin.id, 
             &destination.id
         );
-
+        
         Trips::create_trip(conn, &nt);
+
+        // Create public health profile
+        let profile = NewPublicHealthProfile::new(
+            created_p.id.to_owned(), 
+            Uuid::new_v4().to_string(),
+        );
+
+        let created_ph_profile = PublicHealthProfile::create(conn, &profile).unwrap();
+
+        // Create vaccinations
+        for i in 0..2 {
+            let new_vaccination = NewVaccination::new(
+                vaccines.choose(&mut rng).unwrap().id, 
+                "local pharmacy".to_string(), 
+                origin.id, 
+                country.id, 
+                Utc::now().naive_utc() - Duration::days(rng.gen_range(1..90)), 
+                created_ph_profile.id,
+            );
+
+            Vaccination::create(conn, &new_vaccination).unwrap();
+        }
+
+        // Create quarantine plan
     }
 
 }

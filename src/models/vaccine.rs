@@ -14,13 +14,52 @@ use crate::GraphQLContext;
 use crate::graphql::graphql_translate;
 use crate::schema::*;
 
-#[derive(Debug, Clone, Deserialize, Serialize, GraphQLObject, Insertable, Queryable)]
+#[derive(Debug, Clone, Deserialize, Serialize, Insertable, Queryable)]
 #[table_name = "vaccines"]
 pub struct Vaccine {
     pub id: Uuid,
-    pub maker: String,
+    pub vaccine_name: String,
+    pub manufacturer: String,
+    pub vaccine_type: String,
+    pub required_doses: i32,
     pub approved: bool,
+    pub approved_on: NaiveDateTime,
     pub details: String,
+}
+
+#[graphql_object(Context = GraphQLContext)]
+impl Vaccine {
+    pub fn id(&self) -> FieldResult<Uuid> {
+        Ok(self.id.clone())
+    }
+
+    pub fn name(&self) -> FieldResult<String> {
+        Ok(self.vaccine_name.clone())
+    }
+
+    pub fn manufacturer(&self) -> FieldResult<String> {
+        Ok(self.manufacturer.clone())
+    }
+
+    pub fn vaccine_type(&self) -> FieldResult<String> {
+        Ok(self.vaccine_type.clone())
+    }
+
+    pub fn required_doses(&self) -> FieldResult<i32> {
+        Ok(self.required_doses)
+    }
+
+    pub fn approved(&self) -> FieldResult<bool> {
+        Ok(self.approved)
+    }
+
+    pub fn approved_on(&self) -> FieldResult<String> {
+        Ok(self.approved_on.format("%Y-%m-%d").to_string())
+    }
+
+    pub fn details(&self) -> FieldResult<String> {
+        Ok(self.details.clone())
+    }
 }
 
 impl Vaccine {
@@ -50,20 +89,32 @@ impl Vaccine {
 /// Referenced through Vaccination, QuarantinePlan, TestingHistory
 #[table_name = "vaccines"]
 pub struct NewVaccine {
-    pub maker: String,
+    pub vaccine_name: String,
+    pub manufacturer: String,
+    pub vaccine_type: String,
+    pub required_doses: i32,
     pub approved: bool,
+    pub approved_on: NaiveDateTime,
     pub details: String,
 }
 
 impl NewVaccine {
     pub fn new(
-        maker: String,
+        vaccine_name: String,
+        manufacturer: String,
+        vaccine_type: String,
+        required_doses: i32,
         approved: bool,
+        approved_on: NaiveDateTime,
         details: String,
     ) -> Self {
         NewVaccine {
-            maker,
+            vaccine_name,
+            manufacturer,
+            vaccine_type,
+            required_doses,
             approved,
+            approved_on,
             details,
         }
     }

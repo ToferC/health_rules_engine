@@ -23,7 +23,7 @@ pub struct Vaccination {
     pub dose_provider: String,
     pub location_provided_id: Uuid, // Place
     pub country_provided_id: Uuid, // Country
-    pub date_time: NaiveDateTime,
+    pub provided_on: NaiveDateTime,
     pub public_health_profile_id: Uuid,
 }
 
@@ -57,6 +57,10 @@ impl Vaccination {
 
         Ok(country.clone())
     }
+
+    pub fn provided_on(&self) -> FieldResult<String> {
+        Ok(self.provided_on.format("%Y-%m-%d %H:%M:%S").to_string())
+    }
 }
 
 impl Vaccination {
@@ -77,7 +81,7 @@ pub struct NewVaccination {
     pub dose_provider: String,
     pub location_provided_id: Uuid, // Place
     pub country_provided_id: Uuid, // Country
-    pub date_time: NaiveDateTime,
+    pub provided_on: NaiveDateTime,
     pub public_health_profile_id: Uuid,
 }
 
@@ -87,7 +91,7 @@ impl NewVaccination {
         dose_provider: String,
         location_provided_id: Uuid, // Place
         country_provided_id: Uuid, // Country
-        date_time: NaiveDateTime,
+        provided_on: NaiveDateTime,
         public_health_profile_id: Uuid,
     ) -> Self {
         NewVaccination {
@@ -95,7 +99,7 @@ impl NewVaccination {
             dose_provider,
             location_provided_id,
             country_provided_id,
-            date_time,
+            provided_on,
             public_health_profile_id,
         }
     }

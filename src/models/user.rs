@@ -13,7 +13,7 @@ pub struct User {
     id: String,
     user_instance_uid: String,
     email: String,
-    access_level: AccessLevel,
+    access_level: String, // AccessLevelEnum
     created_on: NaiveDateTime,
     access_key: String,
     approved_by_user_uid: String,

@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS users (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     user_instance_uid UUID NOT NULL,
     email VARCHAR(128) UNIQUE NOT NULL,
-    access_level access_level_enum NOT NULL,
+    access_level VARCHAR NOT NULL,
     created_on TIMESTAMP NOT NULL,
     access_key VARCHAR(256) NOT NULL,
     approved_by_user_uid UUID
@@ -75,14 +75,18 @@ CREATE TABLE IF NOT EXISTS vaccinations (
     dose_provider VARCHAR NOT NULL,
     location_provided_id UUID NOT NULL,
     country_provided_id UUID NOT NULL,
-    date_time TIMESTAMP NOT NULL,
+    provided_on TIMESTAMP NOT NULL,
     public_health_profile_id UUID NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS vaccines (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-    maker VARCHAR NOT NULL,
+    vaccine_name VARCHAR NOT NULL,
+    manufacturer VARCHAR NOT NULL,
+    vaccine_type VARCHAR NOT NULL,
+    required_doses INT NOT NULL,
     approved bool NOT NULL,
+    approved_on TIMESTAMP NOT NULL,
     details TEXT NOT NULL
 );
 
