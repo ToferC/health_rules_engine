@@ -108,7 +108,7 @@ pub fn populate_db_with_demo_data(conn: &PgConnection) {
     let travel_group = res.unwrap();
 
     for i in 0..4 {
-        let person = NewPerson::new();
+        let person = NewPerson::fake(countries.choose(&mut rng).unwrap().id);
 
         let created_p = Person::create(conn, &person).expect("Unable to create person");
 

@@ -46,7 +46,7 @@ pub struct NewPerson {
 }
 
 impl NewPerson {
-    pub fn new() -> NewPerson {
+    pub fn fake(travel_document_issuer_id: Uuid) -> NewPerson {
 
         let mut rng = thread_rng();
         let random_year = rng.gen_range(1945..2002);
@@ -57,7 +57,7 @@ impl NewPerson {
         
         NewPerson {
             birth_date: dob,
-            travel_document_issuer_id: Uuid::new_v4(),
+            travel_document_issuer_id,
             approved_access_level: "medical_records".to_string(),
             approved_access_granularity: "aggregated".to_string(),
             travel_document_id: Uuid::new_v4(),
@@ -100,7 +100,5 @@ impl Person {
 
         graphql_translate(res)
     }
-
-
 }
 

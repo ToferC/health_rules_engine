@@ -9,7 +9,8 @@ use juniper::http::GraphQLBatchRequest;
 use juniper::{EmptySubscription, FieldError, FieldResult, RootNode};
 use crate::schema::*;
 
-use crate::models::{Trips, TripState, NewTrip, TravelGroup};
+use crate::models::{Trips, TripState, NewTrip, TravelGroup,
+    Country, Place, Vaccine};
 use uuid::Uuid;
 
 pub struct Query;
@@ -87,5 +88,17 @@ pub fn create_schema() -> Schema {
 }
 
 pub fn create_context(pg_pool: PostgresPool) -> GraphQLContext {
-    GraphQLContext { pool: pg_pool }
+
+    let conn = pg_pool.get().expect("Unable to connect to db");
+
+    let countries = Country::load_into_hash(&conn);
+    let places = Place::load_into_hash(&conn);
+    let vaccines = Vaccine::load_into_hash(&conn);
+
+    GraphQLContext { 
+        pool: pg_pool,
+        countries,
+        places,
+        vaccines,    
+    }
 }

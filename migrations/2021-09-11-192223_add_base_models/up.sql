@@ -66,7 +66,7 @@ CREATE TABLE IF NOT EXISTS persons (
 CREATE TABLE IF NOT EXISTS public_health_profiles (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     person_id UUID NOT NULL,
-    smart_healthcard_pk VARCHAR
+    smart_healthcard_pk VARCHAR NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS vaccinations (

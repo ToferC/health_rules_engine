@@ -1,18 +1,22 @@
 use chrono::prelude::*;
 use juniper::FieldResult;
+use reqwest::header::VacantEntry;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
-use diesel::{QueryDsl, RunQueryDsl, ExpressionMethods};
+use diesel::{self, Insertable, PgConnection, Queryable,
+    ExpressionMethods, QueryDsl, RunQueryDsl};
 use diesel_derive_enum::DbEnum;
 use uuid::Uuid;
+use std::collections::HashMap;
 
-use crate::models::{Place, Country};
+use crate::models::{Place, Country, Vaccination, Vaccine,
+    QuarantinePlan};
 use crate::GraphQLContext;
 use crate::graphql::graphql_translate;
 use crate::schema::*;
 
 
-#[derive(Debug, Clone, Deserialize, Serialize, PartialEq, PartialOrd, Insertable)]
+#[derive(Debug, Clone, Deserialize, Serialize, PartialEq, PartialOrd, Insertable, Queryable)]
 /// Referenced through Vaccination, QuarantinePlan, TestingHistory
 pub struct PublicHealthProfile {
     pub id: Uuid,
@@ -20,6 +24,7 @@ pub struct PublicHealthProfile {
     pub smart_healthcard_pk: String,
 }
 
+// GraphQL Implementation
 #[graphql_object(Context = GraphQLContext)]
 impl PublicHealthProfile {
     pub fn id(&self) -> FieldResult<Uuid> {
@@ -63,52 +68,36 @@ impl PublicHealthProfile {
 
         graphql_translate(res)
     }
-
-
 }
 
-#[derive(Debug, Clone, Deserialize, Serialize, PartialEq, PartialOrd, Queryable, Identifiable, GraphQLObject)]
-// Will assess Vaccine History against health rules engine
-pub struct Vaccination {
-    pub id: Uuid,
-    pub vaccine_id: Uuid,
-    pub dose_provider: String,
-    pub location_provided_id: Uuid, // Place
-    pub country_provided_id: Uuid, // Country
-    pub date_time: NaiveDateTime,
-    pub public_health_profile_id: Uuid,
+impl PublicHealthProfile {
+    pub fn create(conn: &PgConnection, profile: &NewPublicHealthProfile) -> FieldResult<PublicHealthProfile> { 
+        let res = diesel::insert_into(public_health_profiles::table)
+            .values(profile)
+            .get_result(conn);
+        
+        graphql_translate(res)
+    }
 }
 
-#[derive(Debug, Clone, Deserialize, Serialize, GraphQLObject, Insertable, Queryable)]
-#[table_name = "vaccines"]
-pub struct Vaccine {
-    pub id: Uuid,
-    pub maker: String,
-    pub approved: bool,
-    pub details: String,
+#[derive(Debug, Clone, Deserialize, Serialize, PartialEq, PartialOrd, Insertable)]
+/// Referenced through Vaccination, QuarantinePlan, TestingHistory
+#[table_name = "public_health_profiles"]
+pub struct NewPublicHealthProfile {
+    pub person_id: Uuid,
+    pub smart_healthcard_pk: String,
 }
 
-#[derive(Debug, Clone, Deserialize, Serialize, GraphQLObject, Insertable, Queryable)]
-#[table_name = "quarantine_plans"]
-pub struct QuarantinePlan {
-    pub id: Uuid,
-    pub public_health_profile_id: Uuid,
-    pub date_created: NaiveDateTime,
-    pub quarantine_required: bool,
-    pub confirmation_no_vulnerable: bool,
-    pub postal_address_id: Uuid, // PostalAddress
-    pub compliance_check: bool,
-    pub compliance_check_result: bool,
-    pub active: bool,
-}
-
-#[derive(Debug, Clone, Deserialize, Serialize, GraphQLObject)]
-pub struct CheckInResult {
-    pub id: Uuid,
-    pub quarantine_plan_id: Uuid,
-    pub user_id: Uuid,
-    pub date_time: NaiveDateTime,
-    pub check_in_complete: bool,
+impl NewPublicHealthProfile {
+    pub fn new(
+        person_id: Uuid,
+        smart_healthcard_pk: String,
+    ) -> Self {
+        NewPublicHealthProfile {
+            person_id,
+            smart_healthcard_pk,
+        }
+    }
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize, GraphQLObject, Insertable, Queryable)]
@@ -117,7 +106,7 @@ pub struct TestingHistory{
     pub id: Uuid,
     pub public_health_profile_id: Uuid,
     pub test: String,
-    pub test_type: String,
+    pub test_type: String, // TestType
     pub date_taken: NaiveDateTime,
     pub test_result: bool,
 }
@@ -143,17 +132,3 @@ pub struct GeoCoordinates {
     pub latitude: f64,
     pub longitude: f64,
 }
-
-#[derive(Debug, Clone, Deserialize, Serialize, GraphQLObject)]
-pub struct PostalAddress {
-    pub id: Uuid,
-    pub street_address: String,
-    pub address_locality_id: Uuid,
-    pub address_region: String,
-    pub address_country_id: Uuid,
-    pub postal_code: String,
-    pub lattitude: f64,
-    pub longitude: f64,
-    pub additional_info: Option<String>,
-}
-

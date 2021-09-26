@@ -5,6 +5,7 @@ use diesel::{self, Insertable, Queryable};
 use diesel::{RunQueryDsl, QueryDsl};
 use juniper::{FieldResult, FieldError};
 use uuid::Uuid;
+use std::collections::HashMap;
 
 use crate::graphql::graphql_translate;
 use crate::models::Country;
@@ -30,6 +31,19 @@ impl Place {
         graphql_translate(res)
 
     }
+
+    pub fn load_into_hash(conn: &PgConnection) -> HashMap<Uuid, Place> {
+        let res = places::table
+            .load::<Place>(conn)
+            .expect("Unable to load countries");
+
+        let mut new_map: HashMap<Uuid, Place> = HashMap::new();
+        for v in res {
+            new_map.insert(v.id, v);
+        };
+
+        new_map 
+    }
 }
 
 #[graphql_object(Context = GraphQLContext)]
@@ -44,13 +58,11 @@ impl Place {
 
     pub fn country(&self, context: &GraphQLContext) -> FieldResult<Country> {
 
-        let conn = context.pool.get().expect("Unable to connect to DB");
+        let country = context.countries
+            .get(&self.country_id)
+            .expect("Unable to retrieve Country");
 
-        let res = countries::table
-            .filter(countries::id.eq(self.country_id))
-            .first(&conn);
-
-        graphql_translate(res)
+        Ok(country.clone())
     }
 }
 

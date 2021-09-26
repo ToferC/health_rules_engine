@@ -7,14 +7,17 @@ extern crate diesel_migrations;
 #[macro_use]
 extern crate juniper;
 
+use std::collections::HashMap;
 use std::env;
 use actix_web::web::Data;
 use actix_web::{App, HttpServer, middleware};
+use models::{Place, Vaccine};
 use tera::{Tera};
 use tera_text_filters::snake_case;
 
 use diesel::prelude::*;
 use diesel::r2d2::{self, ConnectionManager};
+use uuid::Uuid;
 
 mod models;
 mod handlers;
@@ -35,6 +38,11 @@ pub type Pool = r2d2::Pool<ConnectionManager<PgConnection>>;
 #[derive(Clone)]
 pub struct GraphQLContext {
     pub pool: PostgresPool,
+    // Standard query items here so we don't need to go to db
+    pub countries: HashMap<Uuid, models::Country>,
+    pub places: HashMap<Uuid, models::Place>,
+    pub vaccines: HashMap<Uuid, models::Vaccine>,
+
 }
 
 impl juniper::Context for GraphQLContext {}

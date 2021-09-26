@@ -9,7 +9,6 @@ use juniper::{FieldResult};
 use crate::schema::*;
 use crate::graphql::graphql_translate;
 use crate::GraphQLContext;
-use super::health_profile::PostalAddress;
 use crate::models::{Place, Person};
 
 /// Travel information for a TravelGroup
@@ -113,24 +112,20 @@ impl Trips {
 
     pub fn origin(&self, context: &GraphQLContext) -> FieldResult<Place> {
 
-        let conn = context.pool.get().expect("Unable to connect to DB");
+        let place = context.places
+            .get(&self.origin_place_id)
+            .expect("Unable to retrieve Place");
 
-        let res = places::table.
-            filter(places::id.eq(self.origin_place_id))
-            .first(&conn);
-
-        graphql_translate(res)
+        Ok(place.clone())
     }
 
     pub fn destination(&self, context: &GraphQLContext) -> FieldResult<Place> {
 
-        let conn = context.pool.get().expect("Unable to connect to DB");
+        let place = context.places
+            .get(&self.destination_place_id)
+            .expect("Unable to retrieve Place");
 
-        let res = places::table.
-            filter(places::id.eq(self.destination_place_id))
-            .first(&conn);
-
-        graphql_translate(res)
+        Ok(place.clone())
     }
 }
 

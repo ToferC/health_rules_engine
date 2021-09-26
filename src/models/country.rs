@@ -1,4 +1,8 @@
+use std::collections::HashMap;
+use std::hash::Hash;
+
 use crate::PgConnection;
+use diesel::pg::Pg;
 use serde::{Serialize, Deserialize};
 use diesel::prelude::*;
 use diesel::{self, Insertable, Queryable};
@@ -45,5 +49,18 @@ impl Country {
             .first(conn);
 
         graphql_translate(res)
+    }
+
+    pub fn load_into_hash(conn: &PgConnection) -> HashMap<Uuid, Country> {
+        let res = countries::table
+            .load::<Country>(conn)
+            .expect("Unable to load countries");
+
+        let mut countries: HashMap<Uuid, Country> = HashMap::new();
+        for c in res {
+            countries.insert(c.id, c);
+        };
+
+        countries 
     }
 }
