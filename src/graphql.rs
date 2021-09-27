@@ -1,4 +1,4 @@
-use crate::{GraphQLContext, 
+use crate::{ 
     database::PostgresPool, 
     errors::error_handler::CustomError
 };
@@ -9,8 +9,9 @@ use juniper::http::GraphQLBatchRequest;
 use juniper::{EmptySubscription, FieldError, FieldResult, RootNode};
 use crate::schema::*;
 
-use crate::models::{Trips, TripState, NewTrip, TravelGroup,
-    Country, Place, Vaccine};
+use crate::GraphQLContext;
+use crate::models::{Country, NewTrip, Person, Place, QuarantinePlan,
+    TravelGroup, TripState, Trips, Vaccination, Vaccine, CovidTest};
 use uuid::Uuid;
 
 pub struct Query;
@@ -48,13 +49,50 @@ impl Query {
         graphql_translate(res)
     }
 
+    
     #[graphql(name = "travelGroupByID")]
     pub fn travel_group_by_id(context: &GraphQLContext, id: Uuid) -> FieldResult<TravelGroup> {
         let conn = context.pool.get().expect("Unable to connect to db");
         let res = travel_groups::table
-            .filter(travel_groups::id.eq(&id))
-            .first(&conn);
+        .filter(travel_groups::id.eq(&id))
+        .first(&conn);
         
+        graphql_translate(res)
+    }
+
+    #[graphql(name = "allPeople")]
+    pub fn all_people(context: &GraphQLContext) -> FieldResult<Vec<Person>> {
+        let conn = context.pool.get().expect("Unable to connect to db");
+
+        let res = persons::table.load::<Person>(&conn);
+
+        graphql_translate(res)
+    }
+
+    #[graphql(name = "allVaccinations")]
+    pub fn all_vaccinations(context: &GraphQLContext) -> FieldResult<Vec<Vaccination>> {
+        let conn = context.pool.get().expect("Unable to connect to db");
+
+        let res = vaccinations::table.load::<Vaccination>(&conn);
+
+        graphql_translate(res)
+    }
+
+    #[graphql(name = "allQuarantinePlans")]
+    pub fn all_quarantine_plans(context: &GraphQLContext) -> FieldResult<Vec<QuarantinePlan>> {
+        let conn = context.pool.get().expect("Unable to connect to db");
+
+        let res = quarantine_plans::table.load::<QuarantinePlan>(&conn);
+
+        graphql_translate(res)
+    }
+
+    #[graphql(name = "allCovidTestResults")]
+    pub fn all_covid_test_results(context: &GraphQLContext) -> FieldResult<Vec<CovidTest>> {
+        let conn = context.pool.get().expect("Unable to connect to db");
+
+        let res = covid_tests::table.load::<CovidTest>(&conn);
+
         graphql_translate(res)
     }
 }

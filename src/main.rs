@@ -34,8 +34,6 @@ pub struct AppData {
     tmpl: Tera
 }
 
-pub type Pool = r2d2::Pool<ConnectionManager<PgConnection>>;
-
 #[derive(Clone)]
 pub struct GraphQLContext {
     pub pool: PostgresPool,
@@ -43,7 +41,6 @@ pub struct GraphQLContext {
     pub countries: HashMap<Uuid, models::Country>,
     pub places: HashMap<Uuid, models::Place>,
     pub vaccines: HashMap<Uuid, models::Vaccine>,
-
 }
 
 impl juniper::Context for GraphQLContext {}
@@ -73,6 +70,8 @@ impl GraphQLContext {
         Ok(vaccine.clone())
     }
 }
+
+pub type Pool = r2d2::Pool<ConnectionManager<PgConnection>>;
 
 #[actix_rt::main]
 async fn main() -> std::io::Result<()> {

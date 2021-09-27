@@ -27,6 +27,17 @@ table! {
 }
 
 table! {
+    covid_tests (id) {
+        id -> Uuid,
+        public_health_profile_id -> Uuid,
+        test_name -> Varchar,
+        test_type -> Varchar,
+        date_taken -> Timestamp,
+        test_result -> Bool,
+    }
+}
+
+table! {
     persons (id) {
         id -> Uuid,
         birth_date -> Timestamp,
@@ -146,6 +157,7 @@ allow_tables_to_appear_in_same_query!(
     check_in_results,
     countries,
     covid_test,
+    covid_tests,
     persons,
     places,
     postal_addresses,

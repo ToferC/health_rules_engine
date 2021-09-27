@@ -10,7 +10,6 @@ use uuid::Uuid;
 use std::collections::HashMap;
 
 use crate::models::{Place, Country};
-use crate::GraphQLContext;
 use crate::graphql::graphql_translate;
 use crate::schema::*;
 

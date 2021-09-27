@@ -107,7 +107,7 @@ CREATE TABLE IF NOT EXISTS check_in_results (
     check_in_complete bool NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS covid_test (
+CREATE TABLE IF NOT EXISTS covid_tests (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     public_health_profile_id UUID NOT NULL,
     test_name VARCHAR NOT NULL,

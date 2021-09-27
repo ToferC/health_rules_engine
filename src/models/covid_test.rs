@@ -11,7 +11,7 @@ use crate::graphql::graphql_translate;
 use crate::schema::*;
 
 #[derive(Debug, Clone, Deserialize, Serialize, Queryable, Insertable)]
-#[table_name = "covid_test"]
+#[table_name = "covid_tests"]
 pub struct CovidTest {
     pub id: Uuid,
     pub public_health_profile_id: Uuid,
@@ -46,7 +46,7 @@ impl CovidTest {
 
 impl CovidTest {
     pub fn create(conn: &PgConnection, test: &NewCovidTest) -> FieldResult<CovidTest> {
-        let res = diesel::insert_into(covid_test::table)
+        let res = diesel::insert_into(covid_tests::table)
             .values(test)
             .get_result(conn);
         
@@ -55,7 +55,7 @@ impl CovidTest {
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize, GraphQLObject, Insertable)]
-#[table_name = "covid_test"]
+#[table_name = "covid_tests"]
 pub struct NewCovidTest {
     pub public_health_profile_id: Uuid,
     pub test_name: String,

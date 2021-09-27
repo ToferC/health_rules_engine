@@ -26,7 +26,7 @@ use crate::models::{Country, NewCountry, NewPerson, NewPlace,
     NewPublicHealthProfile, NewTravelGroup, NewTrip, NewVaccination, 
     NewVaccine, Person, Place, PublicHealthProfile, TravelGroup, 
     Trips, Vaccine, Vaccination, CovidTest};
-use crate::GraphQLContext;
+
 use crate::schema::*;
 
 #[macro_use]
@@ -172,88 +172,94 @@ pub fn populate_db_with_demo_data(conn: &PgConnection) {
         vaccines.push(res);
     }
 
-    let tg = crate::models::NewTravelGroup::new();
+    // Populate with fake population data
 
-    let res: Result<TravelGroup, Error> = diesel::insert_into(travel_groups::table)
-            .values(&tg)
-            .get_result(conn);
+    for i in 0..100 {
 
-    let travel_group = res.unwrap();
+        let tg = crate::models::NewTravelGroup::new();
 
-    for i in 0..4 {
+        let res: Result<TravelGroup, Error> = diesel::insert_into(travel_groups::table)
+                .values(&tg)
+                .get_result(conn);
 
-        let country = countries.choose(&mut rng).unwrap();
+        let travel_group = res.unwrap();
 
-        // Create person
-        let person = NewPerson::fake(
-            country.id
-        );
+        for i in 0..4 {
 
-        let created_p = Person::create(conn, &person).expect("Unable to create person");
-            
-        // Create trip
-        let origin  = origins.choose(&mut rng).unwrap();
-        let destination = destinations.choose(&mut rng).unwrap();
-        
-        let nt = NewTrip::new(
-            &travel_group.id, 
-            &created_p.id, 
-            &origin.id, 
-            &destination.id
-        );
-        
-        Trips::create_trip(conn, &nt);
+            let country = countries.choose(&mut rng).unwrap();
 
-        // Create public health profile
-        let profile = NewPublicHealthProfile::new(
-            created_p.id.to_owned(), 
-            Uuid::new_v4().to_string(),
-        );
-
-        let created_ph_profile = PublicHealthProfile::create(conn, &profile).unwrap();
-
-        // Create vaccinations
-        for i in 0..2 {
-            let new_vaccination = NewVaccination::new(
-                vaccines.choose(&mut rng).unwrap().id, 
-                "local pharmacy".to_string(), 
-                origin.id, 
-                Utc::now().naive_utc() - Duration::days(rng.gen_range(1..90)), 
-                created_ph_profile.id,
+            // Create person
+            let person = NewPerson::fake(
+                country.id
             );
 
-            Vaccination::create(conn, &new_vaccination).unwrap();
+            let created_p = Person::create(conn, &person).expect("Unable to create person");
+                
+            // Create trip
+            let origin  = origins.choose(&mut rng).unwrap();
+            let destination = destinations.choose(&mut rng).unwrap();
+            
+            let nt = NewTrip::new(
+                &travel_group.id, 
+                &created_p.id, 
+                &origin.id, 
+                &destination.id
+            );
+            
+            Trips::create_trip(conn, &nt);
+
+            // Create public health profile
+            let profile = NewPublicHealthProfile::new(
+                created_p.id.to_owned(), 
+                Uuid::new_v4().to_string(),
+            );
+
+            let created_ph_profile = PublicHealthProfile::create(conn, &profile).unwrap();
+
+            // Create vaccinations
+            for i in 0..2 {
+                let new_vaccination = NewVaccination::new(
+                    vaccines.choose(&mut rng).unwrap().id, 
+                    "local pharmacy".to_string(), 
+                    origin.id, 
+                    Utc::now().naive_utc() - Duration::days(rng.gen_range(1..90)), 
+                    created_ph_profile.id,
+                );
+
+                Vaccination::create(conn, &new_vaccination).unwrap();
+            }
+
+            // Create COVID Test
+            let positivity_rate = 0.03;
+            let tR = rng.gen_bool(positivity_rate);
+
+            let new_test = NewCovidTest::new(
+                created_ph_profile.id, 
+                "Test-X01".to_string(), 
+                "molecular".to_string(), 
+                Utc::now().naive_utc() - Duration::days(rng.gen_range(1..14)), 
+                tR);
+
+            CovidTest::create(conn, &new_test);
+
+            // Create quarantine plan
+
+            let new_qp = NewQuarantinePlan::new(
+                created_ph_profile.id,
+                Utc::now().naive_utc() - Duration::days(rng.gen_range(1..14)),
+                false,
+                false,
+                "Local Hotel Address".to_string(),
+                false,
+            );
+
+            let r = QuarantinePlan::create(conn, &new_qp).unwrap();
+
+            println!("{:?}", &r);
+
+            println!("Demo data insert complete");
+
         }
-
-        // Create COVID Test
-        let positivity_rate = 0.03;
-        let tR = rng.gen_bool(positivity_rate);
-
-        let new_test = NewCovidTest::new(
-            created_ph_profile.id, 
-            "Test-X01".to_string(), 
-            "molecular".to_string(), 
-            Utc::now().naive_utc() - Duration::days(rng.gen_range(1..14)), 
-            tR);
-
-        CovidTest::create(conn, &new_test);
-
-        // Create quarantine plan
-
-        let new_qp = NewQuarantinePlan::new(
-            created_ph_profile.id,
-            Utc::now().naive_utc() - Duration::days(rng.gen_range(1..14)),
-            false,
-            false,
-            "Local Hotel Address".to_string(),
-            false,
-        );
-
-        let r = QuarantinePlan::create(conn, &new_qp).unwrap();
-
-        println!("{:?}", &r);
-
-        println!("Demo data insert complete");
     }
 
 }
