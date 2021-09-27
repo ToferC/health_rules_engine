@@ -112,20 +112,12 @@ impl Trips {
 
     pub fn origin(&self, context: &GraphQLContext) -> FieldResult<Place> {
 
-        let place = context.places
-            .get(&self.origin_place_id)
-            .expect("Unable to retrieve Place");
-
-        Ok(place.clone())
+        context.get_place_by_id(self.origin_place_id)
     }
 
     pub fn destination(&self, context: &GraphQLContext) -> FieldResult<Place> {
 
-        let place = context.places
-            .get(&self.destination_place_id)
-            .expect("Unable to retrieve Place");
-
-        Ok(place.clone())
+        context.get_place_by_id(self.destination_place_id)
     }
 }
 
@@ -164,8 +156,8 @@ pub struct NewTrip {
 impl<'a> NewTrip {
     pub fn default() -> Self {
 
-        let depart: NaiveDateTime = Utc::now().naive_utc() - Duration::hours(8);
-        let arrive: NaiveDateTime = Utc::now().naive_utc() + Duration::hours(4);
+        let depart: NaiveDateTime = Utc::now().naive_utc() + Duration::hours(8);
+        let arrive: NaiveDateTime = Utc::now().naive_utc() - Duration::hours(4);
 
         NewTrip { 
             trip_provider: "Air Canada".to_string(), 
@@ -178,7 +170,7 @@ impl<'a> NewTrip {
             
             travel_intent: "Entry".to_string(), 
 
-            scheduled_departure_time: Some(depart), 
+            scheduled_departure_time: Some(depart + Duration::hours(4)), 
             scheduled_arrival_time: Some(arrive + Duration::hours(4)), 
             departure_time: Some(depart), 
             arrival_time: Some(arrive), 
@@ -196,8 +188,8 @@ impl<'a> NewTrip {
         destination_place_id: &Uuid
     ) -> Self 
     {
-        let depart: NaiveDateTime = Utc::now().naive_utc() - Duration::days(1);
-        let arrive: NaiveDateTime = Utc::now().naive_utc() + Duration::days(1);
+        let depart: NaiveDateTime = Utc::now().naive_utc() + Duration::days(1);
+        let arrive: NaiveDateTime = Utc::now().naive_utc() - Duration::days(1);
 
         NewTrip { 
             trip_provider: "Air Canada".to_string(), 
@@ -210,11 +202,12 @@ impl<'a> NewTrip {
             destination_place_id: destination_place_id.to_owned(), 
             
             travel_intent: "Entry".to_string(), 
-            scheduled_departure_time: Some(depart), 
+            scheduled_departure_time: Some(depart + Duration::hours(4)), 
             scheduled_arrival_time: Some(arrive + Duration::hours(4)), 
             departure_time: Some(depart), 
             arrival_time: Some(arrive), 
-            trip_state: "planned".to_string(),
+
+            trip_state: "active".to_string(),
             travel_group_id: travel_group_id.to_owned(),
             person_id: person_id.to_owned(),
         }

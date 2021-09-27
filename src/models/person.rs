@@ -1,5 +1,6 @@
 use std::fmt::Debug;
 
+use actix_multipart::Field;
 use chrono::{Duration, prelude::*};
 use serde::{Deserialize, Serialize};
 use diesel::{self, Insertable, PgConnection, Queryable, ExpressionMethods};
@@ -13,15 +14,20 @@ use crate::graphql::graphql_translate;
 use crate::GraphQLContext;
 use crate::models::{Country};
 
+use super::PublicHealthProfile;
+
 // use super::trip::{Country};
 // use super::access_log::{AccessLevel, Granularity};
 
 #[derive(Debug, Clone, Deserialize, Serialize, Queryable, Insertable)]
 #[table_name = "persons"]
-/// Linked from HealthProfile
-/// Linked to Trip
+/// Referenced by PublicHealthProfile
+/// Referenced by Trip
 pub struct Person {
     pub id: Uuid,
+    // pub family_name: String,
+    // pub given_name: String,
+    // pub other_names: Vec<String>,
     pub birth_date: NaiveDateTime,
     pub travel_document_issuer_id: Uuid, // Country
     pub approved_access_level: String, // AccessLevel
@@ -92,10 +98,14 @@ impl Person {
 
     pub fn travel_document_issuer(&self, context: &GraphQLContext) -> FieldResult<Country> {
 
+        context.get_country_by_id(self.travel_document_issuer_id)
+    }
+
+    pub fn public_health_profile(&self, context: &GraphQLContext) -> FieldResult<PublicHealthProfile> {
         let conn = context.pool.get().expect("Unable to connect to DB");
 
-        let res = countries::table
-            .filter(countries::id.eq(self.travel_document_issuer_id))
+        let res = public_health_profiles::table
+            .filter(public_health_profiles::person_id.eq(self.id))
             .first(&conn);
 
         graphql_translate(res)

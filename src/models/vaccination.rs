@@ -22,7 +22,6 @@ pub struct Vaccination {
     pub vaccine_id: Uuid,
     pub dose_provider: String,
     pub location_provided_id: Uuid, // Place
-    pub country_provided_id: Uuid, // Country
     pub provided_on: NaiveDateTime,
     pub public_health_profile_id: Uuid,
 }
@@ -35,27 +34,11 @@ impl Vaccination {
     }
 
     pub fn vaccine(&self, context: &GraphQLContext) -> FieldResult<Vaccine> {
-        let vaccine = context.vaccines
-            .get(&self.vaccine_id)
-            .expect("Unable to retrieve Vaccine");
-
-        Ok(vaccine.clone())
+        context.get_vaccine_by_id(self.vaccine_id)
     }
 
     pub fn location_provided(&self, context: &GraphQLContext) -> FieldResult<Place> {
-        let place = context.places
-            .get(&self.location_provided_id)
-            .expect("Unable to retrieve Place");
-
-        Ok(place.clone())
-    }
-
-    pub fn country_provided(&self, context: &GraphQLContext) -> FieldResult<Country> {
-        let country = context.countries
-            .get(&self.country_provided_id)
-            .expect("Unable to retrieve Country");
-
-        Ok(country.clone())
+        context.get_place_by_id(self.location_provided_id)
     }
 
     pub fn provided_on(&self) -> FieldResult<String> {
@@ -80,7 +63,6 @@ pub struct NewVaccination {
     pub vaccine_id: Uuid,
     pub dose_provider: String,
     pub location_provided_id: Uuid, // Place
-    pub country_provided_id: Uuid, // Country
     pub provided_on: NaiveDateTime,
     pub public_health_profile_id: Uuid,
 }
@@ -90,7 +72,6 @@ impl NewVaccination {
         vaccine_id: Uuid,
         dose_provider: String,
         location_provided_id: Uuid, // Place
-        country_provided_id: Uuid, // Country
         provided_on: NaiveDateTime,
         public_health_profile_id: Uuid,
     ) -> Self {
@@ -98,7 +79,6 @@ impl NewVaccination {
             vaccine_id,
             dose_provider,
             location_provided_id,
-            country_provided_id,
             provided_on,
             public_health_profile_id,
         }

@@ -2,7 +2,7 @@ table! {
     check_in_results (id) {
         id -> Uuid,
         quarantine_plan_id -> Uuid,
-        user_id -> Uuid,
+        verifier_id -> Uuid,
         date_time -> Timestamp,
         check_in_complete -> Bool,
     }
@@ -12,6 +12,17 @@ table! {
     countries (id) {
         id -> Uuid,
         country_name -> Varchar,
+    }
+}
+
+table! {
+    covid_test (id) {
+        id -> Uuid,
+        public_health_profile_id -> Uuid,
+        test_name -> Varchar,
+        test_type -> Varchar,
+        date_taken -> Timestamp,
+        test_result -> Bool,
     }
 }
 
@@ -63,21 +74,8 @@ table! {
         date_created -> Timestamp,
         quarantine_required -> Bool,
         confirmation_no_vulnerable -> Bool,
-        postal_address_id -> Uuid,
-        compliance_check -> Bool,
-        compliance_check_result -> Bool,
+        postal_address_id -> Varchar,
         active -> Bool,
-    }
-}
-
-table! {
-    testing_history (id) {
-        id -> Uuid,
-        public_health_profile_id -> Uuid,
-        test -> Varchar,
-        test_type -> Varchar,
-        date_taken -> Timestamp,
-        test_result -> Bool,
     }
 }
 
@@ -126,7 +124,6 @@ table! {
         vaccine_id -> Uuid,
         dose_provider -> Varchar,
         location_provided_id -> Uuid,
-        country_provided_id -> Uuid,
         provided_on -> Timestamp,
         public_health_profile_id -> Uuid,
     }
@@ -148,12 +145,12 @@ table! {
 allow_tables_to_appear_in_same_query!(
     check_in_results,
     countries,
+    covid_test,
     persons,
     places,
     postal_addresses,
     public_health_profiles,
     quarantine_plans,
-    testing_history,
     travel_groups,
     trips,
     users,

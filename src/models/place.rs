@@ -58,11 +58,7 @@ impl Place {
 
     pub fn country(&self, context: &GraphQLContext) -> FieldResult<Country> {
 
-        let country = context.countries
-            .get(&self.country_id)
-            .expect("Unable to retrieve Country");
-
-        Ok(country.clone())
+        context.get_country_by_id(self.country_id)
     }
 }
 

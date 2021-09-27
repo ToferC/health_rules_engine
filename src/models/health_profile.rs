@@ -10,7 +10,7 @@ use uuid::Uuid;
 use std::collections::HashMap;
 
 use crate::models::{Place, Country, Vaccination, Vaccine,
-    QuarantinePlan};
+    QuarantinePlan, CovidTest};
 use crate::GraphQLContext;
 use crate::graphql::graphql_translate;
 use crate::schema::*;
@@ -49,12 +49,12 @@ impl PublicHealthProfile {
         graphql_translate(res)
     }
 
-    pub fn testing_history(&self, context: &GraphQLContext) -> FieldResult<Vec<TestingHistory>> {
+    pub fn testing_history(&self, context: &GraphQLContext) -> FieldResult<Vec<CovidTest>> {
         let conn = context.pool.get().expect("Unable to connect to DB");
 
-        let res = testing_history::table
-            .filter(testing_history::public_health_profile_id.eq(self.id))
-            .load::<TestingHistory>(&conn);
+        let res = covid_test::table
+            .filter(covid_test::public_health_profile_id.eq(self.id))
+            .load::<CovidTest>(&conn);
 
         graphql_translate(res)
     }
@@ -100,17 +100,6 @@ impl NewPublicHealthProfile {
     }
 }
 
-#[derive(Debug, Clone, Deserialize, Serialize, GraphQLObject, Insertable, Queryable)]
-#[table_name = "testing_history"]
-pub struct TestingHistory{
-    pub id: Uuid,
-    pub public_health_profile_id: Uuid,
-    pub test: String,
-    pub test_type: String, // TestType
-    pub date_taken: NaiveDateTime,
-    pub test_result: bool,
-}
-
 #[derive(Debug, Clone, Deserialize, Serialize, DbEnum, GraphQLEnum)]
 #[DieselType = "Access_level_enum"]
 pub enum AccessLevelEnum {
@@ -119,12 +108,6 @@ pub enum AccessLevelEnum {
     Employee,
     Research,
     Open,
-}
-
-#[derive(Debug, Clone, Deserialize, Serialize, GraphQLEnum)]
-pub enum TestType {
-    Molecular,
-    Other,
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize, GraphQLObject)]

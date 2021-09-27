@@ -74,7 +74,6 @@ CREATE TABLE IF NOT EXISTS vaccinations (
     vaccine_id UUID NOT NULL,
     dose_provider VARCHAR NOT NULL,
     location_provided_id UUID NOT NULL,
-    country_provided_id UUID NOT NULL,
     provided_on TIMESTAMP NOT NULL,
     public_health_profile_id UUID NOT NULL
 );
@@ -96,24 +95,22 @@ CREATE TABLE IF NOT EXISTS quarantine_plans (
     date_created TIMESTAMP NOT NULL,
     quarantine_required bool NOT NULL,
     confirmation_no_vulnerable bool NOT NULL,
-    postal_address_id UUID NOT NULL,
-    compliance_check bool NOT NULL,
-    compliance_check_result bool NOT NULL,
+    postal_address_id VARCHAR NOT NULL,
     active bool NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS check_in_results (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     quarantine_plan_id UUID NOT NULL,
-    user_id UUID NOT NULL,
+    verifier_id UUID NOT NULL,
     date_time TIMESTAMP NOT NULL,
     check_in_complete bool NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS testing_history (
+CREATE TABLE IF NOT EXISTS covid_test (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     public_health_profile_id UUID NOT NULL,
-    test VARCHAR NOT NULL,
+    test_name VARCHAR NOT NULL,
     test_type VARCHAR NOT NULL,
     date_taken TIMESTAMP NOT NULL,
     test_result bool NOT NULL

@@ -11,7 +11,8 @@ use std::collections::HashMap;
 use std::env;
 use actix_web::web::Data;
 use actix_web::{App, HttpServer, middleware};
-use models::{Place, Vaccine};
+use juniper::FieldResult;
+use models::{Place, Vaccine, Country};
 use tera::{Tera};
 use tera_text_filters::snake_case;
 
@@ -46,6 +47,32 @@ pub struct GraphQLContext {
 }
 
 impl juniper::Context for GraphQLContext {}
+
+impl GraphQLContext {
+    pub fn get_place_by_id(&self, id: Uuid) -> FieldResult<Place> {
+        let place = self.places
+            .get(&id)
+            .expect("Unable to retrieve Place");
+
+        Ok(place.clone())
+    }
+
+    pub fn get_country_by_id(&self, id: Uuid) -> FieldResult<Country> {
+        let country = self.countries
+            .get(&id)
+            .expect("Unable to retrieve Country");
+
+        Ok(country.clone())
+    }
+
+    pub fn get_vaccine_by_id(&self, id: Uuid) -> FieldResult<Vaccine> {
+        let vaccine = self.vaccines
+            .get(&id)
+            .expect("Unable to retrieve Vaccine");
+
+        Ok(vaccine.clone())
+    }
+}
 
 #[actix_rt::main]
 async fn main() -> std::io::Result<()> {

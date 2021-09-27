@@ -19,10 +19,13 @@ use crate::errors::error_handler::CustomError;
 pub type PostgresPool = r2d2::Pool<ConnectionManager<PgConnection>>;
 pub type DbConnection = r2d2::PooledConnection<ConnectionManager<PgConnection>>;
 
+use crate::models::NewCovidTest;
+use crate::models::NewQuarantinePlan;
+use crate::models::QuarantinePlan;
 use crate::models::{Country, NewCountry, NewPerson, NewPlace, 
     NewPublicHealthProfile, NewTravelGroup, NewTrip, NewVaccination, 
     NewVaccine, Person, Place, PublicHealthProfile, TravelGroup, 
-    Trips, Vaccine, Vaccination};
+    Trips, Vaccine, Vaccination, CovidTest};
 use crate::GraphQLContext;
 use crate::schema::*;
 
@@ -215,7 +218,6 @@ pub fn populate_db_with_demo_data(conn: &PgConnection) {
                 vaccines.choose(&mut rng).unwrap().id, 
                 "local pharmacy".to_string(), 
                 origin.id, 
-                country.id, 
                 Utc::now().naive_utc() - Duration::days(rng.gen_range(1..90)), 
                 created_ph_profile.id,
             );
@@ -223,7 +225,35 @@ pub fn populate_db_with_demo_data(conn: &PgConnection) {
             Vaccination::create(conn, &new_vaccination).unwrap();
         }
 
+        // Create COVID Test
+        let positivity_rate = 0.03;
+        let tR = rng.gen_bool(positivity_rate);
+
+        let new_test = NewCovidTest::new(
+            created_ph_profile.id, 
+            "Test-X01".to_string(), 
+            "molecular".to_string(), 
+            Utc::now().naive_utc() - Duration::days(rng.gen_range(1..14)), 
+            tR);
+
+        CovidTest::create(conn, &new_test);
+
         // Create quarantine plan
+
+        let new_qp = NewQuarantinePlan::new(
+            created_ph_profile.id,
+            Utc::now().naive_utc() - Duration::days(rng.gen_range(1..14)),
+            false,
+            false,
+            "Local Hotel Address".to_string(),
+            false,
+        );
+
+        let r = QuarantinePlan::create(conn, &new_qp).unwrap();
+
+        println!("{:?}", &r);
+
+        println!("Demo data insert complete");
     }
 
 }

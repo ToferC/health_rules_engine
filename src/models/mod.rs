@@ -1,5 +1,6 @@
 mod person;
 mod health_profile;
+mod covid_test;
 mod vaccination;
 mod vaccine;
 mod quarantine_plan;
@@ -14,6 +15,7 @@ mod user;
 pub use self::person::*;
 pub use self::trip::*;
 pub use self::health_profile::*;
+pub use self::covid_test::*;
 pub use self::vaccination::*;
 pub use self::vaccine::*;
 pub use self::quarantine_plan::*;
