@@ -12,6 +12,7 @@ table! {
     countries (id) {
         id -> Uuid,
         country_name -> Varchar,
+        risk_rate -> Float8,
     }
 }
 

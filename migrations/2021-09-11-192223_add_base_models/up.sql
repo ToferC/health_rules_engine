@@ -30,7 +30,8 @@ CREATE TABLE IF NOT EXISTS places (
 
 CREATE TABLE IF NOT EXISTS countries (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-    country_name VARCHAR NOT NULL
+    country_name VARCHAR NOT NULL,
+    risk_rate FLOAT NOT NULL
 );
 
 CREATE TYPE trip_state_enum AS ENUM ('planned', 'in_progress', 'completed', 'cancelled');

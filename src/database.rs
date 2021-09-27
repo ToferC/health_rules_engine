@@ -70,12 +70,12 @@ pub fn populate_db_with_demo_data(conn: &PgConnection) {
     // Set up countries
     let mut new_countries: Vec<NewCountry> = Vec::new();
 
-    new_countries.push(NewCountry::new("United Kingdom".to_string()));
-    new_countries.push(NewCountry::new("Canada".to_string()));
-    new_countries.push(NewCountry::new("Singapore".to_string()));
-    new_countries.push(NewCountry::new("USA".to_string()));
-    new_countries.push(NewCountry::new("France".to_string()));
-    new_countries.push(NewCountry::new("Brazil".to_string()));
+    new_countries.push(NewCountry::new("United Kingdom".to_string(), 0.05));
+    new_countries.push(NewCountry::new("Canada".to_string(), 0.03));
+    new_countries.push(NewCountry::new("Singapore".to_string(), 0.02));
+    new_countries.push(NewCountry::new("USA".to_string(), 0.04));
+    new_countries.push(NewCountry::new("France".to_string(), 0.03));
+    new_countries.push(NewCountry::new("Brazil".to_string(), 0.06));
    
     let mut countries: Vec<Country> = Vec::new();
 
@@ -230,15 +230,14 @@ pub fn populate_db_with_demo_data(conn: &PgConnection) {
             }
 
             // Create COVID Test
-            let positivity_rate = 0.03;
-            let tR = rng.gen_bool(positivity_rate);
+            let test_result = rng.gen_bool(country.risk_rate);
 
             let new_test = NewCovidTest::new(
                 created_ph_profile.id, 
                 "Test-X01".to_string(), 
                 "molecular".to_string(), 
                 Utc::now().naive_utc() - Duration::days(rng.gen_range(1..14)), 
-                tR);
+                test_result);
 
             CovidTest::create(conn, &new_test);
 

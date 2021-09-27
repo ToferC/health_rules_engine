@@ -17,12 +17,14 @@ use crate::schema::*;
 #[table_name = "countries"]
 pub struct NewCountry {
     country_name: String,
+    risk_rate: f64,
 }
 
 impl NewCountry {
-    pub fn new(country_name: String) -> Self {
+    pub fn new(country_name: String, risk_rate: f64) -> Self {
         NewCountry {
             country_name,
+            risk_rate,
         }
     }
 }
@@ -33,6 +35,7 @@ impl NewCountry {
 pub struct Country {
     pub id: Uuid,
     pub country_name: String,
+    pub risk_rate: f64,
 }
 
 impl Country {
