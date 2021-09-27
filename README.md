@@ -12,7 +12,10 @@ Any data shown or generated will be fake. No real data will be used in this prot
 
 ## Workplan
 
-[] Develop models
-[] Generate fake data
-[] Build graphql API
-[] Develop analytics framework
+- [x] Develop models
+- [x] Generate fake data
+- [x] Build graphql query API
+- [ ] Build mutation API
+- [ ] Secure API with JWT
+- [ ] Develop or find Auth solution
+- [ ] Develop analytics framework
