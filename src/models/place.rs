@@ -1,9 +1,8 @@
 use crate::PgConnection;
 use serde::{Serialize, Deserialize};
-use diesel::prelude::*;
 use diesel::{self, Insertable, Queryable};
-use diesel::{RunQueryDsl, QueryDsl};
-use juniper::{FieldResult, FieldError};
+use diesel::{RunQueryDsl};
+use juniper::{FieldResult};
 use uuid::Uuid;
 use std::collections::HashMap;
 

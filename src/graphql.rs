@@ -1,17 +1,15 @@
 use crate::{ 
     database::PostgresPool, 
-    errors::error_handler::CustomError
 };
 
-use diesel::{pg::PgConnection, RunQueryDsl};
+use diesel::{RunQueryDsl};
 use diesel::{QueryDsl, ExpressionMethods};
-use juniper::http::GraphQLBatchRequest;
 use juniper::{EmptySubscription, FieldError, FieldResult, RootNode};
 use crate::schema::*;
 
 use crate::GraphQLContext;
 use crate::models::{Country, NewTrip, Person, Place, QuarantinePlan,
-    TravelGroup, TripState, Trips, Vaccination, Vaccine, CovidTest};
+    TravelGroup, Trips, Vaccination, Vaccine, CovidTest};
 use uuid::Uuid;
 
 pub struct Query;

@@ -1,15 +1,11 @@
 use chrono::prelude::*;
 use juniper::FieldResult;
-use reqwest::header::VacantEntry;
 use serde::{Deserialize, Serialize};
-use serde_json::Value;
 use diesel::{self, Insertable, PgConnection, Queryable,
-    ExpressionMethods, QueryDsl, RunQueryDsl};
-use diesel_derive_enum::DbEnum;
+    RunQueryDsl};
 use uuid::Uuid;
 use std::collections::HashMap;
 
-use crate::models::{Place, Country};
 use crate::GraphQLContext;
 use crate::graphql::graphql_translate;
 use crate::schema::*;

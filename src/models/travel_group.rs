@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 use diesel::prelude::*;
-use diesel::{self, Insertable, PgConnection, Queryable};
+use diesel::{self, Insertable, Queryable};
 use diesel::{RunQueryDsl, QueryDsl};
 use uuid::Uuid;
 use juniper::{FieldResult};

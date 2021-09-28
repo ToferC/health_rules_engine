@@ -1,11 +1,5 @@
 use actix_web::{web, get, HttpResponse, HttpRequest, Responder};
 //use actix_identity::Identity;
-use diesel::prelude::*;
-use diesel::{QueryDsl, BelongingToDsl};
-
-use juniper::http::graphiql::graphiql_source;
-use juniper::http::{GraphQLRequest};
-use juniper::http::playground::playground_source;
 
 use tera::Context;
 
@@ -22,7 +16,7 @@ pub async fn index(data: web::Data<AppData>, _req:HttpRequest) -> impl Responder
 #[get("/{lang}/api")]
 pub async fn api_base(
     data: web::Data<AppData>,
-    pool: web::Data<PostgresPool>,
+    _pool: web::Data<PostgresPool>,
     _lang: web::Path<String>,
     _req: HttpRequest,
     // id: Identity,

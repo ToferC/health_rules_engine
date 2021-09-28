@@ -1,8 +1,6 @@
 use chrono::prelude::*;
 use serde::{Serialize, Deserialize};
 
-use super::access_log::AccessLevel;
-
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct UserInstance {
     id: String,

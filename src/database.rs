@@ -1,6 +1,5 @@
 
 use std::{io::stdin};
-use diesel::dsl::count;
 use chrono::prelude::*;
 use chrono::Duration;
 use diesel::pg::PgConnection;
@@ -8,7 +7,7 @@ use diesel::r2d2::ConnectionManager;
 use diesel::prelude::*;
 use diesel::result::Error;
 use lazy_static::lazy_static;
-use r2d2::{self, PooledConnection};
+use r2d2::{self};
 use rand::Rng;
 use std::env;
 use uuid::Uuid;
@@ -23,7 +22,7 @@ use crate::models::NewCovidTest;
 use crate::models::NewQuarantinePlan;
 use crate::models::QuarantinePlan;
 use crate::models::{Country, NewCountry, NewPerson, NewPlace, 
-    NewPublicHealthProfile, NewTravelGroup, NewTrip, NewVaccination, 
+    NewPublicHealthProfile, NewTrip, NewVaccination, 
     NewVaccine, Person, Place, PublicHealthProfile, TravelGroup, 
     Trips, Vaccine, Vaccination, CovidTest};
 
@@ -65,6 +64,9 @@ pub fn connection() -> Result<DbConnection, CustomError> {
         .map_err(|e| CustomError::new(500, format!("Failed getting db connection: {}", e)))
 }
 
+
+/// Testing function to generate dummy data when resetting the database
+/// Started adding unique names to countries, so only works once when DB is reset.
 pub fn populate_db_with_demo_data(conn: &PgConnection) {
 
     // Set up countries
@@ -174,7 +176,7 @@ pub fn populate_db_with_demo_data(conn: &PgConnection) {
 
     // Populate with fake population data
 
-    for i in 0..100 {
+    for _i in 0..100 {
 
         let tg = crate::models::NewTravelGroup::new();
 
@@ -184,7 +186,7 @@ pub fn populate_db_with_demo_data(conn: &PgConnection) {
 
         let travel_group = res.unwrap();
 
-        for i in 0..4 {
+        for _i in 0..4 {
 
             let country = countries.choose(&mut rng).unwrap();
 
@@ -206,7 +208,7 @@ pub fn populate_db_with_demo_data(conn: &PgConnection) {
                 &destination.id
             );
             
-            Trips::create_trip(conn, &nt);
+            let _t = Trips::create_trip(conn, &nt).expect("Unable to create trip");
 
             // Create public health profile
             let profile = NewPublicHealthProfile::new(
@@ -217,7 +219,7 @@ pub fn populate_db_with_demo_data(conn: &PgConnection) {
             let created_ph_profile = PublicHealthProfile::create(conn, &profile).unwrap();
 
             // Create vaccinations
-            for i in 0..2 {
+            for _i in 0..2 {
                 let new_vaccination = NewVaccination::new(
                     vaccines.choose(&mut rng).unwrap().id, 
                     "local pharmacy".to_string(), 
@@ -239,7 +241,7 @@ pub fn populate_db_with_demo_data(conn: &PgConnection) {
                 Utc::now().naive_utc() - Duration::days(rng.gen_range(1..14)), 
                 test_result);
 
-            CovidTest::create(conn, &new_test);
+            let _c = CovidTest::create(conn, &new_test).expect("Unable to create CovidTest");
 
             // Create quarantine plan
 

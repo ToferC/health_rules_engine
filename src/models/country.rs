@@ -1,13 +1,11 @@
 use std::collections::HashMap;
-use std::hash::Hash;
 
 use crate::PgConnection;
-use diesel::pg::Pg;
 use serde::{Serialize, Deserialize};
 use diesel::prelude::*;
 use diesel::{self, Insertable, Queryable};
 use diesel::{RunQueryDsl, QueryDsl};
-use juniper::{FieldResult, FieldError};
+use juniper::{FieldResult};
 use uuid::Uuid;
 
 use crate::graphql::graphql_translate;

@@ -1,19 +1,10 @@
-use diesel::prelude::*;
-use diesel::serialize::Result;
-use diesel::{QueryDsl, BelongingToDsl};
-use actix_web::{web, get, post, HttpResponse, HttpRequest, Responder,
-    Error,    
+use actix_web::{web, HttpResponse
 };
 
-use juniper::http::graphiql::graphiql_source;
 use juniper::http::{GraphQLRequest};
 use juniper::http::playground::playground_source;
 use std::sync::Arc;
 
-use tera::Context;
-
-use crate::{AppData, GraphQLContext, schema};
-use crate::errors::error_handler::CustomError;
 use crate::database::PostgresPool;
 use crate::graphql::{Schema, create_context};
 

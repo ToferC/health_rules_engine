@@ -46,7 +46,7 @@ pub mod error_handler {
         fn from(error: FieldError) -> CustomError {
             CustomError {
                 error_status_code: 511,
-                error_message: "GraphQL FieldError".to_string(),
+                error_message: format!("GraphQL FieldError: {:?}", error).to_string(),
             }
         }
     }

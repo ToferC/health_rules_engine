@@ -7,11 +7,11 @@ use crate::handlers::{
     graphql,
     
     // API
-    get_trips,
-    get_trip_by_id,
-    edit_trip,
-    delete_trip,
-    add_trip,
+    // get_trips,
+    // get_trip_by_id,
+    // edit_trip,
+    // delete_trip,
+    // add_trip,
 };
 
 pub fn init_routes(config: &mut web::ServiceConfig) {
