@@ -15,7 +15,7 @@ use crate::models::{Place, Person};
 /// CBSA responsible, but important for public health surveillance
 #[derive(Debug, Clone, Deserialize, Serialize, Queryable, Insertable)]
 #[table_name = "trips"]
-pub struct Trips {
+pub struct Trip {
     pub id: Uuid,
     pub trip_provider: String,
     // None for travel_identifier == private travel
@@ -23,7 +23,6 @@ pub struct Trips {
     pub booking_id: Option<String>,
     pub travel_mode: String,
     pub origin_place_id: Uuid,
-    pub transit_point_place_ids: Vec<Uuid>,
     pub destination_place_id: Uuid,
     pub travel_intent: String,
     pub scheduled_departure_time: Option<NaiveDateTime>,
@@ -36,7 +35,7 @@ pub struct Trips {
 }
 
 #[graphql_object(Context = GraphQLContext)]
-impl Trips {
+impl Trip {
     pub fn id(&self) -> FieldResult<Uuid> {
         Ok(self.id)
     }
@@ -122,8 +121,8 @@ impl Trips {
 }
 
 // Non Graphql
-impl Trips {
-    pub fn create_trip(conn: &PgConnection, trip: &NewTrip) -> FieldResult<Trips> {
+impl Trip {
+    pub fn create(conn: &PgConnection, trip: &NewTrip) -> FieldResult<Trip> {
         let res = diesel::insert_into(trips::table)
             .values(trip)
             .get_result(conn);
@@ -141,7 +140,6 @@ pub struct NewTrip {
     pub booking_id: Option<String>,
     pub travel_mode: String,
     pub origin_place_id: Uuid,
-    pub transit_point_place_ids: Vec<Uuid>,
     pub destination_place_id: Uuid,
     pub travel_intent: String,
     pub scheduled_departure_time: Option<NaiveDateTime>,
@@ -165,7 +163,6 @@ impl<'a> NewTrip {
             booking_id: Some("678326432632".to_string()), 
             travel_mode: "AIR".to_string(), 
             origin_place_id: Uuid::new_v4(),
-            transit_point_place_ids: vec![Uuid::new_v4()],
             destination_place_id: Uuid::new_v4(), 
             
             travel_intent: "Entry".to_string(), 
@@ -181,7 +178,7 @@ impl<'a> NewTrip {
         }
     }
 
-    pub fn new(
+    pub fn fake(
         travel_group_id: &Uuid,
         person_id: &Uuid,
         origin_place_id: &Uuid,
@@ -197,7 +194,6 @@ impl<'a> NewTrip {
             booking_id: Some("678326432632".to_string()), 
             travel_mode: "AIR".to_string(), 
             origin_place_id: origin_place_id.to_owned(), 
-            transit_point_place_ids: Vec::new(), 
             
             destination_place_id: destination_place_id.to_owned(), 
             
@@ -210,6 +206,61 @@ impl<'a> NewTrip {
             trip_state: "active".to_string(),
             travel_group_id: travel_group_id.to_owned(),
             person_id: person_id.to_owned(),
+        }
+    }
+
+    pub fn new(
+        context: &GraphQLContext,
+        trip_provider: String,
+        travel_identifier: Option<String>,
+        booking_id: Option<String>,
+        travel_mode: String,
+        origin_place_name: String,
+        origin_country_name: String,
+        destination_place_name: String,
+        destination_country_name: String,
+        travel_intent: String,
+        scheduled_departure_time: Option<NaiveDateTime>,
+        scheduled_arrival_time: Option<NaiveDateTime>,
+        departure_time: Option<NaiveDateTime>,
+        arrival_time: Option<NaiveDateTime>,
+        trip_state: String,
+        travel_group_id: Uuid,
+        person_id: Uuid,
+    ) -> Self 
+    {        
+        let origin_country = context
+            .get_or_create_country_by_name(origin_country_name)
+            .expect("Unable to find or create country");
+
+        let origin = context.get_or_create_place_by_name_and_country_id(
+            origin_place_name, origin_country.id)
+            .expect("Unable to get or create origin country");
+
+        let destination_country = context
+            .get_or_create_country_by_name(destination_country_name)
+            .expect("Unable to find or create country");
+
+        let destination = context.get_or_create_place_by_name_and_country_id(
+            destination_place_name, destination_country.id)
+            .expect("Unable to get or create origin country");
+
+
+        NewTrip { 
+            trip_provider,
+            travel_identifier,
+            booking_id,
+            travel_mode,
+            origin_place_id: origin.id,
+            destination_place_id: destination.id,
+            travel_intent,
+            scheduled_departure_time,
+            scheduled_arrival_time,
+            departure_time,
+            arrival_time,
+            trip_state,
+            travel_group_id,
+            person_id,
         }
     }
 }

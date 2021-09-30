@@ -41,11 +41,15 @@ table! {
 table! {
     persons (id) {
         id -> Uuid,
+        family_name -> Varchar,
+        given_name -> Varchar,
+        additional_names -> Nullable<Array<Text>>,
         birth_date -> Timestamp,
+        gender -> Varchar,
+        travel_document_id -> Varchar,
         travel_document_issuer_id -> Uuid,
         approved_access_level -> Varchar,
         approved_access_granularity -> Varchar,
-        travel_document_id -> Uuid,
     }
 }
 
@@ -116,7 +120,6 @@ table! {
         booking_id -> Nullable<Varchar>,
         travel_mode -> Varchar,
         origin_place_id -> Uuid,
-        transit_point_place_ids -> Array<Uuid>,
         destination_place_id -> Uuid,
         travel_intent -> Varchar,
         scheduled_departure_time -> Nullable<Timestamp>,

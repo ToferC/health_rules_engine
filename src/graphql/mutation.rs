@@ -9,7 +9,7 @@ use crate::schema::*;
 
 use crate::GraphQLContext;
 use crate::models::{Country, NewTrip, Person, Place, QuarantinePlan,
-    TravelGroup, Trips, Vaccination, Vaccine, CovidTest};
+    TravelGroup, Trip, Vaccination, Vaccine, CovidTest};
 use uuid::Uuid;
 
 pub struct Mutation;
@@ -20,9 +20,9 @@ impl Mutation {
     pub fn create_trip(
     context: &GraphQLContext,
     _input: String, // CreateTripInput
-    ) -> FieldResult<Trips> {
+    ) -> FieldResult<Trip> {
         let conn  = &context.pool.get().unwrap();
 
-        Trips::create_trip(conn, &NewTrip::default())
+        Trip::create(conn, &NewTrip::default())
     }
 }

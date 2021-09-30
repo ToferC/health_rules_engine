@@ -13,10 +13,11 @@ use crate::graphql::{graphql_translate};
 use crate::schema::*;
 
 use crate::models::{Country, NewCountry, NewPerson, NewPlace, 
-    NewPublicHealthProfile, NewTrip, NewVaccination, 
+    NewPublicHealthProfile, NewTrip, NewVaccination, Trip,
     NewVaccine, Person, Place, PublicHealthProfile, TravelGroup, 
-    Trips, Vaccine, Vaccination, CovidTest};
+    Vaccine, Vaccination, CovidTest};
 
+use super::trip;
 use super::{NewCovidTest, NewQuarantinePlan};
 
 #[derive(Debug, Clone, Serialize, Deserialize, GraphQLObject, Queryable)]
@@ -86,8 +87,15 @@ pub struct TravelData {
 
     // Person (traveller) data, providing id if traveller is already
     // in the system, or a NewPerson struct if not
-    pub person_id: Option<Uuid>,
-    pub new_person: Option<NewPerson>,
+    family_name: String,
+    given_name: String,
+    additional_names: Option<Vec<String>>,
+    birth_date: NaiveDateTime,
+    gender: String,
+    travel_document_id: String,
+    travel_document_issuer: String, // Country
+    approved_access_level: String, // AccessLevel
+    approved_access_granularity: String,
 
     // Trip data
     pub trip_provider: String,
@@ -95,10 +103,15 @@ pub struct TravelData {
     pub travel_identifier: Option<String>,
     pub booking_id: Option<String>,
     pub travel_mode: String,
-    pub country_name: String,
-    pub origin: String,
-    pub transit_point: Vec<String>,
-    pub destination: String,
+
+    // pub country_name: String,
+
+    pub origin_name: String,
+    pub origin_country_name: String,
+    pub transit_points: Vec<(String, String)>, // place_name, country_name
+    pub destination_name: String,
+    pub destination_country_name: String,
+
     pub travel_intent: String,
     pub scheduled_departure_time: Option<NaiveDateTime>,
     pub scheduled_arrival_time: Option<NaiveDateTime>,
@@ -130,21 +143,73 @@ pub struct TravelData {
 
     // Time of api post
     pub date_time: NaiveDateTime,
+
+    // CBSA Officer ID
+    pub cbsa_officer_id: String,
 }
 
 #[graphql_object(Context = GraphQLContext)]
 impl TravelData {
-    pub fn add_traveller(&self, context: &GraphQLContext) -> FieldResult<TravelResponse> {
+    pub fn parse(&self, context: &GraphQLContext) -> FieldResult<TravelResponse> {
 
         // Connect to PostgresPool
         let conn = context.pool.get().expect("Unable to connec to db");
 
-        let mut countries = context.countries.lock().unwrap();
+        // set travel_group_id
+        let travel_group_id = Uuid::new_v4();
 
         // Identify country        
-        let country = context.get_or_create_country_by_name(self.country_name.to_owned())?;
+        let country = context.get_or_create_country_by_name(self.travel_document_issuer.to_owned())?;
 
         // Identify or create person
+        let new_person = NewPerson::new(
+            self.family_name.to_owned(),
+            self.given_name.to_owned(),
+            self.additional_names.to_owned(),
+            self.birth_date,
+            self.gender.to_owned(),
+            self.travel_document_id.to_owned(),
+            country.id, // Country
+            self.approved_access_level.to_owned(), // AccessLevel
+            self.approved_access_granularity.to_owned(),
+        );
+
+        let person = Person::get_or_create(&conn, &new_person)?;
+
+        // Add Trip Information
+        let new_trip = NewTrip::new(
+            context,
+            self.trip_provider.to_owned(),
+            self.travel_identifier.to_owned(),
+            self.booking_id.to_owned(),
+            self.travel_mode.to_owned(),
+            self.origin_name.to_owned(),
+            self.origin_country_name.to_owned(),
+            self.destination_name.to_owned(),
+            self.destination_country_name.to_owned(),
+            self.travel_intent.to_owned(),
+            self.scheduled_departure_time,
+            self.scheduled_arrival_time,
+            self.departure_time,
+            self.arrival_time,
+            self.trip_state.to_owned(),
+            travel_group_id,
+            person.id,
+        );
+
+        let trip = Trip::create(&conn, &new_trip).expect("Unable to create trip");
+
+        // Add or get PublicHealthProfile
+
+
+        // Add CovidTest
+
+
+        // Add QuarantinePlan
+
+
+
+        // Call health_rules_engine
          
 
         // Build TravelResponse

@@ -43,7 +43,6 @@ CREATE TABLE IF NOT EXISTS trips (
     booking_id VARCHAR,
     travel_mode VARCHAR NOT NULL,
     origin_place_id UUID NOT NULL,
-    transit_point_place_ids UUID[] NOT NULL,
     destination_place_id UUID NOT NULL,
     travel_intent VARCHAR NOT NULL,
     scheduled_departure_time TIMESTAMP,
@@ -57,11 +56,15 @@ CREATE TABLE IF NOT EXISTS trips (
 
 CREATE TABLE IF NOT EXISTS persons (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    family_name VARCHAR NOT NULL,
+    given_name VARCHAR NOT NULL,
+    additional_names TEXT[],
     birth_date TIMESTAMP NOT NULL,
+    gender VARCHAR NOT NULL,
+    travel_document_id VARCHAR NOT NULL,
     travel_document_issuer_id UUID NOT NULL,
     approved_access_level VARCHAR NOT NULL,
-    approved_access_granularity VARCHAR NOT NULL,
-    travel_document_id UUID NOT NULL
+    approved_access_granularity VARCHAR NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS public_health_profiles (

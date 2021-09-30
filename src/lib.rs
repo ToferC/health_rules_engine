@@ -9,7 +9,6 @@ extern crate juniper;
 
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
-use lazy_static::__Deref;
 use juniper::FieldResult;
 use models::{Country, NewCountry, Place, Vaccine};
 use tera::{Tera};
@@ -55,7 +54,7 @@ impl GraphQLContext {
     }
 
     // Change back to get_or_create_place_by_name_and_country_id
-    pub fn get_place_by_name_and_country_id(&self, name: String, country_id: Uuid) -> FieldResult<Place> {
+    pub fn get_or_create_place_by_name_and_country_id(&self, name: String, country_id: Uuid) -> FieldResult<Place> {
 
         let mut places = self.places.lock().unwrap();
 

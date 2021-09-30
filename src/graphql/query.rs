@@ -5,7 +5,7 @@ use crate::schema::*;
 
 use crate::GraphQLContext;
 use crate::models::{Person, QuarantinePlan,
-    TravelGroup, Trips, Vaccination, CovidTest};
+    TravelGroup, Trip, Vaccination, CovidTest};
 use uuid::Uuid;
 use crate::graphql::graphql_translate;
 
@@ -15,17 +15,18 @@ pub struct Query;
 impl Query {
 
     #[graphql(name = "allTrips")]
-    pub fn all_trips(context: &GraphQLContext) -> FieldResult<Vec<Trips>> {
+    pub fn all_trips(context: &GraphQLContext) -> FieldResult<Vec<Trip>> {
         let conn  = &context.pool.get().unwrap();
 
         let res = trips::table
-            .load::<Trips>(conn);
+            .order(trips::arrival_time)
+            .load::<Trip>(conn);
 
         graphql_translate(res)
     }
 
     #[graphql(name = "tripById")]
-    pub fn trip_by_id(context: &GraphQLContext, id: Uuid) -> FieldResult<Trips> {
+    pub fn trip_by_id(context: &GraphQLContext, id: Uuid) -> FieldResult<Trip> {
 
         let conn = context.pool.get().expect("Unable to connect to DB");
 

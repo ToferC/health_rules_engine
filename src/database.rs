@@ -24,7 +24,7 @@ use crate::models::QuarantinePlan;
 use crate::models::{Country, NewCountry, NewPerson, NewPlace, 
     NewPublicHealthProfile, NewTrip, NewVaccination, 
     NewVaccine, Person, Place, PublicHealthProfile, TravelGroup, 
-    Trips, Vaccine, Vaccination, CovidTest};
+    Trip, Vaccine, Vaccination, CovidTest};
 
 use crate::schema::*;
 
@@ -201,14 +201,14 @@ pub fn populate_db_with_demo_data(conn: &PgConnection) {
             let origin  = origins.choose(&mut rng).unwrap();
             let destination = destinations.choose(&mut rng).unwrap();
             
-            let nt = NewTrip::new(
+            let nt = NewTrip::fake(
                 &travel_group.id, 
                 &created_p.id, 
                 &origin.id, 
                 &destination.id
             );
             
-            let _t = Trips::create_trip(conn, &nt).expect("Unable to create trip");
+            let _t = Trip::create(conn, &nt).expect("Unable to create trip");
 
             // Create public health profile
             let profile = NewPublicHealthProfile::new(

@@ -8,12 +8,14 @@ use juniper::{FieldResult};
 use crate::schema::*;
 use crate::graphql::{graphql_translate};
 use crate::GraphQLContext;
-use super::{Trips};
+use super::{Trip};
 
 #[derive(Debug, Clone, Deserialize, Serialize, Queryable, PartialEq, PartialOrd, Identifiable)]
 #[serde(rename_all= "snake_case")]
 #[table_name = "travel_groups"]
-/// People travelling together
+/// People travelling together in a single voyage
+/// May include several trips per person with distinct origins
+/// and destinations.
 /// Referenced through Person, Trip and links to voyage
 pub struct TravelGroup {
     pub id: Uuid,
@@ -25,12 +27,14 @@ impl TravelGroup {
         self.id
     }
 
-    pub fn trips(&self, ctx: &GraphQLContext) -> Vec<Trips> {
+    pub fn trips(&self, ctx: &GraphQLContext) -> Vec<Trip> {
         let conn = ctx.pool.get().expect("Unable to connect to DB");
 
         let res = trips::table.
             filter(trips::travel_group_id.eq(self.id))
-            .load::<Trips>(&conn);
+            .order_by(trips::arrival_time)
+            .order_by(trips::person_id)
+            .load::<Trip>(&conn);
 
         res.unwrap()
     }
