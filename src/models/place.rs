@@ -28,7 +28,6 @@ impl Place {
             .get_result(conn);
 
         graphql_translate(res)
-
     }
 
     pub fn load_into_hash(conn: &PgConnection) -> HashMap<Uuid, Place> {

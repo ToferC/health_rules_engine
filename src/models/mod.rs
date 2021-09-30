@@ -11,6 +11,7 @@ mod postal_address;
 mod travel_group;
 mod access_log;
 mod user;
+mod api_models;
 
 pub use self::person::*;
 pub use self::trip::*;
@@ -25,3 +26,4 @@ pub use self::travel_group::{TravelGroup, NewTravelGroup};
 pub use self::place::{Place, NewPlace};
 pub use self::country::{Country, NewCountry};
 pub use self::postal_address::*;
+pub use api_models::*;

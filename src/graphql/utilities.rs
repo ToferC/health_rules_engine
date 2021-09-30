@@ -1,10 +1,9 @@
-use crate::{ 
-    database::PostgresPool, 
-};
+use std::sync::{Arc, Mutex};
+use crate::{database::PostgresPool};
 
 use juniper::{EmptySubscription, FieldError, FieldResult, RootNode};
 
-use crate::GraphQLContext;
+use crate::{GraphQLContext};
 use crate::models::{Country, Place, Vaccine,};
 use crate::graphql::{Query, Mutation};
 
@@ -25,8 +24,8 @@ pub fn create_context(pg_pool: PostgresPool) -> GraphQLContext {
 
     let conn = pg_pool.get().expect("Unable to connect to db");
 
-    let countries = Country::load_into_hash(&conn);
-    let places = Place::load_into_hash(&conn);
+    let countries = Arc::new(Mutex::new(Country::load_into_hash(&conn)));
+    let places = Arc::new(Mutex::new(Place::load_into_hash(&conn)));
     let vaccines = Vaccine::load_into_hash(&conn);
 
     GraphQLContext { 

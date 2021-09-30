@@ -13,6 +13,7 @@ use crate::schema::*;
 
 #[derive(Debug, Clone, Deserialize, Serialize, Insertable)]
 #[table_name = "countries"]
+/// Represents an insertable Country
 pub struct NewCountry {
     country_name: String,
     risk_rate: f64,
@@ -29,7 +30,11 @@ impl NewCountry {
 
 #[derive(Debug, Clone, Deserialize, Serialize, Queryable, Identifiable, GraphQLObject)]
 #[table_name = "countries"]
-/// Should get this from an API
+/// Should get this from an API or have standard data
+/// Now pre-loaded as prt of context
+/// Should re-think naming to reflect needs of Indigenous people
+/// And to reflect that not only nations may issue proofs of vaccination
+/// or travel documents
 pub struct Country {
     pub id: Uuid,
     pub country_name: String,

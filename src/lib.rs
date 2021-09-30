@@ -8,8 +8,10 @@ extern crate diesel_migrations;
 extern crate juniper;
 
 use std::collections::HashMap;
+use std::sync::{Arc, Mutex};
+use lazy_static::__Deref;
 use juniper::FieldResult;
-use models::{Place, Vaccine, Country};
+use models::{Country, NewCountry, Place, Vaccine};
 use tera::{Tera};
 
 use diesel::prelude::*;
@@ -33,8 +35,8 @@ pub struct AppData {
 pub struct GraphQLContext {
     pub pool: PostgresPool,
     // Standard query items here so we don't need to go to db
-    pub countries: HashMap<Uuid, models::Country>,
-    pub places: HashMap<Uuid, models::Place>,
+    pub countries: Arc<Mutex<HashMap<Uuid, models::Country>>>,
+    pub places: Arc<Mutex<HashMap<Uuid, models::Place>>>,
     pub vaccines: HashMap<Uuid, models::Vaccine>,
 }
 
@@ -42,18 +44,83 @@ impl juniper::Context for GraphQLContext {}
 
 impl GraphQLContext {
     pub fn get_place_by_id(&self, id: Uuid) -> FieldResult<Place> {
-        let place = self.places
+
+        let places = self.places.lock().unwrap();
+
+        let place = places
             .get(&id)
             .expect("Unable to retrieve Place");
 
         Ok(place.clone())
     }
 
+    // Change back to get_or_create_place_by_name_and_country_id
+    pub fn get_place_by_name_and_country_id(&self, name: String, country_id: Uuid) -> FieldResult<Place> {
+
+        let mut places = self.places.lock().unwrap();
+
+        let res = places.iter()
+            .find_map(
+                |(_key, val)| 
+                if val.name == name && val.country_id == country_id { 
+                    Some(val.clone()) 
+                } else { None });
+        
+        let place = match res {
+            Some(p) => p,
+            None => {
+                let p = models::NewPlace::new(name, country_id);
+                let place = models::Place::create(
+                    &self.pool.get().expect("Unable to connect to db"), 
+                    &p)?;
+                
+                places.insert(place.id, place.clone());
+                drop(places);
+                place
+            }
+        };
+
+        Ok(place.clone())
+    }
+
     pub fn get_country_by_id(&self, id: Uuid) -> FieldResult<Country> {
-        let country = self.countries
+
+        let countries = self.countries.lock().unwrap();
+
+        let country = countries
             .get(&id)
             .expect("Unable to retrieve Country");
 
+        Ok(country.clone())
+    }
+
+    pub fn get_or_create_country_by_name(&self, country_name: String) -> FieldResult<Country> {
+
+        let mut countries = self.countries.lock().unwrap();
+
+        let res = countries.iter()
+            .find_map(|(_key, val)| if val.country_name == country_name { Some(val) } else { None });
+
+        let country = match res {
+            Some(c) => c.clone(),
+
+            // None should *rarely* happen
+            None => {
+                let c = NewCountry::new(country_name, 0.03);
+
+                // Insert country into DB
+                let country = Country::create(
+                    &self.pool.get().expect("Unable to connec to db"), 
+                    &c)?;
+                
+                // Insert into Hashmap cache
+                countries.insert(country.id, country.clone());
+                drop(countries);
+                
+                country
+            }
+        };
+        
         Ok(country.clone())
     }
 

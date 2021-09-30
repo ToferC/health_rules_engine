@@ -128,3 +128,12 @@ CREATE TABLE IF NOT EXISTS postal_addresses (
     longitude FLOAT NOT NULL,
     additional_info TEXT
 );
+
+CREATE TABLE IF NOT EXISTS travel_responses (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    trip_id UUID NOT NULL,
+    response_code VARCHAR NOT NULL,
+    random_testing_referral bool NOT NULL,
+    date_time TIMESTAMP NOT NULL,
+    details TEXT
+);

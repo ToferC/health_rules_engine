@@ -98,6 +98,17 @@ table! {
 }
 
 table! {
+    travel_responses (id) {
+        id -> Uuid,
+        trip_id -> Uuid,
+        response_code -> Varchar,
+        random_testing_referral -> Bool,
+        date_time -> Timestamp,
+        details -> Nullable<Text>,
+    }
+}
+
+table! {
     trips (id) {
         id -> Uuid,
         trip_provider -> Varchar,
@@ -165,6 +176,7 @@ allow_tables_to_appear_in_same_query!(
     public_health_profiles,
     quarantine_plans,
     travel_groups,
+    travel_responses,
     trips,
     users,
     vaccinations,
