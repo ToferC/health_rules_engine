@@ -32,6 +32,8 @@ pub struct Person {
 
     pub travel_document_id: String,
     pub travel_document_issuer_id: Uuid, // Country
+
+    pub travel_group_id: Uuid,
     
     pub approved_access_level: String, // AccessLevel
     pub approved_access_granularity: String, // Granularity
@@ -51,6 +53,8 @@ pub struct NewPerson {
     pub travel_document_id: String,
     pub travel_document_issuer_id: Uuid, // Country
 
+    pub travel_group_id: Uuid,
+
     pub approved_access_level: String, // AccessLevel
     pub approved_access_granularity: String, // Granularity
 }
@@ -65,6 +69,7 @@ impl NewPerson {
         gender: String,
         travel_document_id: String,
         travel_document_issuer_id: Uuid, // Country
+        travel_group_id: Uuid,
         approved_access_level: String, // AccessLevel
         approved_access_granularity: String,
     ) -> Self {
@@ -76,12 +81,13 @@ impl NewPerson {
             gender,
             travel_document_id,
             travel_document_issuer_id,
+            travel_group_id,
             approved_access_level,
             approved_access_granularity,
         }
     }
 
-    pub fn fake(travel_document_issuer_id: Uuid) -> NewPerson {
+    pub fn fake(travel_document_issuer_id: Uuid, travel_group_id: Uuid) -> NewPerson {
 
         let mut rng = thread_rng();
         let random_year = rng.gen_range(1945..2002);
@@ -98,6 +104,7 @@ impl NewPerson {
             gender: "female".to_string(),
             travel_document_id: "HDFSHFKJHD372840".to_string(),
             travel_document_issuer_id,
+            travel_group_id,
             approved_access_level: "medical_records".to_string(),
             approved_access_granularity: "aggregated".to_string(),
         }

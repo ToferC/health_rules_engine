@@ -170,6 +170,7 @@ impl TravelData {
             self.gender.to_owned(),
             self.travel_document_id.to_owned(),
             country.id, // Country
+            travel_group_id,
             self.approved_access_level.to_owned(), // AccessLevel
             self.approved_access_granularity.to_owned(),
         );

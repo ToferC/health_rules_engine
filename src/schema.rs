@@ -48,6 +48,7 @@ table! {
         gender -> Varchar,
         travel_document_id -> Varchar,
         travel_document_issuer_id -> Uuid,
+        travel_group_id -> Uuid,
         approved_access_level -> Varchar,
         approved_access_granularity -> Varchar,
     }

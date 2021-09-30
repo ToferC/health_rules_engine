@@ -63,6 +63,7 @@ CREATE TABLE IF NOT EXISTS persons (
     gender VARCHAR NOT NULL,
     travel_document_id VARCHAR NOT NULL,
     travel_document_issuer_id UUID NOT NULL,
+    travel_group_id UUID NOT NULL,
     approved_access_level VARCHAR NOT NULL,
     approved_access_granularity VARCHAR NOT NULL
 );
