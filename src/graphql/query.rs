@@ -1,16 +1,13 @@
-use crate::{ 
-    database::PostgresPool, 
-};
-
 use diesel::{RunQueryDsl};
 use diesel::{QueryDsl, ExpressionMethods};
-use juniper::{EmptySubscription, FieldError, FieldResult, RootNode};
+use juniper::{FieldResult};
 use crate::schema::*;
 
 use crate::GraphQLContext;
-use crate::models::{Country, NewTrip, Person, Place, QuarantinePlan,
-    TravelGroup, Trips, Vaccination, Vaccine, CovidTest};
+use crate::models::{Person, QuarantinePlan,
+    TravelGroup, Trips, Vaccination, CovidTest};
 use uuid::Uuid;
+use crate::graphql::graphql_translate;
 
 pub struct Query;
 
@@ -92,49 +89,5 @@ impl Query {
         let res = covid_tests::table.load::<CovidTest>(&conn);
 
         graphql_translate(res)
-    }
-}
-
-pub struct Mutation;
-
-#[juniper::graphql_object(Context = GraphQLContext)]
-impl Mutation {
-    #[graphql(name = "createTrip")]
-    pub fn create_trip(
-    context: &GraphQLContext,
-    _input: String, // CreateTripInput
-    ) -> FieldResult<Trips> {
-        let conn  = &context.pool.get().unwrap();
-
-        Trips::create_trip(conn, &NewTrip::default())
-    }
-}
-
-pub fn graphql_translate<T>(res: Result<T, diesel::result::Error>) -> FieldResult<T> {
-    match res {
-        Ok(t) => Ok(t),
-        Err(e) => Err(FieldError::from(e)),
-    }
-}
-
-pub type Schema = RootNode<'static, Query, Mutation, EmptySubscription<GraphQLContext>>;
-
-pub fn create_schema() -> Schema {
-    Schema::new(Query, Mutation, EmptySubscription::new())
-}
-
-pub fn create_context(pg_pool: PostgresPool) -> GraphQLContext {
-
-    let conn = pg_pool.get().expect("Unable to connect to db");
-
-    let countries = Country::load_into_hash(&conn);
-    let places = Place::load_into_hash(&conn);
-    let vaccines = Vaccine::load_into_hash(&conn);
-
-    GraphQLContext { 
-        pool: pg_pool,
-        countries,
-        places,
-        vaccines,    
     }
 }
