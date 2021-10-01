@@ -79,6 +79,27 @@ impl NewCovidTest {
             test_result,
         }
     }
+
+    pub fn from(
+        public_health_profile_id: Uuid,
+        slim_test: &SlimCovidTest,
+    ) -> Self {
+        NewCovidTest {
+            public_health_profile_id,
+            test_name: slim_test.test_name.to_owned(),
+            test_type: slim_test.test_type.to_owned(),
+            date_taken: slim_test.date_taken,
+            test_result: slim_test.test_result,
+        }
+    }
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize, GraphQLObject)]
+pub struct SlimCovidTest {
+    pub test_name: String,
+    pub test_type: String, // TestType
+    pub date_taken: NaiveDateTime,
+    pub test_result: bool,
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize, GraphQLEnum)]

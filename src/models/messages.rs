@@ -13,10 +13,10 @@ use crate::schema::*;
 
 use crate::models::{NewPerson, 
     NewPublicHealthProfile, NewTrip, NewVaccination, Trip,
-    Person, PublicHealthProfile, TravelGroup, 
-    Vaccination, CovidTest, SlimVaccination};
+    Person, PublicHealthProfile, TravelGroup, SlimQuarantinePlan,
+    Vaccination, CovidTest, SlimCovidTest, SlimVaccination};
 
-use super::{NewCovidTest, NewQuarantinePlan};
+use super::{NewCovidTest, NewQuarantinePlan, QuarantinePlan};
 
 #[derive(Debug, Clone, Serialize, Deserialize, GraphQLObject, Queryable)]
 /// A struct representing the API response for a specific traveller
@@ -130,13 +130,13 @@ pub struct TravelData {
     // CovidTest
     // Very likely to be new each time we interact, but not
     // necessarily for frequent travellers or workers
-    pub covid_test: NewCovidTest,
+    pub covid_test: SlimCovidTest,
 
     // QuarantinePlan
     // Also likely to be unique for each traveller.
     // Possible to be required or not required based on 
     // environment.
-    pub quarantine_plan: NewQuarantinePlan,
+    pub quarantine_plan: SlimQuarantinePlan,
 
     // Time of api post
     pub date_time: NaiveDateTime,
@@ -147,7 +147,7 @@ pub struct TravelData {
 
 #[graphql_object(Context = GraphQLContext)]
 impl TravelData {
-    pub fn parse(&self, context: &GraphQLContext) -> FieldResult<TravelResponse> {
+    pub fn process(&self, context: &GraphQLContext) -> FieldResult<TravelResponse> {
 
         // Connect to PostgresPool
         let conn = context.pool.get().expect("Unable to connec to db");
@@ -221,11 +221,22 @@ impl TravelData {
             vaccination_history.push(v);
         }
         
-        // Add CovidTest
+        // Add CovidTest -> update to get or create
+        let new_test = NewCovidTest::from(
+            public_health_profile.id, 
+            &self.covid_test);
 
+        let covid_test = CovidTest::create(&conn, &new_test)
+            .expect("Unable to create new covid test");
 
         // Add QuarantinePlan
+        let new_plan = NewQuarantinePlan::from(
+            public_health_profile.id,
+            &self.quarantine_plan
+        );
 
+        let quarantine_plan = QuarantinePlan::create(&conn, &new_plan)
+            .expect("Unable to create new quarantine plan");
 
 
         // Call health_rules_engine
