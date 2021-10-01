@@ -2,7 +2,7 @@ use chrono::prelude::*;
 use juniper::FieldResult;
 use serde::{Deserialize, Serialize};
 use diesel::{self, Insertable, PgConnection, Queryable,
-    RunQueryDsl, QueryDsl, ExpressionMethods, TextExpressionMethods};
+    RunQueryDsl, QueryDsl, ExpressionMethods};
 use uuid::Uuid;
 
 use crate::models::{Place, Vaccine};
@@ -60,12 +60,12 @@ impl Vaccination {
             .first(conn);
 
         let vaccination = match res {
-            Ok(Vaccination) => Vaccination,
+            Ok(v) => v,
             Err(e) => {
                 // Vaccination not found
                 println!("{:?}", e);
-                let Vaccination = Vaccination::create(conn, vaccination).expect("Unable to create person");
-                Vaccination
+                let v = Vaccination::create(conn, vaccination).expect("Unable to create person");
+                v
             }
         };
         Ok(vaccination)

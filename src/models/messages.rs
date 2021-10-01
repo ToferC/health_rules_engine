@@ -1,7 +1,6 @@
 use diesel::PgConnection;
-use diesel::prelude::*;
 use diesel::{self, Insertable, Queryable};
-use diesel::{RunQueryDsl, QueryDsl};
+use diesel::{RunQueryDsl};
 use serde::{Serialize, Deserialize};
 use uuid::Uuid;
 use chrono::prelude::*;
@@ -12,12 +11,11 @@ use crate::{GraphQLContext};
 use crate::graphql::{graphql_translate};
 use crate::schema::*;
 
-use crate::models::{Country, NewCountry, NewPerson, NewPlace, 
+use crate::models::{NewPerson, 
     NewPublicHealthProfile, NewTrip, NewVaccination, Trip,
-    NewVaccine, Person, Place, PublicHealthProfile, TravelGroup, 
-    Vaccine, Vaccination, CovidTest, SlimVaccination};
+    Person, PublicHealthProfile, TravelGroup, 
+    Vaccination, CovidTest, SlimVaccination};
 
-use super::trip;
 use super::{NewCovidTest, NewQuarantinePlan};
 
 #[derive(Debug, Clone, Serialize, Deserialize, GraphQLObject, Queryable)]
@@ -197,7 +195,7 @@ impl TravelData {
             person.id,
         );
 
-        let trip = Trip::create(&conn, &new_trip).expect("Unable to create trip");
+        let _trip = Trip::create(&conn, &new_trip).expect("Unable to create trip");
 
         // Add or get PublicHealthProfile
         let profile = NewPublicHealthProfile::new(
