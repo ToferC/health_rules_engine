@@ -11,7 +11,7 @@ use rand::{Rng, thread_rng};
 use crate::schema::*;
 use crate::graphql::graphql_translate;
 use crate::GraphQLContext;
-use crate::models::{Country};
+use crate::models::{Country, Trip};
 
 use super::PublicHealthProfile;
 
@@ -170,6 +170,18 @@ impl Person {
             .first(&conn);
 
         graphql_translate(res)
+    }
+
+    pub fn trips(&self, ctx: &GraphQLContext) -> Vec<Trip> {
+        let conn = ctx.pool.get().expect("Unable to connect to DB");
+
+        let res = trips::table.
+            filter(trips::person_id.eq(self.id))
+            .order_by(trips::arrival_time)
+            .order_by(trips::person_id)
+            .load::<Trip>(&conn);
+
+        res.unwrap()
     }
 }
 

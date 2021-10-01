@@ -80,7 +80,7 @@ table! {
     public_health_profiles (id) {
         id -> Uuid,
         person_id -> Uuid,
-        smart_healthcard_pk -> Varchar,
+        smart_healthcard_pk -> Nullable<Varchar>,
     }
 }
 

@@ -8,7 +8,7 @@ use juniper::{FieldResult};
 use crate::schema::*;
 use crate::graphql::{graphql_translate};
 use crate::GraphQLContext;
-use super::{Trip};
+use super::{Trip, Person};
 
 #[derive(Debug, Clone, Deserialize, Serialize, Queryable, PartialEq, PartialOrd, Identifiable)]
 #[serde(rename_all= "snake_case")]
@@ -35,6 +35,16 @@ impl TravelGroup {
             .order_by(trips::arrival_time)
             .order_by(trips::person_id)
             .load::<Trip>(&conn);
+
+        res.unwrap()
+    }
+
+    pub fn people(&self, ctx: &GraphQLContext) -> Vec<Person> {
+        let conn = ctx.pool.get().expect("Unable to connect to DB");
+
+        let res = persons::table.
+            filter(persons::travel_group_id.eq(self.id))
+            .load::<Person>(&conn);
 
         res.unwrap()
     }

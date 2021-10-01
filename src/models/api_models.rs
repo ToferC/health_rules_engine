@@ -15,7 +15,7 @@ use crate::schema::*;
 use crate::models::{Country, NewCountry, NewPerson, NewPlace, 
     NewPublicHealthProfile, NewTrip, NewVaccination, Trip,
     NewVaccine, Person, Place, PublicHealthProfile, TravelGroup, 
-    Vaccine, Vaccination, CovidTest};
+    Vaccine, Vaccination, CovidTest, SlimVaccination};
 
 use super::trip;
 use super::{NewCovidTest, NewQuarantinePlan};
@@ -120,15 +120,14 @@ pub struct TravelData {
     pub trip_state: String,
 
     // PublicHealthProfile data
-    // May or may not have this detail. Will creat if not.
-    pub public_health_profile_id: Option<Uuid>,
+    // May or may not have this detail. Will create if not.
     pub smart_healthcard_pk: Option<String>,
 
     // Vaccinations
     // May already be in system. Likely need to do a validation
     // By date_time and provider constraint
     // Otherwise, add new vaccinations to system
-    pub vaccinations: Vec<NewVaccination>,
+    pub vaccinations: Vec<SlimVaccination>,
 
     // CovidTest
     // Very likely to be new each time we interact, but not
@@ -201,8 +200,29 @@ impl TravelData {
         let trip = Trip::create(&conn, &new_trip).expect("Unable to create trip");
 
         // Add or get PublicHealthProfile
+        let profile = NewPublicHealthProfile::new(
+            person.id,
+            self.smart_healthcard_pk.clone(),
+        );
 
+        let public_health_profile = PublicHealthProfile::get_or_create(&conn, &profile)
+            .expect("Unable to find or create profile");
 
+        // Add vaccinations
+        let mut vaccination_history: Vec<Vaccination> = Vec::new();
+        
+        for slim_v in &self.vaccinations {
+
+            let nv = NewVaccination::from(
+                context, 
+                &slim_v, 
+                public_health_profile.id).expect("Unable to create NewVaccination");
+
+            let v = Vaccination::get_or_create(&conn, &nv)
+                .expect("Unable to find or create vaccination");
+            vaccination_history.push(v);
+        }
+        
         // Add CovidTest
 
 

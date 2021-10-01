@@ -130,6 +130,14 @@ impl GraphQLContext {
 
         Ok(vaccine.clone())
     }
+
+    pub fn get_vaccine_by_name(&self, name: String) -> FieldResult<Vaccine> {
+        let res = self.vaccines.iter()
+            .find_map(|(_key, val)| if val.vaccine_name == name { Some(val) } else { None })
+            .expect("Unable to find vaccine");
+
+        Ok(res.clone())
+    }
 }
 
 pub type Pool = r2d2::Pool<ConnectionManager<PgConnection>>;

@@ -192,7 +192,8 @@ pub fn populate_db_with_demo_data(conn: &PgConnection) {
 
             // Create person
             let person = NewPerson::fake(
-                country.id
+                country.id,
+                travel_group.id,
             );
 
             let created_p = Person::create(conn, &person).expect("Unable to create person");
@@ -213,14 +214,14 @@ pub fn populate_db_with_demo_data(conn: &PgConnection) {
             // Create public health profile
             let profile = NewPublicHealthProfile::new(
                 created_p.id.to_owned(), 
-                Uuid::new_v4().to_string(),
+                Some(Uuid::new_v4().to_string()),
             );
 
             let created_ph_profile = PublicHealthProfile::create(conn, &profile).unwrap();
 
             // Create vaccinations
             for _i in 0..2 {
-                let new_vaccination = NewVaccination::new(
+                let new_vaccination = NewVaccination::fake(
                     vaccines.choose(&mut rng).unwrap().id, 
                     "local pharmacy".to_string(), 
                     origin.id, 

@@ -17,7 +17,7 @@ use crate::schema::*;
 pub struct PublicHealthProfile {
     pub id: Uuid,
     pub person_id: Uuid,
-    pub smart_healthcard_pk: String,
+    pub smart_healthcard_pk: Option<String>,
 }
 
 // GraphQL Implementation
@@ -32,7 +32,10 @@ impl PublicHealthProfile {
     }
 
     pub fn smart_healthcard_pk(&self) -> FieldResult<String> {
-        Ok(self.smart_healthcard_pk.to_owned())
+        match &self.smart_healthcard_pk {
+            Some(key) => Ok(key.to_owned()),
+            None => Ok("NA".to_string())
+        }
     }
 
     pub fn vaccination_history(&self, context: &GraphQLContext) -> FieldResult<Vec<Vaccination>> {
@@ -74,6 +77,25 @@ impl PublicHealthProfile {
         
         graphql_translate(res)
     }
+
+    pub fn get_or_create(conn: &PgConnection, profile: &NewPublicHealthProfile) -> FieldResult<PublicHealthProfile> {
+        let res = public_health_profiles::table
+            .filter(public_health_profiles::smart_healthcard_pk.eq(&profile.smart_healthcard_pk))
+            .filter(public_health_profiles::person_id.eq(profile.person_id))
+            .distinct()
+            .first(conn);
+
+        let profile = match res {
+            Ok(p) => p,
+            Err(e) => {
+                // Profile not found
+                println!("{:?}", e);
+                let p = PublicHealthProfile::create(conn, profile).expect("Unable to create person");
+                p
+            }
+        };
+        Ok(profile)
+    }
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize, PartialEq, PartialOrd, Insertable)]
@@ -81,13 +103,13 @@ impl PublicHealthProfile {
 #[table_name = "public_health_profiles"]
 pub struct NewPublicHealthProfile {
     pub person_id: Uuid,
-    pub smart_healthcard_pk: String,
+    pub smart_healthcard_pk: Option<String>,
 }
 
 impl NewPublicHealthProfile {
     pub fn new(
         person_id: Uuid,
-        smart_healthcard_pk: String,
+        smart_healthcard_pk: Option<String>,
     ) -> Self {
         NewPublicHealthProfile {
             person_id,
