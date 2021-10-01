@@ -94,7 +94,7 @@ impl NewCovidTest {
     }
 }
 
-#[derive(Debug, Clone, Deserialize, Serialize, GraphQLObject)]
+#[derive(Debug, Clone, Deserialize, Serialize, GraphQLInputObject)]
 pub struct SlimCovidTest {
     pub test_name: String,
     pub test_type: String, // TestType

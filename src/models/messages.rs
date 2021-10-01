@@ -24,8 +24,11 @@ use super::{NewCovidTest, NewQuarantinePlan, QuarantinePlan};
 pub struct TravelResponse {
     pub id: Uuid,
     pub trip_id: Uuid,
+    pub person_id: Uuid,
+    pub cbsa_id: String,
     pub response_code: String,
     pub random_testing_referral: bool,
+    pub quarantine_required: bool,
     pub date_time: NaiveDateTime,
     pub details: Option<String>,
 }
@@ -40,15 +43,18 @@ impl TravelResponse {
     }
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, Insertable)]
+#[derive(Debug, Clone, Serialize, Deserialize, Insertable, GraphQLObject)]
 #[table_name = "travel_responses"]
 /// A struct representing the API response for a specific traveller
 /// Likely to be part of a Vec<TravelResponse>
 /// Will also be added to database for audit and data purposes.
 pub struct NewTravelResponse {
     pub trip_id: Uuid,
+    pub person_id: Uuid,
+    pub cbsa_id: String,
     pub response_code: String,
     pub random_testing_referral: bool,
+    pub quarantine_required: bool,
     pub date_time: NaiveDateTime,
     pub details: Option<String>,
 }
@@ -56,8 +62,11 @@ pub struct NewTravelResponse {
 impl NewTravelResponse {
     pub fn new(
             trip_id: Uuid,
+            person_id: Uuid,
+            cbsa_id: String,
             response_code: String,
             random_testing_referral: bool,
+            quarantine_required: bool,
             details: String,
     ) -> Self {
 
@@ -69,15 +78,18 @@ impl NewTravelResponse {
 
         NewTravelResponse {
             trip_id,
+            person_id,
+            cbsa_id,
             response_code,
             random_testing_referral,
+            quarantine_required,
             date_time: Utc::now().naive_utc(),
             details,
         }
     }
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, GraphQLInputObject)]
 /// Struct for data submitted by CBSA on query of ArriveCan.
 /// Likely to be part of a Vec<TravelData> that will be 
 /// combined into a TravelGroup.
@@ -85,15 +97,15 @@ pub struct TravelData {
 
     // Person (traveller) data, providing id if traveller is already
     // in the system, or a NewPerson struct if not
-    family_name: String,
-    given_name: String,
-    additional_names: Option<Vec<String>>,
-    birth_date: NaiveDateTime,
-    gender: String,
-    travel_document_id: String,
-    travel_document_issuer: String, // Country
-    approved_access_level: String, // AccessLevel
-    approved_access_granularity: String,
+    pub family_name: String,
+    pub given_name: String,
+    pub additional_names: Option<Vec<String>>,
+    pub birth_date: NaiveDateTime,
+    pub gender: String,
+    pub travel_document_id: String,
+    pub travel_document_issuer: String, // Country
+    pub approved_access_level: String, // AccessLevel
+    pub approved_access_granularity: String,
 
     // Trip data
     pub trip_provider: String,
@@ -106,7 +118,6 @@ pub struct TravelData {
 
     pub origin_name: String,
     pub origin_country_name: String,
-    pub transit_points: Vec<(String, String)>, // place_name, country_name
     pub destination_name: String,
     pub destination_country_name: String,
 
@@ -143,9 +154,9 @@ pub struct TravelData {
 
     // CBSA Officer ID
     pub cbsa_officer_id: String,
+    pub cbsa_id: String,
 }
 
-#[graphql_object(Context = GraphQLContext)]
 impl TravelData {
     pub fn process(&self, context: &GraphQLContext) -> FieldResult<TravelResponse> {
 
@@ -195,7 +206,7 @@ impl TravelData {
             person.id,
         );
 
-        let _trip = Trip::create(&conn, &new_trip).expect("Unable to create trip");
+        let trip = Trip::create(&conn, &new_trip).expect("Unable to create trip");
 
         // Add or get PublicHealthProfile
         let profile = NewPublicHealthProfile::new(
@@ -244,9 +255,12 @@ impl TravelData {
 
         // Build TravelResponse
         let new_tr = NewTravelResponse::new(
-            Uuid::new_v4(),
+            trip.id,
+            person.id,
+            self.cbsa_id.to_owned(),
             "I".to_string(),
             true,
+            false,
             "None".to_string()
         );
 

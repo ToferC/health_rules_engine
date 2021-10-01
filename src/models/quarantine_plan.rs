@@ -115,7 +115,7 @@ impl NewQuarantinePlan {
     }
 }
 
-#[derive(Debug, Clone, Deserialize, Serialize, GraphQLObject)]
+#[derive(Debug, Clone, Deserialize, Serialize, GraphQLInputObject)]
 pub struct SlimQuarantinePlan {
     pub date_created: NaiveDateTime,
     pub quarantine_required: bool,

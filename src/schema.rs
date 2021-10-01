@@ -106,8 +106,11 @@ table! {
     travel_responses (id) {
         id -> Uuid,
         trip_id -> Uuid,
+        person_id -> Uuid,
+        cbsa_id -> Varchar,
         response_code -> Varchar,
         random_testing_referral -> Bool,
+        quarantine_required -> Bool,
         date_time -> Timestamp,
         details -> Nullable<Text>,
     }

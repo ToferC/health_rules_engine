@@ -9,20 +9,39 @@ use crate::schema::*;
 
 use crate::GraphQLContext;
 use crate::models::{Country, NewTrip, Person, Place, QuarantinePlan,
-    TravelGroup, Trip, Vaccination, Vaccine, CovidTest};
+    TravelGroup, Trip, Vaccination, Vaccine, CovidTest, TravelData, 
+    TravelResponse, NewTravelResponse};
 use uuid::Uuid;
 
 pub struct Mutation;
 
-#[juniper::graphql_object(Context = GraphQLContext)]
+#[graphql_object(Context = GraphQLContext)]
 impl Mutation {
-    #[graphql(name = "createTrip")]
-    pub fn create_trip(
-    context: &GraphQLContext,
-    _input: String, // CreateTripInput
-    ) -> FieldResult<Trip> {
-        let conn  = &context.pool.get().unwrap();
 
-        Trip::create(conn, &NewTrip::default())
+    #[graphql(name = "postTravelGroupData")]
+    pub fn post_travel_group_data(
+        context: &GraphQLContext,
+        data: Vec<TravelData>,
+    ) -> FieldResult<Vec<TravelResponse>> {
+
+        let mut responses_to_cbsa: Vec<TravelResponse> = Vec::new();
+
+        for traveller in data {
+            let response = traveller.process(&context)?;
+            responses_to_cbsa.push(response);
+        }
+
+        Ok(responses_to_cbsa)
+    }
+
+    pub fn ping(
+        _context: &GraphQLContext,
+        data: String,
+    ) -> String {
+        if data == "PING".to_string() {
+            "PONG".to_string()
+        } else {
+            "WRONG".to_string()
+        }
     }
 }
