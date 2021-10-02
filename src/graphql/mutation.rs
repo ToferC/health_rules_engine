@@ -1,17 +1,9 @@
-use crate::{ 
-    database::PostgresPool, 
-};
-
-use diesel::{RunQueryDsl};
-use diesel::{QueryDsl, ExpressionMethods};
-use juniper::{EmptySubscription, FieldError, FieldResult, RootNode};
-use crate::schema::*;
+use juniper::{EmptySubscription, FieldError, FieldResult};
 
 use crate::GraphQLContext;
 use crate::models::{Country, NewTrip, Person, Place, QuarantinePlan,
     TravelGroup, Trip, Vaccination, Vaccine, CovidTest, TravelData, 
     TravelResponse, NewTravelResponse};
-use uuid::Uuid;
 
 pub struct Mutation;
 
@@ -21,17 +13,19 @@ impl Mutation {
     #[graphql(name = "postTravelGroupData")]
     pub fn post_travel_group_data(
         context: &GraphQLContext,
-        data: Vec<TravelData>,
-    ) -> FieldResult<Vec<TravelResponse>> {
+        data: TravelData,
+    ) -> FieldResult<TravelResponse> {
 
         let mut responses_to_cbsa: Vec<TravelResponse> = Vec::new();
 
+        /*
         for traveller in data {
-            let response = traveller.process(&context)?;
             responses_to_cbsa.push(response);
         }
-
-        Ok(responses_to_cbsa)
+        */
+        let response = data.process(&context)?;
+        
+        Ok(response)
     }
 
     pub fn ping(

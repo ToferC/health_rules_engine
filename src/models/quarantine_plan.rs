@@ -107,21 +107,19 @@ impl NewQuarantinePlan {
         NewQuarantinePlan {
             public_health_profile_id,
             date_created: slim_plan.date_created,
-            quarantine_required: slim_plan.quarantine_required,
+            quarantine_required: false, // default
             confirmation_no_vulnerable: slim_plan.confirmation_no_vulnerable,
             postal_address_id: slim_plan.postal_address_id.to_owned(),
-            active: slim_plan.active,
-        }
+            active: false, // default
+        } 
     }
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize, GraphQLInputObject)]
 pub struct SlimQuarantinePlan {
     pub date_created: NaiveDateTime,
-    pub quarantine_required: bool,
     pub confirmation_no_vulnerable: bool,
     pub postal_address_id: String, // PostalAddress
-    pub active: bool,
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize, GraphQLObject, Queryable)]
