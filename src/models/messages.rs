@@ -103,6 +103,7 @@ pub struct TravelData {
     // in the system, or a NewPerson struct if not
     pub family_name: String,
     pub given_name: String,
+    /// Optional vector of strings
     pub additional_names: Option<Vec<String>>,
     pub birth_date: NaiveDate,
     pub gender: String,
@@ -113,12 +114,11 @@ pub struct TravelData {
 
     // Trip data
     pub trip_provider: String,
-    // None for travel_identifier == private travel
+    /// Optional String. If None for travel_identifier == private travel
     pub travel_identifier: Option<String>,
+    /// Optional String for booking ID if applicable
     pub booking_id: Option<String>,
     pub travel_mode: String,
-
-    // pub country_name: String,
 
     pub origin_name: String,
     pub origin_country_name: String,
@@ -126,31 +126,35 @@ pub struct TravelData {
     pub destination_country_name: String,
 
     pub travel_intent: String,
+    /// Optional NaiveDateTime
     pub scheduled_departure_time: Option<NaiveDateTime>,
+    /// Optional NaiveDateTime
     pub scheduled_arrival_time: Option<NaiveDateTime>,
+    /// Optional NaiveDateTime
     pub departure_time: Option<NaiveDateTime>,
+    /// Optional NaiveDateTime
     pub arrival_time: Option<NaiveDateTime>,
     pub trip_state: String,
 
-    // PublicHealthProfile data
-    // May or may not have this detail. Will create if not.
+    /// PublicHealthProfile data
+    /// May or may not have this detail. Will create if not.
     pub smart_healthcard_pk: Option<String>,
 
-    // Vaccinations
-    // May already be in system. Likely need to do a validation
-    // By date_time and provider constraint
-    // Otherwise, add new vaccinations to system
+    /// Vec of SlimVaccinations as Vaccinations
+    /// May already be in system. Likely need to do a validation
+    /// By date_time and provider constraint
+    /// Otherwise, add new vaccinations to system
     pub vaccinations: Vec<SlimVaccination>,
 
-    // CovidTest
-    // Very likely to be new each time we interact, but not
-    // necessarily for frequent travellers or workers
+    /// CovidTest
+    /// Very likely to be new each time we interact, but not
+    /// necessarily for frequent travellers or workers
     pub covid_test: SlimCovidTest,
 
-    // QuarantinePlan
-    // Also likely to be unique for each traveller.
-    // Possible to be required or not required based on 
-    // environment.
+    /// QuarantinePlan
+    /// Also likely to be unique for each traveller.
+    /// Possible to be required or not required based on 
+    /// environment. Consider making optional.
     pub quarantine_plan: SlimQuarantinePlan,
 
     // Time of api post
