@@ -100,7 +100,7 @@ pub struct TravelData {
     pub family_name: String,
     pub given_name: String,
     pub additional_names: Option<Vec<String>>,
-    pub birth_date: NaiveDateTime,
+    pub birth_date: NaiveDate,
     pub gender: String,
     pub travel_document_id: String,
     pub travel_document_issuer: String, // Country

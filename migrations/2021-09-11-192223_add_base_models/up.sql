@@ -59,7 +59,7 @@ CREATE TABLE IF NOT EXISTS persons (
     family_name VARCHAR NOT NULL,
     given_name VARCHAR NOT NULL,
     additional_names TEXT[],
-    birth_date TIMESTAMP NOT NULL,
+    birth_date DATE NOT NULL,
     gender VARCHAR NOT NULL,
     travel_document_id VARCHAR NOT NULL,
     travel_document_issuer_id UUID NOT NULL,

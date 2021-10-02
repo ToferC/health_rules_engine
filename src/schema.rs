@@ -44,7 +44,7 @@ table! {
         family_name -> Varchar,
         given_name -> Varchar,
         additional_names -> Nullable<Array<Text>>,
-        birth_date -> Timestamp,
+        birth_date -> Date,
         gender -> Varchar,
         travel_document_id -> Varchar,
         travel_document_issuer_id -> Uuid,

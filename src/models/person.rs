@@ -27,7 +27,7 @@ pub struct Person {
     pub family_name: String,
     pub given_name: String,
     pub additional_names: Option<Vec<String>>,
-    pub birth_date: NaiveDateTime,
+    pub birth_date: NaiveDate,
     pub gender: String,
 
     pub travel_document_id: String,
@@ -47,7 +47,7 @@ pub struct NewPerson {
     pub family_name: String,
     pub given_name: String,
     pub additional_names: Option<Vec<String>>,
-    pub birth_date: NaiveDateTime,
+    pub birth_date: NaiveDate,
     pub gender: String,
 
     pub travel_document_id: String,
@@ -65,7 +65,7 @@ impl NewPerson {
         family_name: String,
         given_name: String,
         additional_names: Option<Vec<String>>,
-        birth_date: NaiveDateTime,
+        birth_date: NaiveDate,
         gender: String,
         travel_document_id: String,
         travel_document_issuer_id: Uuid, // Country
@@ -94,7 +94,7 @@ impl NewPerson {
         let random_month = rng.gen_range(1..13);
         let random_day = rng.gen_range(1..29);
 
-        let dob: NaiveDateTime = Utc.ymd(random_year, random_month, random_day).and_hms(1, 1, 1).naive_utc();
+        let dob: NaiveDate = Utc.ymd(random_year, random_month, random_day).naive_utc();
         
         NewPerson {
             family_name: "Doe".to_string(),
