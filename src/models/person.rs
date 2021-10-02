@@ -145,6 +145,19 @@ impl Person {
 
 #[graphql_object(Context = GraphQLContext)]
 impl Person {
+
+    pub fn family_name(&self) -> FieldResult<String> {
+        Ok(self.family_name.to_owned())
+    }
+
+    pub fn given_name(&self) -> FieldResult<String> {
+        Ok(self.given_name.to_owned())
+    }
+
+    pub fn additional_names(&self) -> FieldResult<Option<Vec<String>>> {
+        Ok(self.additional_names.to_owned())
+    }
+
     pub fn birth_date(&self) -> FieldResult<String> {
         Ok(self.birth_date.format("%Y-%m-%d").to_string())
     }

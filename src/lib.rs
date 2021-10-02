@@ -26,6 +26,8 @@ pub mod graphql;
 
 use crate::database::{PostgresPool};
 
+const DATE_FORMAT: &str = "%Y-%m-%d %H:%M:%S";
+
 pub struct AppData {
     pub tmpl: Tera
 }

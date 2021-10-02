@@ -121,7 +121,7 @@ pub fn populate_db_with_demo_data(conn: &PgConnection) {
 
     let mut new_vaccines = Vec::new();
 
-    let approved_on: NaiveDateTime = Utc.ymd(2021, 09, 21).and_hms(1, 1, 1).naive_utc();
+    let approved_on: NaiveDate = Utc.ymd(2021, 09, 21).naive_utc();
 
     let mut vaccines: Vec<Vaccine> = Vec::new();
 
@@ -245,10 +245,11 @@ pub fn populate_db_with_demo_data(conn: &PgConnection) {
             let _c = CovidTest::create(conn, &new_test).expect("Unable to create CovidTest");
 
             // Create quarantine plan
+            let date_created: NaiveDate = Utc::today().naive_utc() - Duration::days(rng.gen_range(1..14));
 
             let new_qp = NewQuarantinePlan::new(
                 created_ph_profile.id,
-                Utc::now().naive_utc() - Duration::days(rng.gen_range(1..14)),
+                date_created,
                 false,
                 false,
                 "Local Hotel Address".to_string(),

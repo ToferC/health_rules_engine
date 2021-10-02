@@ -88,7 +88,7 @@ table! {
     quarantine_plans (id) {
         id -> Uuid,
         public_health_profile_id -> Uuid,
-        date_created -> Timestamp,
+        date_created -> Date,
         quarantine_required -> Bool,
         confirmation_no_vulnerable -> Bool,
         postal_address_id -> Varchar,
@@ -105,6 +105,7 @@ table! {
 table! {
     travel_responses (id) {
         id -> Uuid,
+        post_status -> Varchar,
         trip_id -> Uuid,
         person_id -> Uuid,
         cbsa_id -> Varchar,
@@ -167,7 +168,7 @@ table! {
         vaccine_type -> Varchar,
         required_doses -> Int4,
         approved -> Bool,
-        approved_on -> Timestamp,
+        approved_on -> Date,
         details -> Text,
     }
 }

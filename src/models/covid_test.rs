@@ -5,7 +5,7 @@ use diesel::{self, Insertable, PgConnection, Queryable,
     RunQueryDsl};
 use uuid::Uuid;
 
-use crate::GraphQLContext;
+use crate::{DATE_FORMAT, GraphQLContext};
 use crate::graphql::graphql_translate;
 use crate::schema::*;
 
@@ -35,7 +35,7 @@ impl CovidTest {
     }
 
     pub fn date_taken(&self) -> FieldResult<String> {
-        Ok(self.date_taken.format("%Y-%m-%d").to_string())
+        Ok(self.date_taken.format(DATE_FORMAT).to_string())
     }
 
     pub fn test_result(&self) -> FieldResult<bool> {

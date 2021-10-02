@@ -90,14 +90,14 @@ CREATE TABLE IF NOT EXISTS vaccines (
     vaccine_type VARCHAR NOT NULL,
     required_doses INT NOT NULL,
     approved bool NOT NULL,
-    approved_on TIMESTAMP NOT NULL,
+    approved_on DATE NOT NULL,
     details TEXT NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS quarantine_plans (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     public_health_profile_id UUID NOT NULL,
-    date_created TIMESTAMP NOT NULL,
+    date_created DATE NOT NULL,
     quarantine_required bool NOT NULL,
     confirmation_no_vulnerable bool NOT NULL,
     postal_address_id VARCHAR NOT NULL,
@@ -135,6 +135,7 @@ CREATE TABLE IF NOT EXISTS postal_addresses (
 
 CREATE TABLE IF NOT EXISTS travel_responses (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    post_status VARCHAR NOT NULL,
     trip_id UUID NOT NULL,
     person_id UUID NOT NULL,
     cbsa_id VARCHAR NOT NULL,

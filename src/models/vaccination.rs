@@ -5,6 +5,7 @@ use diesel::{self, Insertable, PgConnection, Queryable,
     RunQueryDsl, QueryDsl, ExpressionMethods};
 use uuid::Uuid;
 
+use crate::DATE_FORMAT;
 use crate::models::{Place, Vaccine};
 use crate::GraphQLContext;
 use crate::graphql::graphql_translate;
@@ -38,7 +39,7 @@ impl Vaccination {
     }
 
     pub fn provided_on(&self) -> FieldResult<String> {
-        Ok(self.provided_on.format("%Y-%m-%d %H:%M:%S").to_string())
+        Ok(self.provided_on.format(DATE_FORMAT).to_string())
     }
 }
 

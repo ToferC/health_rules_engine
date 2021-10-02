@@ -5,7 +5,7 @@ use diesel::{self, Insertable, PgConnection, Queryable,
     ExpressionMethods, QueryDsl, RunQueryDsl};
 use uuid::Uuid;
 
-use crate::GraphQLContext;
+use crate::{GraphQLContext};
 use crate::graphql::graphql_translate;
 use crate::schema::*;
 
@@ -16,7 +16,7 @@ use crate::schema::*;
 pub struct QuarantinePlan {
     pub id: Uuid,
     pub public_health_profile_id: Uuid,
-    pub date_created: NaiveDateTime,
+    pub date_created: NaiveDate,
     pub quarantine_required: bool,
     pub confirmation_no_vulnerable: bool,
     pub postal_address_id: String, // PostalAddress
@@ -74,7 +74,7 @@ impl QuarantinePlan {
 #[table_name = "quarantine_plans"]
 pub struct NewQuarantinePlan {
     pub public_health_profile_id: Uuid,
-    pub date_created: NaiveDateTime,
+    pub date_created: NaiveDate,
     pub quarantine_required: bool,
     pub confirmation_no_vulnerable: bool,
     pub postal_address_id: String, // PostalAddress
@@ -84,7 +84,7 @@ pub struct NewQuarantinePlan {
 impl NewQuarantinePlan {
     pub fn new(
         public_health_profile_id: Uuid,
-        date_created: NaiveDateTime,
+        date_created: NaiveDate,
         quarantine_required: bool,
         confirmation_no_vulnerable: bool,
         postal_address_id: String, // PostalAddress
@@ -117,7 +117,7 @@ impl NewQuarantinePlan {
 
 #[derive(Debug, Clone, Deserialize, Serialize, GraphQLInputObject)]
 pub struct SlimQuarantinePlan {
-    pub date_created: NaiveDateTime,
+    pub date_created: NaiveDate,
     pub confirmation_no_vulnerable: bool,
     pub postal_address_id: String, // PostalAddress
 }

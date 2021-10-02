@@ -23,6 +23,7 @@ use super::{NewCovidTest, NewQuarantinePlan, QuarantinePlan};
 /// Likely to be part of a Vec<TravelResponse>
 pub struct TravelResponse {
     pub id: Uuid,
+    pub post_status: String,
     pub trip_id: Uuid,
     pub person_id: Uuid,
     pub cbsa_id: String,
@@ -49,6 +50,7 @@ impl TravelResponse {
 /// Likely to be part of a Vec<TravelResponse>
 /// Will also be added to database for audit and data purposes.
 pub struct NewTravelResponse {
+    pub post_status: String,
     pub trip_id: Uuid,
     pub person_id: Uuid,
     pub cbsa_id: String,
@@ -61,6 +63,7 @@ pub struct NewTravelResponse {
 
 impl NewTravelResponse {
     pub fn new(
+            post_status: String,
             trip_id: Uuid,
             person_id: Uuid,
             cbsa_id: String,
@@ -77,6 +80,7 @@ impl NewTravelResponse {
         };
 
         NewTravelResponse {
+            post_status,
             trip_id,
             person_id,
             cbsa_id,
@@ -255,6 +259,7 @@ impl TravelData {
 
         // Build TravelResponse
         let new_tr = NewTravelResponse::new(
+            "OK".to_string(),
             trip.id,
             person.id,
             self.cbsa_id.to_owned(),

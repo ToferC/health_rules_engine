@@ -19,7 +19,7 @@ pub struct Vaccine {
     pub vaccine_type: String,
     pub required_doses: i32,
     pub approved: bool,
-    pub approved_on: NaiveDateTime,
+    pub approved_on: NaiveDate,
     pub details: String,
 }
 
@@ -90,7 +90,7 @@ pub struct NewVaccine {
     pub vaccine_type: String,
     pub required_doses: i32,
     pub approved: bool,
-    pub approved_on: NaiveDateTime,
+    pub approved_on: NaiveDate,
     pub details: String,
 }
 
@@ -101,7 +101,7 @@ impl NewVaccine {
         vaccine_type: String,
         required_doses: i32,
         approved: bool,
-        approved_on: NaiveDateTime,
+        approved_on: NaiveDate,
         details: String,
     ) -> Self {
         NewVaccine {

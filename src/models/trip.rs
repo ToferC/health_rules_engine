@@ -6,6 +6,7 @@ use uuid::Uuid;
 use diesel_derive_enum::DbEnum;
 use juniper::{FieldResult};
 
+use crate::DATE_FORMAT;
 use crate::schema::*;
 use crate::graphql::graphql_translate;
 use crate::GraphQLContext;
@@ -64,28 +65,28 @@ impl Trip {
 
     pub fn scheduled_departure_time(&self) -> FieldResult<String> {
         match self.scheduled_arrival_time {
-            Some(t) => Ok(t.format("%Y-%m-%d %H:%M:%S").to_string()),
+            Some(t) => Ok(t.format(DATE_FORMAT).to_string()),
             None => Ok("NA".to_string()),
         } 
     }
 
     pub fn scheduled_arrival_time(&self) -> FieldResult<String> {
         match self.scheduled_departure_time {
-            Some(t) => Ok(t.format("%Y-%m-%d %H:%M:%S").to_string()),
+            Some(t) => Ok(t.format(DATE_FORMAT).to_string()),
             None => Ok("NA".to_string()),
         } 
     }
 
     pub fn departure_time(&self) -> FieldResult<String> {
         match self.arrival_time {
-            Some(t) => Ok(t.format("%Y-%m-%d %H:%M:%S").to_string()),
+            Some(t) => Ok(t.format(DATE_FORMAT).to_string()),
             None => Ok("NA".to_string()),
         } 
     }
 
     pub fn arrival_time(&self) -> FieldResult<String> {
         match self.departure_time {
-            Some(t) => Ok(t.format("%Y-%m-%d %H:%M:%S").to_string()),
+            Some(t) => Ok(t.format(DATE_FORMAT).to_string()),
             None => Ok("NA".to_string()),
         } 
     }
