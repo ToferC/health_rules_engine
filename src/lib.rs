@@ -7,6 +7,9 @@ extern crate diesel_migrations;
 #[macro_use]
 extern crate juniper;
 
+#[macro_use]
+extern crate shrinkwraprs;
+
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 use juniper::FieldResult;
