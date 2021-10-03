@@ -2,6 +2,7 @@ use std::env;
 use actix_web::{App, HttpServer, middleware};
 use tera::{Tera};
 use tera_text_filters::snake_case;
+use actix_identity::{CookieIdentityPolicy, IdentityService};
 
 use health_rules_engine::database::{self, POOL};
 use health_rules_engine::graphql::{create_schema};
@@ -24,11 +25,15 @@ async fn main() -> std::io::Result<()> {
         Err(_) => String::from("test"),
     };
 
+    let SECRET_KEY = env::var("SECRET_KEY").expect("Unable to find secret key");
+
     let (host, port) = if environment == "production" {
         (env::var("HOST").unwrap(), env::var("PORT").unwrap())
     } else {
         (String::from("127.0.0.1"), String::from("8088"))
     };
+
+    let domain = host.clone();
 
     println!("{}", env!("CARGO_MANIFEST_DIR"));
 
@@ -49,8 +54,16 @@ async fn main() -> std::io::Result<()> {
             .data(POOL.clone())
             .data(schema.clone())
             .data(AppData {tmpl: tera})
-            .wrap(middleware::Logger::default())
             .configure(handlers::init_routes)
+            .wrap(middleware::Logger::default())
+            .wrap(IdentityService::new(
+                CookieIdentityPolicy::new(SECRET_KEY.as_bytes())
+                    .name("auth")
+                    .path("/graphiql")
+                    .domain(domain.clone())
+                    .max_age(86400)
+                    .secure(false)
+            ))
     })
     .bind(format!("{}:{}", host, port))?
     .run()

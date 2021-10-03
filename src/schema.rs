@@ -140,10 +140,13 @@ table! {
 table! {
     users (id) {
         id -> Uuid,
-        user_instance_uid -> Uuid,
+        hash -> Bytea,
+        salt -> Varchar,
         email -> Varchar,
+        role -> Varchar,
+        name -> Varchar,
         access_level -> Varchar,
-        created_on -> Timestamp,
+        created_at -> Timestamp,
         access_key -> Varchar,
         approved_by_user_uid -> Nullable<Uuid>,
     }

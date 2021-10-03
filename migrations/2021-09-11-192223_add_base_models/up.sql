@@ -10,13 +10,18 @@ CREATE TYPE access_level_enum AS ENUM (
 
 CREATE TABLE IF NOT EXISTS users (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-    user_instance_uid UUID NOT NULL,
-    email VARCHAR(128) UNIQUE NOT NULL,
-    access_level VARCHAR NOT NULL,
-    created_on TIMESTAMP NOT NULL,
+    hash BYTEA NOT NULL,
+    salt VARCHAR(255) NOT NULL,
+    email VARCHAR(128) UNIQUE NOT NULL UNIQUE,
+    role VARCHAR(64) NOT NULL DEFAULT 'user',
+    name VARCHAR(256) NOT NULL,
+    access_level VARCHAR(64) NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
     access_key VARCHAR(256) NOT NULL,
     approved_by_user_uid UUID
 );
+
+CREATE UNIQUE INDEX users__email_idx ON users(email);
 
 CREATE TABLE IF NOT EXISTS travel_groups (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY
