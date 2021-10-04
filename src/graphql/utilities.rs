@@ -27,11 +27,13 @@ pub fn create_context(pg_pool: PostgresPool) -> GraphQLContext {
     let countries = Arc::new(Mutex::new(Country::load_into_hash(&conn)));
     let places = Arc::new(Mutex::new(Place::load_into_hash(&conn)));
     let vaccines = Vaccine::load_into_hash(&conn);
+    let identity = None;
 
     GraphQLContext { 
         pool: pg_pool,
         countries,
         places,
-        vaccines,    
+        vaccines,
+        identity, 
     }
 }

@@ -12,7 +12,7 @@ extern crate shrinkwraprs;
 
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
-use juniper::FieldResult;
+use juniper::{FieldError, FieldResult};
 use models::{Country, NewCountry, Place, Vaccine};
 use tera::{Tera};
 
@@ -28,6 +28,7 @@ pub mod database;
 pub mod graphql;
 
 use crate::database::{PostgresPool};
+use crate::models::{User, SlimUser, verify};
 
 const DATE_FORMAT: &str = "%Y-%m-%d %H:%M:%S";
 
@@ -42,6 +43,7 @@ pub struct GraphQLContext {
     pub countries: Arc<Mutex<HashMap<Uuid, models::Country>>>,
     pub places: Arc<Mutex<HashMap<Uuid, models::Place>>>,
     pub vaccines: HashMap<Uuid, models::Vaccine>,
+    pub identity: Option<String>,
 }
 
 impl juniper::Context for GraphQLContext {}
@@ -146,3 +148,26 @@ impl GraphQLContext {
 }
 
 pub type Pool = r2d2::Pool<ConnectionManager<PgConnection>>;
+
+// Other utilities
+pub fn login(
+    user_email: &str,
+    user_password: &str,
+    context: &GraphQLContext,
+) -> FieldResult<SlimUser> {
+    use crate::schema::users::dsl::{email, users};
+
+    let conn = &context.pool.get()?;
+    let user = users
+        .filter(email.eq(user_email))
+        .first::<User>(conn)?;
+
+    if verify(&user, &user_password) {
+        Ok(user.into())
+    } else {
+        Err(FieldError::new(
+            "User not verified",
+            graphql_value!({"internal_error": "User not validated"})
+        ))
+    }
+}

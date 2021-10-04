@@ -1,6 +1,8 @@
+// Modelled off https://github.com/clifinger/canduma/blob/master/src/user
+
 use chrono::prelude::*;
-use serde::{Deserialize, Serialize, ser::Error};
-use diesel::{self, Insertable, Queryable, serialize::Result};
+use serde::{Deserialize, Serialize};
+use diesel::{self, Insertable, Queryable};
 use uuid::Uuid;
 use argon2rs::argon2i_simple;
 
@@ -108,6 +110,12 @@ impl From<User> for SlimUser {
             access_level,
         }
     }
+}
+
+#[derive(Debug, Deserialize, GraphQLInputObject)]
+pub struct LoginQuery {
+    pub email: String,
+    pub password: String,
 }
 
 pub fn make_salt() -> String {
