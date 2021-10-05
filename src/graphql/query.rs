@@ -1,7 +1,9 @@
 use diesel::{RunQueryDsl};
 use diesel::{QueryDsl, ExpressionMethods};
-use juniper::{FieldResult};
+// use juniper::{FieldResult};
 use crate::schema::*;
+
+use async_graphql::*;
 
 use crate::GraphQLContext;
 use crate::models::{Person, QuarantinePlan,
@@ -11,7 +13,7 @@ use crate::graphql::graphql_translate;
 
 pub struct Query;
 
-#[juniper::graphql_object(Context =  GraphQLContext)]
+#[Object]
 impl Query {
 
     #[graphql(name = "allTrips")]

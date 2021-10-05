@@ -1,7 +1,9 @@
 use std::sync::{Arc, Mutex};
 use crate::{database::PostgresPool};
 
-use juniper::{EmptySubscription, FieldError, FieldResult, RootNode};
+use async_graphql::*;
+
+// use juniper::{EmptySubscription, FieldError, FieldResult, RootNode};
 
 use crate::{GraphQLContext};
 use crate::models::{Country, Place, Vaccine,};
@@ -16,7 +18,7 @@ pub fn graphql_translate<T>(res: Result<T, diesel::result::Error>) -> FieldResul
 
 pub type Schema = RootNode<'static, Query, Mutation, EmptySubscription<GraphQLContext>>;
 
-pub fn create_schema() -> Schema {
+pub fn create_schema() -> async_graphql::Schema {
     Schema::new(Query, Mutation, EmptySubscription::new())
 }
 

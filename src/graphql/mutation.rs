@@ -2,7 +2,7 @@ use juniper::{EmptySubscription, FieldError, FieldResult};
 use actix_identity::Identity;
 
 use crate::{GraphQLContext, login};
-use crate::models::{Country, CovidTest, LoginQuery, NewTravelResponse, NewTrip, Person, Place, QuarantinePlan, TravelData, TravelGroup, TravelResponse, Trip, Vaccination, Vaccine};
+use crate::models::{Country, CovidTest, LoginQuery, NewTravelResponse, NewTrip, Person, Place, QuarantinePlan, SlimUser, TravelData, TravelGroup, TravelResponse, Trip, Vaccination, Vaccine};
 
 pub struct Mutation;
 
@@ -30,7 +30,7 @@ impl Mutation {
     pub fn login_user(
         context: &GraphQLContext,
         auth_data: LoginQuery,
-    ) -> String {
+    ) -> FieldResult<SlimUser> {
         
         login(&auth_data.email, &auth_data.password, &context)
             .and_then(|res| {
@@ -40,7 +40,7 @@ impl Mutation {
                         graphql_value!({ "internal_error": "Unable to log in"})))?;
 
             println!("user_string={}", user_string);
-            id.remember(user_string);
+            //context.identity = Some(user_string);
             Ok(res)
         })
     }
