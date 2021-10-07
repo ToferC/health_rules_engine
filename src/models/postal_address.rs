@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 
-#[derive(Debug, Clone, Deserialize, Serialize, GraphQLObject)]
+#[derive(Debug, Clone, Deserialize, Serialize, SimpleObject)]
 pub struct PostalAddress {
     pub id: Uuid,
     pub street_address: String,
@@ -15,7 +15,7 @@ pub struct PostalAddress {
     pub additional_info: Option<String>,
 }
 
-#[derive(Debug, Clone, Deserialize, Serialize, GraphQLObject)]
+#[derive(Debug, Clone, Deserialize, Serialize, SimpleObject)]
 pub struct NewPostalAddress {
     pub street_address: String,
     pub address_locality_id: Uuid,

@@ -13,7 +13,7 @@ pub struct UserInstance {
     id: String,
 }
 
-#[derive(Debug, Clone, Deserialize, Serialize, GraphQLObject, Queryable)]
+#[derive(Debug, Clone, Deserialize, Serialize, SimpleObject, Queryable)]
 pub struct User {
     pub id: Uuid,
     #[graphql(skip)]
@@ -43,14 +43,14 @@ pub struct InsertableUser {
     pub approved_by_user_uid: Option<Uuid>,
 }
 
-#[derive(Debug, Deserialize, Serialize, GraphQLInputObject)]
+#[derive(Debug, Deserialize, Serialize, InputObject)]
 pub struct UserData {
     pub name: String,
     pub email: String,
     pub password: String,
 }
 
-#[derive(Debug, Deserialize, Serialize, Clone, GraphQLObject)]
+#[derive(Debug, Deserialize, Serialize, Clone, SimpleObject)]
 pub struct SlimUser {
     pub id: Uuid,
     pub email: String,
@@ -112,7 +112,7 @@ impl From<User> for SlimUser {
     }
 }
 
-#[derive(Debug, Deserialize, GraphQLInputObject)]
+#[derive(Debug, Deserialize, InputObject)]
 pub struct LoginQuery {
     pub email: String,
     pub password: String,

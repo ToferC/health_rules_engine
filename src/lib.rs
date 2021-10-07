@@ -5,14 +5,15 @@ extern crate diesel;
 extern crate diesel_migrations;
 
 #[macro_use]
-extern crate juniper;
+extern crate async_graphql;
 
 #[macro_use]
 extern crate shrinkwraprs;
 
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
-use juniper::{FieldError, FieldResult};
+use async_graphql::*;
+use async_graphql::futures_util::__private::async_await;
 use models::{Country, NewCountry, Place, Vaccine};
 use tera::{Tera};
 
@@ -27,7 +28,8 @@ pub mod schema;
 pub mod database;
 pub mod graphql;
 
-use crate::database::{PostgresPool};
+use crate::database::{POOL};
+use crate::errors::error_handler::CustomError;
 use crate::models::{User, SlimUser, verify};
 
 const DATE_FORMAT: &str = "%Y-%m-%d %H:%M:%S";
@@ -36,6 +38,7 @@ pub struct AppData {
     pub tmpl: Tera
 }
 
+/*
 #[derive(Clone)]
 pub struct GraphQLContext {
     pub pool: PostgresPool,
@@ -46,106 +49,108 @@ pub struct GraphQLContext {
     pub identity: Option<String>,
 }
 
-impl juniper::Context for GraphQLContext {}
 
-impl GraphQLContext {
-    pub fn get_place_by_id(&self, id: Uuid) -> FieldResult<Place> {
+impl async_graphql::Context for GraphQLContext {}
 
-        let places = self.places.lock().unwrap();
+*/
+pub fn get_place_by_id(context: &Context<'_>, id: Uuid) -> FieldResult<Place> {
 
-        let place = places
-            .get(&id)
-            .expect("Unable to retrieve Place");
+let places = context.data::<Arc<Mutex<HashMap<Uuid, Place>>>>()?.lock().unwrap();
 
-        Ok(place.clone())
-    }
+let place = places
+    .get(&id)
+    .expect("Unable to retrieve Place");
 
-    // Change back to get_or_create_place_by_name_and_country_id
-    pub fn get_or_create_place_by_name_and_country_id(&self, name: String, country_id: Uuid) -> FieldResult<Place> {
-
-        let mut places = self.places.lock().unwrap();
-
-        let res = places.iter()
-            .find_map(
-                |(_key, val)| 
-                if val.name == name && val.country_id == country_id { 
-                    Some(val.clone()) 
-                } else { None });
-        
-        let place = match res {
-            Some(p) => p,
-            None => {
-                let p = models::NewPlace::new(name, country_id);
-                let place = models::Place::create(
-                    &self.pool.get().expect("Unable to connect to db"), 
-                    &p)?;
-                
-                places.insert(place.id, place.clone());
-                drop(places);
-                place
-            }
-        };
-
-        Ok(place.clone())
-    }
-
-    pub fn get_country_by_id(&self, id: Uuid) -> FieldResult<Country> {
-
-        let countries = self.countries.lock().unwrap();
-
-        let country = countries
-            .get(&id)
-            .expect("Unable to retrieve Country");
-
-        Ok(country.clone())
-    }
-
-    pub fn get_or_create_country_by_name(&self, country_name: String) -> FieldResult<Country> {
-
-        let mut countries = self.countries.lock().unwrap();
-
-        let res = countries.iter()
-            .find_map(|(_key, val)| if val.country_name == country_name { Some(val) } else { None });
-
-        let country = match res {
-            Some(c) => c.clone(),
-
-            // None should *rarely* happen
-            None => {
-                let c = NewCountry::new(country_name, 0.03);
-
-                // Insert country into DB
-                let country = Country::create(
-                    &self.pool.get().expect("Unable to connec to db"), 
-                    &c)?;
-                
-                // Insert into Hashmap cache
-                countries.insert(country.id, country.clone());
-                drop(countries);
-                
-                country
-            }
-        };
-        
-        Ok(country.clone())
-    }
-
-    pub fn get_vaccine_by_id(&self, id: Uuid) -> FieldResult<Vaccine> {
-        let vaccine = self.vaccines
-            .get(&id)
-            .expect("Unable to retrieve Vaccine");
-
-        Ok(vaccine.clone())
-    }
-
-    pub fn get_vaccine_by_name(&self, name: String) -> FieldResult<Vaccine> {
-        let res = self.vaccines.iter()
-            .find_map(|(_key, val)| if val.vaccine_name == name { Some(val) } else { None })
-            .expect("Unable to find vaccine");
-
-        Ok(res.clone())
-    }
+Ok(place.clone())
 }
+
+// Change back to get_or_create_place_by_name_and_country_id
+pub fn get_or_create_place_by_name_and_country_id(context: &Context<'_>, name: String, country_id: Uuid) -> FieldResult<Place> {
+
+    let mut places = context.data::<Arc<Mutex<HashMap<Uuid, Place>>>>()?.lock().unwrap();
+
+    let res = places.iter()
+        .find_map(
+            |(_key, val)| 
+            if val.name == name && val.country_id == country_id { 
+                Some(val.clone()) 
+            } else { None });
+
+    let place = match res {
+        Some(p) => p,
+        None => {
+            let p = models::NewPlace::new(name, country_id);
+            let place = models::Place::create(
+                &context.data::<POOL>()?.get().expect("Unable to connect to db"), 
+                &p)?;
+            
+            places.insert(place.id, place.clone());
+            drop(places);
+            place
+        }
+    };
+
+    Ok(place.clone())
+}
+
+pub fn get_country_by_id(context: &Context<'_>, id: Uuid) -> FieldResult<Country> {
+
+let countries = context.data::<Arc<Mutex<HashMap<Uuid, Country>>>>()?.lock().unwrap();
+
+let country = countries
+    .get(&id)
+    .expect("Unable to retrieve Country");
+
+    Ok(country.clone())
+}
+
+pub fn get_or_create_country_by_name(context: &Context<'_>, country_name: String) -> FieldResult<Country> {
+
+let mut countries = context.data::<Arc<Mutex<HashMap<Uuid, Country>>>>()?.lock().unwrap();
+
+let res = countries.iter()
+    .find_map(|(_key, val)| if val.country_name == country_name { Some(val) } else { None });
+
+let country = match res {
+    Some(c) => c.clone(),
+
+    // None should *rarely* happen
+    None => {
+        let c = NewCountry::new(country_name, 0.03);
+
+        // Insert country into DB
+        let country = Country::create(
+            &context.data::<POOL>()?.get().expect("Unable to connec to db"), 
+            &c)?;
+        
+        // Insert into Hashmap cache
+        countries.insert(country.id, country.clone());
+        drop(countries);
+        
+        country
+    }
+};
+
+    Ok(country.clone())
+}
+
+pub fn get_vaccine_by_id(context: &Context<'_>, id: Uuid) -> FieldResult<Vaccine> {
+let vaccine = context.data::<HashMap<Uuid, Vaccine>>()?
+    .get(&id)
+    .expect("Unable to retrieve Vaccine");
+
+    Ok(vaccine.clone())
+}
+
+pub fn get_vaccine_by_name(context: &Context<'_>, name: String) -> FieldResult<Vaccine> {
+let res = context.data::<HashMap<Uuid, Vaccine>>()?
+    .iter()
+    .find_map(|(_key, val)| if val.vaccine_name == name { Some(val) } else { None })
+    .expect("Unable to find vaccine");
+
+    Ok(res.clone())
+}
+
 
 pub type Pool = r2d2::Pool<ConnectionManager<PgConnection>>;
 
@@ -153,21 +158,17 @@ pub type Pool = r2d2::Pool<ConnectionManager<PgConnection>>;
 pub fn login(
     user_email: &str,
     user_password: &str,
-    context: &GraphQLContext,
+    context: &Context<'_>,
 ) -> FieldResult<SlimUser> {
     use crate::schema::users::dsl::{email, users};
 
-    let conn = &context.pool.get()?;
+    let conn = &context.data::<Arc<POOL>>()?.get()?;
     let user = users
         .filter(email.eq(user_email))
         .first::<User>(conn)?;
 
-    if verify(&user, &user_password) {
-        Ok(user.into())
-    } else {
-        Err(FieldError::new(
-            "User not verified",
-            graphql_value!({"internal_error": "User not validated"})
-        ))
+    match verify(&user, &user_password) {
+        true => Ok(user.into()),
+        false => Err(Error::new("No match for user / password")),
     }
 }

@@ -3,8 +3,8 @@ pub mod error_handler {
     use actix_web::http::StatusCode;
     use actix_web::{HttpResponse, ResponseError};
     use diesel::result::Error as DieselError;
-    use juniper::FieldError;
     use serde::Deserialize;
+    use async_graphql::*;
     use std::fmt;
 
     #[derive(Debug, Deserialize)]

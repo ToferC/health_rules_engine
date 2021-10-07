@@ -1,5 +1,5 @@
 use chrono::prelude::*;
-use juniper::FieldResult;
+use async_graphql::*;
 use serde::{Deserialize, Serialize};
 use diesel::{self, Insertable, PgConnection, Queryable,
     RunQueryDsl, QueryDsl, ExpressionMethods};
@@ -7,9 +7,10 @@ use uuid::Uuid;
 
 use crate::DATE_FORMAT;
 use crate::models::{Place, Vaccine};
-use crate::GraphQLContext;
 use crate::graphql::graphql_translate;
 use crate::schema::*;
+use crate::{get_country_by_id, get_or_create_country_by_name, get_vaccine_by_id, 
+    get_vaccine_by_name, get_place_by_id, get_or_create_place_by_name_and_country_id};
 
 
 #[derive(Debug, Clone, Deserialize, Serialize, PartialEq, PartialOrd, Queryable, Identifiable)]
@@ -24,21 +25,21 @@ pub struct Vaccination {
 }
 
 // Graphql
-#[graphql_object(Context = GraphQLContext)]
+#[Object]
 impl Vaccination {
-    pub fn id(&self) -> FieldResult<Uuid> {
+    pub async fn id(&self) -> FieldResult<Uuid> {
         Ok(self.id.clone())
     }
 
-    pub fn vaccine(&self, context: &GraphQLContext) -> FieldResult<Vaccine> {
-        context.get_vaccine_by_id(self.vaccine_id)
+    pub async fn vaccine(&self, context: &Context<'_>) -> FieldResult<Vaccine> {
+        get_vaccine_by_id(context, self.vaccine_id)
     }
 
-    pub fn location_provided(&self, context: &GraphQLContext) -> FieldResult<Place> {
-        context.get_place_by_id(self.location_provided_id)
+    pub async fn location_provided(&self, context: &Context<'_>) -> FieldResult<Place> {
+        get_place_by_id(context, self.location_provided_id)
     }
 
-    pub fn provided_on(&self) -> FieldResult<String> {
+    pub async fn provided_on(&self) -> FieldResult<String> {
         Ok(self.provided_on.format(DATE_FORMAT).to_string())
     }
 }
@@ -73,7 +74,7 @@ impl Vaccination {
     }
 }
 
-#[derive(Debug, Clone, Deserialize, Serialize, PartialEq, PartialOrd, Insertable)]
+#[derive(Debug, Clone, Deserialize, Serialize, PartialEq, PartialOrd, Insertable, InputObject)]
 /// Referenced through Vaccination, QuarantinePlan, TestingHistory
 #[table_name = "vaccinations"]
 pub struct NewVaccination {
@@ -86,7 +87,7 @@ pub struct NewVaccination {
 
 impl NewVaccination {
     pub fn new(
-        context: &GraphQLContext,
+        context: &Context<'_>,
         vaccine_name: String,
         dose_provider: String,
         location_provided_id: Uuid, // Place
@@ -94,7 +95,9 @@ impl NewVaccination {
         public_health_profile_id: Uuid,
     ) -> FieldResult<Self> {
 
-        let vaccine = context.get_vaccine_by_name(vaccine_name)
+        let vaccine = get_vaccine_by_name(
+            context,
+            vaccine_name)
             .expect("Unable to find vaccine by name");
 
         Ok(NewVaccination {
@@ -124,19 +127,21 @@ impl NewVaccination {
     }
 
     pub fn from(
-        context: &GraphQLContext,
+        context: &Context<'_>,
         slim_vaccination: &SlimVaccination, 
         public_health_profile_id: Uuid
     ) -> FieldResult<Self> {
-        let provided_country = context
-            .get_or_create_country_by_name(slim_vaccination.country_provided.to_owned())
+        let provided_country = get_or_create_country_by_name(context, slim_vaccination.country_provided.to_owned())
             .expect("Unable to find or create country");
 
-        let location_provided = context.get_or_create_place_by_name_and_country_id(
+        let location_provided = get_or_create_place_by_name_and_country_id(
+            context,
             slim_vaccination.location_provided.to_owned(), provided_country.id)
             .expect("Unable to get or create origin country");
 
-            let vaccine = context.get_vaccine_by_name(slim_vaccination.vaccine_name.to_owned())
+            let vaccine = get_vaccine_by_name(
+                context,
+                slim_vaccination.vaccine_name.to_owned())
             .expect("Unable to find vaccine by name");
 
         Ok(
@@ -152,7 +157,7 @@ impl NewVaccination {
     }
 }
 
-#[derive(Debug, Clone, Deserialize, Serialize, PartialEq, PartialOrd, GraphQLInputObject)]
+#[derive(Debug, Clone, Deserialize, Serialize, PartialEq, PartialOrd, InputObject)]
 /// Basic text data used to create a Vaccination object
 pub struct SlimVaccination {
     pub vaccine_name: String,

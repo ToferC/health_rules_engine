@@ -2,14 +2,14 @@ use crate::PgConnection;
 use serde::{Serialize, Deserialize};
 use diesel::{self, Insertable, Queryable};
 use diesel::{RunQueryDsl};
-use juniper::{FieldResult};
+use async_graphql::*;
 use uuid::Uuid;
 use std::collections::HashMap;
 
 use crate::graphql::graphql_translate;
 use crate::models::Country;
-use crate::GraphQLContext;
 use crate::schema::*;
+use crate::get_country_by_id;
 
 
 #[derive(Debug, Clone, Deserialize, Serialize, Queryable)]
@@ -44,19 +44,19 @@ impl Place {
     }
 }
 
-#[graphql_object(Context = GraphQLContext)]
+#[Object]
 impl Place {
-    pub fn id(&self) -> FieldResult<Uuid> {
+    pub async fn id(&self) -> FieldResult<Uuid> {
         Ok(self.id)
     }
 
-    pub fn name(&self) -> FieldResult<String> {
+    pub async fn name(&self) -> FieldResult<String> {
         Ok(self.name.to_owned())
     }
 
-    pub fn country(&self, context: &GraphQLContext) -> FieldResult<Country> {
+    pub async fn country(&self, context: &Context<'_>) -> FieldResult<Country> {
 
-        context.get_country_by_id(self.country_id)
+        get_country_by_id(context, self.country_id)
     }
 }
 

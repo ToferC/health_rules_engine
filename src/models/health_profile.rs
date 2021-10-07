@@ -1,15 +1,17 @@
-use juniper::FieldResult;
+//use juniper::FieldResult;
 use serde::{Deserialize, Serialize};
 use diesel::{self, Insertable, PgConnection, Queryable,
     ExpressionMethods, QueryDsl, RunQueryDsl};
 use diesel_derive_enum::DbEnum;
 use uuid::Uuid;
 
+use async_graphql::*;
+
 use crate::models::{Vaccination,
     QuarantinePlan, CovidTest};
-use crate::GraphQLContext;
 use crate::graphql::graphql_translate;
 use crate::schema::*;
+use crate::database::POOL;
 
 
 #[derive(Debug, Clone, Deserialize, Serialize, PartialEq, PartialOrd, Insertable, Queryable)]
@@ -21,25 +23,25 @@ pub struct PublicHealthProfile {
 }
 
 // GraphQL Implementation
-#[graphql_object(Context = GraphQLContext)]
+#[Object]
 impl PublicHealthProfile {
-    pub fn id(&self) -> FieldResult<Uuid> {
+    pub async fn id(&self) -> FieldResult<Uuid> {
         Ok(self.id.clone())
     }
 
-    pub fn person_id(&self) -> FieldResult<Uuid> {
+    pub async fn person_id(&self) -> FieldResult<Uuid> {
         Ok(self.person_id.clone())
     }
 
-    pub fn smart_healthcard_pk(&self) -> FieldResult<String> {
+    pub async fn smart_healthcard_pk(&self) -> FieldResult<String> {
         match &self.smart_healthcard_pk {
             Some(key) => Ok(key.to_owned()),
             None => Ok("NA".to_string())
         }
     }
 
-    pub fn vaccination_history(&self, context: &GraphQLContext) -> FieldResult<Vec<Vaccination>> {
-        let conn = context.pool.get().expect("Unable to connect to DB");
+    pub async fn vaccination_history(&self, context: &Context<'_>) -> FieldResult<Vec<Vaccination>> {
+        let conn = context.data::<POOL>()?.get().expect("Unable to connect to DB");
 
         let res = vaccinations::table
             .filter(vaccinations::public_health_profile_id.eq(self.id))
@@ -48,8 +50,8 @@ impl PublicHealthProfile {
         graphql_translate(res)
     }
 
-    pub fn testing_history(&self, context: &GraphQLContext) -> FieldResult<Vec<CovidTest>> {
-        let conn = context.pool.get().expect("Unable to connect to DB");
+    pub async fn testing_history(&self, context: &Context<'_>) -> FieldResult<Vec<CovidTest>> {
+        let conn = context.data::<POOL>()?.get().expect("Unable to connect to DB");
 
         let res = covid_test::table
             .filter(covid_test::public_health_profile_id.eq(self.id))
@@ -58,8 +60,8 @@ impl PublicHealthProfile {
         graphql_translate(res)
     }
 
-    pub fn quarantine_plans(&self, context: &GraphQLContext) -> FieldResult<Vec<QuarantinePlan>> {
-        let conn = context.pool.get().expect("Unable to connect to DB");
+    pub async fn quarantine_plans(&self, context: &Context<'_>) -> FieldResult<Vec<QuarantinePlan>> {
+        let conn = context.data::<POOL>()?.get().expect("Unable to connect to DB");
 
         let res = quarantine_plans::table
             .filter(quarantine_plans::public_health_profile_id.eq(self.id))
@@ -118,8 +120,8 @@ impl NewPublicHealthProfile {
     }
 }
 
-#[derive(Debug, Clone, Deserialize, Serialize, DbEnum, GraphQLEnum)]
-#[DieselType = "Access_level_enum"]
+#[derive(Debug, Clone, Deserialize, Serialize)]
+//#[DieselType = "Access_level_enum"]
 pub enum AccessLevelEnum {
     Adminstrator,
     Analyst,
@@ -128,7 +130,7 @@ pub enum AccessLevelEnum {
     Open,
 }
 
-#[derive(Debug, Clone, Deserialize, Serialize, GraphQLObject)]
+#[derive(Debug, Clone, Deserialize, Serialize, SimpleObject)]
 pub struct GeoCoordinates {
     pub latitude: f64,
     pub longitude: f64,

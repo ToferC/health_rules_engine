@@ -5,8 +5,10 @@ use serde::{Serialize, Deserialize};
 use diesel::prelude::*;
 use diesel::{self, Insertable, Queryable};
 use diesel::{RunQueryDsl, QueryDsl};
-use juniper::{FieldResult};
+//use juniper::{FieldResult};
 use uuid::Uuid;
+
+use async_graphql::*;
 
 use crate::graphql::graphql_translate;
 use crate::schema::*;
@@ -28,7 +30,7 @@ impl NewCountry {
     }
 }
 
-#[derive(Debug, Clone, Deserialize, Serialize, Queryable, Identifiable, GraphQLObject)]
+#[derive(Debug, Clone, Deserialize, Serialize, Queryable, Identifiable, SimpleObject)]
 #[table_name = "countries"]
 /// Should get this from an API or have standard data
 /// Now pre-loaded as prt of context

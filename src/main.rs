@@ -40,7 +40,7 @@ async fn main() -> std::io::Result<()> {
     println!("Serving on: {}:{}", &host, &port);
 
     // Create Schema
-    let schema = std::sync::Arc::new(create_schema());
+    let schema = create_schema(POOL.clone());
 
     HttpServer::new(move || {
         

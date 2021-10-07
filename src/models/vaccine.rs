@@ -1,12 +1,11 @@
 use chrono::prelude::*;
-use juniper::FieldResult;
+use async_graphql::*;
 use serde::{Deserialize, Serialize};
 use diesel::{self, Insertable, PgConnection, Queryable,
     RunQueryDsl};
 use uuid::Uuid;
 use std::collections::HashMap;
 
-use crate::GraphQLContext;
 use crate::graphql::graphql_translate;
 use crate::schema::*;
 
@@ -23,37 +22,37 @@ pub struct Vaccine {
     pub details: String,
 }
 
-#[graphql_object(Context = GraphQLContext)]
+#[Object]
 impl Vaccine {
-    pub fn id(&self) -> FieldResult<Uuid> {
+    pub async fn id(&self) -> FieldResult<Uuid> {
         Ok(self.id.clone())
     }
 
-    pub fn name(&self) -> FieldResult<String> {
+    pub async fn name(&self) -> FieldResult<String> {
         Ok(self.vaccine_name.clone())
     }
 
-    pub fn manufacturer(&self) -> FieldResult<String> {
+    pub async fn manufacturer(&self) -> FieldResult<String> {
         Ok(self.manufacturer.clone())
     }
 
-    pub fn vaccine_type(&self) -> FieldResult<String> {
+    pub async fn vaccine_type(&self) -> FieldResult<String> {
         Ok(self.vaccine_type.clone())
     }
 
-    pub fn required_doses(&self) -> FieldResult<i32> {
+    pub async fn required_doses(&self) -> FieldResult<i32> {
         Ok(self.required_doses)
     }
 
-    pub fn approved(&self) -> FieldResult<bool> {
+    pub async fn approved(&self) -> FieldResult<bool> {
         Ok(self.approved)
     }
 
-    pub fn approved_on(&self) -> FieldResult<String> {
+    pub async fn approved_on(&self) -> FieldResult<String> {
         Ok(self.approved_on.format("%Y-%m-%d").to_string())
     }
 
-    pub fn details(&self) -> FieldResult<String> {
+    pub async fn details(&self) -> FieldResult<String> {
         Ok(self.details.clone())
     }
 }

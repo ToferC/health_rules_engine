@@ -5,11 +5,13 @@ use serde::{Serialize, Deserialize};
 use uuid::Uuid;
 use chrono::prelude::*;
 use chrono::Utc;
-use juniper::{FieldResult};
+// use juniper::{FieldResult};
+use async_graphql::*;
 
-use crate::{GraphQLContext};
 use crate::graphql::{graphql_translate};
 use crate::schema::*;
+use crate::database::POOL;
+use crate::get_or_create_country_by_name;
 
 use crate::models::{NewPerson, 
     NewPublicHealthProfile, NewTrip, NewVaccination, Trip,
@@ -18,7 +20,7 @@ use crate::models::{NewPerson,
 
 use super::{NewCovidTest, NewQuarantinePlan, QuarantinePlan};
 
-#[derive(Debug, Clone, Serialize, Deserialize, GraphQLObject, Queryable)]
+#[derive(Debug, Clone, Serialize, Deserialize, SimpleObject, Queryable)]
 /// A struct representing the API response for a specific traveller
 /// Likely to be part of a Vec<TravelResponse>
 pub struct TravelResponse {
@@ -44,7 +46,7 @@ impl TravelResponse {
     }
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, Insertable, GraphQLObject)]
+#[derive(Debug, Clone, Serialize, Deserialize, Insertable, SimpleObject)]
 #[table_name = "travel_responses"]
 /// A struct representing the API response for a specific traveller
 /// Likely to be part of a Vec<TravelResponse>
@@ -93,7 +95,7 @@ impl NewTravelResponse {
     }
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, GraphQLInputObject)]
+#[derive(Debug, Clone, Serialize, Deserialize, InputObject)]
 /// Struct for data submitted by CBSA on query of ArriveCan.
 /// Likely to be part of a Vec<TravelData> that will be 
 /// combined into a TravelGroup.
@@ -166,16 +168,16 @@ pub struct TravelData {
 }
 
 impl TravelData {
-    pub fn process(&self, context: &GraphQLContext) -> FieldResult<TravelResponse> {
+    pub fn process(&self, context: &Context<'_>) -> FieldResult<TravelResponse> {
 
         // Connect to PostgresPool
-        let conn = context.pool.get().expect("Unable to connec to db");
+        let conn = context.data::<POOL>()?.get().expect("Unable to connec to db");
 
         // set travel_group_id
         let travel_group_id = Uuid::new_v4();
 
         // Identify country        
-        let country = context.get_or_create_country_by_name(self.travel_document_issuer.to_owned())?;
+        let country = get_or_create_country_by_name(context, self.travel_document_issuer.to_owned())?;
 
         // Identify or create person
         let new_person = NewPerson::new(

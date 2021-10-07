@@ -4,13 +4,15 @@ use diesel::{self, Insertable, PgConnection, Queryable, ExpressionMethods};
 use diesel::{RunQueryDsl, QueryDsl};
 use uuid::Uuid;
 use diesel_derive_enum::DbEnum;
-use juniper::{FieldResult};
+//use juniper::{FieldResult};
+use async_graphql::*;
 
 use crate::DATE_FORMAT;
 use crate::schema::*;
 use crate::graphql::graphql_translate;
-use crate::GraphQLContext;
 use crate::models::{Place, Person};
+use crate::database::POOL;
+use crate::{get_place_by_id, get_or_create_country_by_name, get_or_create_place_by_name_and_country_id};
 
 /// Travel information for a TravelGroup
 /// CBSA responsible, but important for public health surveillance
@@ -35,73 +37,73 @@ pub struct Trip {
     pub person_id: Uuid,
 }
 
-#[graphql_object(Context = GraphQLContext)]
+#[Object]
 impl Trip {
-    pub fn id(&self) -> FieldResult<Uuid> {
-        Ok(self.id)
+    pub async fn id(&self) -> FieldResult<Uuid> {
+        Ok(self.id.into())
     }
 
-    pub fn trip_provider(&self) -> FieldResult<String> {
+    pub async fn trip_provider(&self) -> FieldResult<String> {
         Ok(self.trip_provider.to_owned())
     }
 
-    pub fn travel_mode(&self) -> FieldResult<String> {
+    pub async fn travel_mode(&self) -> FieldResult<String> {
         Ok(self.travel_mode.to_owned())
     }
 
-    pub fn travel_identifier(&self) -> FieldResult<String> {
+    pub async fn travel_identifier(&self) -> FieldResult<String> {
         match &self.travel_identifier {
             Some(i) => Ok(i.to_owned()),
             None => Ok("None".to_string()),
         }
     }
 
-    pub fn booking_id(&self) -> FieldResult<String> {
+    pub async fn booking_id(&self) -> FieldResult<String> {
         match &self.booking_id {
             Some(i) => Ok(i.to_owned()),
             None => Ok("None".to_string()),
         }
     }
 
-    pub fn scheduled_departure_time(&self) -> FieldResult<String> {
+    pub async fn scheduled_departure_time(&self) -> FieldResult<String> {
         match self.scheduled_arrival_time {
             Some(t) => Ok(t.format(DATE_FORMAT).to_string()),
             None => Ok("NA".to_string()),
         } 
     }
 
-    pub fn scheduled_arrival_time(&self) -> FieldResult<String> {
+    pub async fn scheduled_arrival_time(&self) -> FieldResult<String> {
         match self.scheduled_departure_time {
             Some(t) => Ok(t.format(DATE_FORMAT).to_string()),
             None => Ok("NA".to_string()),
         } 
     }
 
-    pub fn departure_time(&self) -> FieldResult<String> {
+    pub async fn departure_time(&self) -> FieldResult<String> {
         match self.arrival_time {
             Some(t) => Ok(t.format(DATE_FORMAT).to_string()),
             None => Ok("NA".to_string()),
         } 
     }
 
-    pub fn arrival_time(&self) -> FieldResult<String> {
+    pub async fn arrival_time(&self) -> FieldResult<String> {
         match self.departure_time {
             Some(t) => Ok(t.format(DATE_FORMAT).to_string()),
             None => Ok("NA".to_string()),
         } 
     }
 
-    pub fn travel_intent(&self) -> FieldResult<String> {
+    pub async fn travel_intent(&self) -> FieldResult<String> {
         Ok(self.travel_intent.to_owned())
     }
 
-    pub fn trip_state(&self) -> FieldResult<String> {
+    pub async fn trip_state(&self) -> FieldResult<String> {
         Ok(self.trip_state.to_owned())
     }
 
-    pub fn person(&self, context: &GraphQLContext) -> FieldResult<Person> {
+    pub async fn person(&self, context: &Context<'_>) -> FieldResult<Person> {
 
-        let conn = context.pool.get().expect("Unable to connect to DB");
+        let conn = context.data::<POOL>()?.get().expect("Unable to connect to DB");
 
         let res = persons::table.
             filter(persons::id.eq(self.person_id))
@@ -110,14 +112,14 @@ impl Trip {
         graphql_translate(res)
     }
 
-    pub fn origin(&self, context: &GraphQLContext) -> FieldResult<Place> {
+    pub async fn origin(&self, context: &Context<'_>) -> FieldResult<Place> {
 
-        context.get_place_by_id(self.origin_place_id)
+        get_place_by_id(context, self.origin_place_id)
     }
 
-    pub fn destination(&self, context: &GraphQLContext) -> FieldResult<Place> {
+    pub async fn destination(&self, context: &Context<'_>) -> FieldResult<Place> {
 
-        context.get_place_by_id(self.destination_place_id)
+        get_place_by_id(context, self.destination_place_id)
     }
 }
 
@@ -132,7 +134,7 @@ impl Trip {
     }
 }
 
-#[derive(Insertable, Debug, GraphQLInputObject)]
+#[derive(Insertable, Debug, InputObject)]
 #[table_name = "trips"]
 pub struct NewTrip {
     pub trip_provider: String,
@@ -211,7 +213,7 @@ impl<'a> NewTrip {
     }
 
     pub fn new(
-        context: &GraphQLContext,
+        context: &Context<'_>,
         trip_provider: String,
         travel_identifier: Option<String>,
         booking_id: Option<String>,
@@ -230,19 +232,19 @@ impl<'a> NewTrip {
         person_id: Uuid,
     ) -> Self 
     {        
-        let origin_country = context
-            .get_or_create_country_by_name(origin_country_name)
+        let origin_country = get_or_create_country_by_name(context, origin_country_name)
             .expect("Unable to find or create country");
 
-        let origin = context.get_or_create_place_by_name_and_country_id(
+        let origin = get_or_create_place_by_name_and_country_id(
+            context,
             origin_place_name, origin_country.id)
             .expect("Unable to get or create origin country");
 
-        let destination_country = context
-            .get_or_create_country_by_name(destination_country_name)
+        let destination_country = get_or_create_country_by_name(context, destination_country_name)
             .expect("Unable to find or create country");
 
-        let destination = context.get_or_create_place_by_name_and_country_id(
+        let destination = get_or_create_place_by_name_and_country_id(
+            context,
             destination_place_name, destination_country.id)
             .expect("Unable to get or create origin country");
 
@@ -266,7 +268,7 @@ impl<'a> NewTrip {
     }
 }
 
-#[derive(Debug, Clone, Deserialize, Serialize, DbEnum)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 pub enum TripState {
     Planned,
     InProgress,

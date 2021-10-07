@@ -1,11 +1,11 @@
 use chrono::prelude::*;
-use juniper::FieldResult;
+use async_graphql::*;
 use serde::{Deserialize, Serialize};
 use diesel::{self, Insertable, PgConnection, Queryable,
     RunQueryDsl};
 use uuid::Uuid;
 
-use crate::{DATE_FORMAT, GraphQLContext};
+use crate::{DATE_FORMAT};
 use crate::graphql::graphql_translate;
 use crate::schema::*;
 
@@ -20,25 +20,25 @@ pub struct CovidTest {
     pub test_result: bool,
 }
 
-#[graphql_object(Context = GraphQLContext)]
+#[Object]
 impl CovidTest {
-    pub fn id(&self) -> FieldResult<Uuid> {
+    pub async fn id(&self) -> FieldResult<Uuid> {
         Ok(self.id)
     }
 
-    pub fn test_name(&self) -> FieldResult<String> {
+    pub async fn test_name(&self) -> FieldResult<String> {
         Ok(self.test_name.to_owned())
     }
 
-    pub fn test_type(&self) -> FieldResult<String> {
+    pub async fn test_type(&self) -> FieldResult<String> {
         Ok(self.test_type.to_owned())
     }
 
-    pub fn date_taken(&self) -> FieldResult<String> {
+    pub async fn date_taken(&self) -> FieldResult<String> {
         Ok(self.date_taken.format(DATE_FORMAT).to_string())
     }
 
-    pub fn test_result(&self) -> FieldResult<bool> {
+    pub async fn test_result(&self) -> FieldResult<bool> {
         Ok(self.test_result)
     }
 }
@@ -53,7 +53,7 @@ impl CovidTest {
     }
 }
 
-#[derive(Debug, Clone, Deserialize, Serialize, GraphQLObject, Insertable)]
+#[derive(Debug, Clone, Deserialize, Serialize, InputObject, Insertable)]
 #[table_name = "covid_tests"]
 pub struct NewCovidTest {
     pub public_health_profile_id: Uuid,
@@ -94,7 +94,7 @@ impl NewCovidTest {
     }
 }
 
-#[derive(Debug, Clone, Deserialize, Serialize, GraphQLInputObject)]
+#[derive(Debug, Clone, Deserialize, Serialize, InputObject)]
 pub struct SlimCovidTest {
     pub test_name: String,
     pub test_type: String, // TestType
@@ -102,7 +102,7 @@ pub struct SlimCovidTest {
     pub test_result: bool,
 }
 
-#[derive(Debug, Clone, Deserialize, Serialize, GraphQLEnum)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 pub enum TestType {
     Molecular,
     Other,

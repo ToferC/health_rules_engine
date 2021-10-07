@@ -5,13 +5,14 @@ use serde::{Deserialize, Serialize};
 use diesel::{self, Insertable, PgConnection, Queryable, ExpressionMethods};
 use diesel::{RunQueryDsl, QueryDsl};
 use uuid::Uuid;
-use juniper::{FieldResult};
+use async_graphql::*;
 use rand::{Rng, thread_rng};
 
 use crate::schema::*;
 use crate::graphql::graphql_translate;
-use crate::GraphQLContext;
 use crate::models::{Country, Trip};
+use crate::get_country_by_id;
+use crate::database::POOL;
 
 use super::PublicHealthProfile;
 
@@ -39,7 +40,7 @@ pub struct Person {
     pub approved_access_granularity: String, // Granularity
 }
 
-#[derive(Debug, Clone, Deserialize, Serialize, Insertable, GraphQLInputObject)]
+#[derive(Debug, Clone, Deserialize, Serialize, Insertable, SimpleObject)]
 /// Linked from HealthProfile
 /// Linked to Trip
 #[table_name = "persons"]
@@ -143,40 +144,40 @@ impl Person {
     }
 }
 
-#[graphql_object(Context = GraphQLContext)]
+#[Object]
 impl Person {
 
-    pub fn family_name(&self) -> FieldResult<String> {
+    pub async fn family_name(&self) -> FieldResult<String> {
         Ok(self.family_name.to_owned())
     }
 
-    pub fn given_name(&self) -> FieldResult<String> {
+    pub async fn given_name(&self) -> FieldResult<String> {
         Ok(self.given_name.to_owned())
     }
 
-    pub fn additional_names(&self) -> FieldResult<Option<Vec<String>>> {
+    pub async fn additional_names(&self) -> FieldResult<Option<Vec<String>>> {
         Ok(self.additional_names.to_owned())
     }
 
-    pub fn birth_date(&self) -> FieldResult<String> {
+    pub async fn birth_date(&self) -> FieldResult<String> {
         Ok(self.birth_date.format("%Y-%m-%d").to_string())
     }
 
-    pub fn approved_access_level(&self) -> FieldResult<String> {
+    pub async fn approved_access_level(&self) -> FieldResult<String> {
         Ok(self.approved_access_level.to_owned())
     }
 
-    pub fn approved_access_granularity(&self) -> FieldResult<String> {
+    pub async fn approved_access_granularity(&self) -> FieldResult<String> {
         Ok(self.approved_access_granularity.to_owned())
     }
 
-    pub fn travel_document_issuer(&self, context: &GraphQLContext) -> FieldResult<Country> {
+    pub async fn travel_document_issuer(&self, context: &Context<'_>) -> FieldResult<Country> {
 
-        context.get_country_by_id(self.travel_document_issuer_id)
+        get_country_by_id(context, self.travel_document_issuer_id)
     }
 
-    pub fn public_health_profile(&self, context: &GraphQLContext) -> FieldResult<PublicHealthProfile> {
-        let conn = context.pool.get().expect("Unable to connect to DB");
+    pub async fn public_health_profile(&self, context: &Context<'_>) -> FieldResult<PublicHealthProfile> {
+        let conn = context.data::<POOL>()?.get().expect("Unable to connect to DB");
 
         let res = public_health_profiles::table
             .filter(public_health_profiles::person_id.eq(self.id))
@@ -185,8 +186,8 @@ impl Person {
         graphql_translate(res)
     }
 
-    pub fn trips(&self, ctx: &GraphQLContext) -> Vec<Trip> {
-        let conn = ctx.pool.get().expect("Unable to connect to DB");
+    pub async fn trips(&self, context: &Context<'_>) -> FieldResult<Vec<Trip>> {
+        let conn = context.data::<POOL>()?.get().expect("Unable to connect to DB");
 
         let res = trips::table.
             filter(trips::person_id.eq(self.id))
@@ -194,7 +195,7 @@ impl Person {
             .order_by(trips::person_id)
             .load::<Trip>(&conn);
 
-        res.unwrap()
+        graphql_translate(res)
     }
 }
 

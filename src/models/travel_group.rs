@@ -3,12 +3,12 @@ use diesel::prelude::*;
 use diesel::{self, Insertable, Queryable};
 use diesel::{RunQueryDsl, QueryDsl};
 use uuid::Uuid;
-use juniper::{FieldResult};
+use async_graphql::*;
 
 use crate::schema::*;
 use crate::graphql::{graphql_translate};
-use crate::GraphQLContext;
 use super::{Trip, Person};
+use crate::database::POOL;
 
 #[derive(Debug, Clone, Deserialize, Serialize, Queryable, PartialEq, PartialOrd, Identifiable)]
 #[serde(rename_all= "snake_case")]
@@ -21,14 +21,14 @@ pub struct TravelGroup {
     pub id: Uuid,
 }
 
-#[juniper::graphql_object(Context = GraphQLContext)]
+#[Object]
 impl TravelGroup {
-    pub fn id(&self) -> Uuid {
+    pub async fn id(&self) -> Uuid {
         self.id
     }
 
-    pub fn trips(&self, ctx: &GraphQLContext) -> Vec<Trip> {
-        let conn = ctx.pool.get().expect("Unable to connect to DB");
+    pub async fn trips(&self, context: &Context<'_>) -> FieldResult<Vec<Trip>> {
+        let conn = context.data::<POOL>()?.get().expect("Unable to connect to DB");
 
         let res = trips::table.
             filter(trips::travel_group_id.eq(self.id))
@@ -36,25 +36,25 @@ impl TravelGroup {
             .order_by(trips::person_id)
             .load::<Trip>(&conn);
 
-        res.unwrap()
+        graphql_translate(res)
     }
 
-    pub fn people(&self, ctx: &GraphQLContext) -> Vec<Person> {
-        let conn = ctx.pool.get().expect("Unable to connect to DB");
+    pub async fn people(&self, context: &Context<'_>) -> FieldResult<Vec<Person>> {
+        let conn = context.data::<POOL>()?.get().expect("Unable to connect to DB");
 
         let res = persons::table.
             filter(persons::travel_group_id.eq(self.id))
             .load::<Person>(&conn);
 
-        res.unwrap()
+        graphql_translate(res)
     }
 }
 
 /// Non-Graphql
 impl TravelGroup {
-    pub fn create_travel_group(&self, ctx: &GraphQLContext, travel_group: NewTravelGroup) -> FieldResult<TravelGroup> {
+    pub fn create_travel_group(&self, context: &Context<'_>, travel_group: NewTravelGroup) -> FieldResult<TravelGroup> {
         
-        let conn = ctx.pool.get().expect("Unable to connect to DB");
+        let conn = context.data::<POOL>()?.get().expect("Unable to connect to DB");
         let res = diesel::insert_into(travel_groups::table)
             .values(travel_group)
             .get_result(&conn);
@@ -63,7 +63,7 @@ impl TravelGroup {
     }
 }
 
-#[derive(Insertable, Debug, GraphQLInputObject)]
+#[derive(Insertable, Debug, InputObject)]
 #[table_name = "travel_groups"]
 pub struct NewTravelGroup {
     pub id: Uuid,

@@ -1,13 +1,13 @@
 use chrono::prelude::*;
-use juniper::FieldResult;
 use serde::{Deserialize, Serialize};
 use diesel::{self, Insertable, PgConnection, Queryable,
     ExpressionMethods, QueryDsl, RunQueryDsl};
 use uuid::Uuid;
+use async_graphql::*;
 
-use crate::{GraphQLContext};
 use crate::graphql::graphql_translate;
 use crate::schema::*;
+use crate::database::POOL;
 
 #[derive(Debug, Clone, Deserialize, Serialize, Insertable, Queryable)]
 #[table_name = "quarantine_plans"]
@@ -23,34 +23,34 @@ pub struct QuarantinePlan {
     pub active: bool,
 }
 
-#[graphql_object(Context = GraphQLContext)]
+#[Object]
 impl QuarantinePlan {
-    pub fn id(&self) -> FieldResult<Uuid> {
+    pub async fn id(&self) -> FieldResult<Uuid> {
         Ok(self.id.clone())
     }
 
-    pub fn date_created(&self) -> FieldResult<String> {
+    pub async fn date_created(&self) -> FieldResult<String> {
         Ok(self.date_created.format("%Y-%m-%d").to_string())
     }
 
-    pub fn quarantine_required(&self) -> FieldResult<bool> {
+    pub async fn quarantine_required(&self) -> FieldResult<bool> {
         Ok(self.quarantine_required)
     }
 
-    pub fn confirmation_no_vulnerable(&self) -> FieldResult<bool> {
+    pub async fn confirmation_no_vulnerable(&self) -> FieldResult<bool> {
         Ok(self.confirmation_no_vulnerable)
     }
 
-    pub fn postal_address_id(&self) -> FieldResult<String> {
+    pub async fn postal_address_id(&self) -> FieldResult<String> {
         Ok(self.postal_address_id.to_owned())
     }
 
-    pub fn active(&self) -> FieldResult<bool> {
+    pub async fn active(&self) -> FieldResult<bool> {
         Ok(self.active)
     }
 
-    pub fn check_in_history(&self, context: &GraphQLContext) -> FieldResult<Vec<CheckInResult>> {
-        let conn = context.pool.get().expect("Unable to connect to DB");
+    pub async fn check_in_history(&self, context: &Context<'_>) -> FieldResult<Vec<CheckInResult>> {
+        let conn = context.data::<POOL>()?.get().expect("Unable to connect to DB");
 
         let res = check_in_results::table
             .filter(check_in_results::quarantine_plan_id.eq(self.id))
@@ -70,7 +70,7 @@ impl QuarantinePlan {
     }
 }
 
-#[derive(Debug, Clone, Deserialize, Serialize, GraphQLObject, Insertable)]
+#[derive(Debug, Clone, Deserialize, Serialize, InputObject, Insertable)]
 #[table_name = "quarantine_plans"]
 pub struct NewQuarantinePlan {
     pub public_health_profile_id: Uuid,
@@ -115,14 +115,14 @@ impl NewQuarantinePlan {
     }
 }
 
-#[derive(Debug, Clone, Deserialize, Serialize, GraphQLInputObject)]
+#[derive(Debug, Clone, Deserialize, Serialize, InputObject)]
 pub struct SlimQuarantinePlan {
     pub date_created: NaiveDate,
     pub confirmation_no_vulnerable: bool,
     pub postal_address_id: String, // PostalAddress
 }
 
-#[derive(Debug, Clone, Deserialize, Serialize, GraphQLObject, Queryable)]
+#[derive(Debug, Clone, Deserialize, Serialize, SimpleObject, Queryable)]
 pub struct CheckInResult {
     pub id: Uuid,
     pub quarantine_plan_id: Uuid,
@@ -141,7 +141,7 @@ impl CheckInResult {
     }
 }
 
-#[derive(Debug, Clone, Deserialize, Serialize, GraphQLObject, Insertable)]
+#[derive(Debug, Clone, Deserialize, Serialize, InputObject, Insertable)]
 #[table_name = "check_in_results"]
 pub struct NewCheckInResult {
     pub quarantine_plan_id: Uuid,

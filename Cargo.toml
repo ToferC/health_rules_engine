@@ -14,7 +14,7 @@ actix-multipart = "0.2.0"
 actix-service = "1.0.6"
 actix-identity = "0.3"
 
-async-graphql = "2.0"
+async-graphql = { version = "2.0", features = ["uuid", "chrono"] }
 async-graphql-actix-web = "2.0"
 
 argon2rs = "0.2"
@@ -25,7 +25,7 @@ diesel = { version = "1.4.2", features = ["postgres", "uuidv07", "r2d2", "chrono
 r2d2 = "0.8.8"
 diesel-derive-enum = { version = "1", features = ["postgres"]}
 diesel_migrations = "1.4.0"
-uuid = { version = "0.8", features = ["serde", "v4"]}
+uuid = { version = "0.8.2", features = ["serde", "v4"]}
 lazy_static = "1.4"
 
 dotenv = "0.15.0"
@@ -46,7 +46,7 @@ bdays = "0.1.1"
 csv = "1.1.3"
 bytes = "0.5.4"
 
-juniper = { version = "0.15.7", features = ["uuid"]}
+#juniper = { version = "0.15.7", features = ["uuid"]}
 graphql_client = "0.9.0"
 dataloader = "0.14"
 async-trait = "0.1"
