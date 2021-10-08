@@ -1,5 +1,6 @@
 use async_graphql::*;
 use actix_identity::Identity;
+use uuid::Uuid;
 
 use crate::{login};
 use crate::models::{Country, CovidTest, LoginQuery, NewTravelResponse, NewTrip, Person, Place, QuarantinePlan, SlimUser, TravelData, TravelGroup, TravelResponse, Trip, Vaccination, Vaccine};
@@ -23,9 +24,10 @@ impl Mutation {
 
         let mut responses_to_cbsa: Vec<TravelResponse> = Vec::new();
 
-        
+        let travel_group_id = Uuid::new_v4();
+
         for traveller in data {
-            let response = traveller.process(&context)?.into();
+            let response = traveller.process(&context, travel_group_id)?.into();
             responses_to_cbsa.push(response);
         };
         

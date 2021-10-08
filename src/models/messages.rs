@@ -167,13 +167,14 @@ pub struct TravelData {
 }
 
 impl TravelData {
-    pub fn process(&self, context: &Context<'_>) -> FieldResult<TravelResponse> {
+    pub fn process(
+            &self, 
+            context: &Context<'_>,
+            travel_group_id: Uuid,
+        ) -> FieldResult<TravelResponse> {
 
         // Connect to PostgresPool
         let conn = get_connection_from_context(context);
-
-        // set travel_group_id
-        let travel_group_id = Uuid::new_v4();
 
         // Identify country        
         let country = get_or_create_country_by_name(context, self.travel_document_issuer.to_owned())?;
