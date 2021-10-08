@@ -37,6 +37,7 @@ pub struct Person {
     
     pub approved_access_level: String, // AccessLevel
     pub approved_access_granularity: String, // Granularity
+    pub created_at: NaiveDateTime,
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize, Insertable, SimpleObject)]
@@ -195,6 +196,10 @@ impl Person {
             .load::<Trip>(&conn);
 
         graphql_translate(res)
+    }
+
+    pub async fn created_at(&self) -> NaiveDateTime {
+        self.created_at
     }
 }
 

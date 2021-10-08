@@ -34,6 +34,7 @@ pub struct Trip {
     pub trip_state: String,
     pub travel_group_id: Uuid,
     pub person_id: Uuid,
+    pub created_at: NaiveDateTime,
 }
 
 #[Object]
@@ -119,6 +120,10 @@ impl Trip {
     pub async fn destination(&self, context: &Context<'_>) -> FieldResult<Place> {
 
         get_place_by_id(context, self.destination_place_id)
+    }
+
+    pub async fn created_at(&self) -> NaiveDateTime {
+        self.created_at
     }
 }
 

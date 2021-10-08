@@ -38,21 +38,6 @@ pub struct AppData {
     pub tmpl: Tera
 }
 
-/*
-#[derive(Clone)]
-pub struct GraphQLContext {
-    pub pool: PostgresPool,
-    // Standard query items here so we don't need to go to db
-    pub countries: Arc<Mutex<HashMap<Uuid, models::Country>>>,
-    pub places: Arc<Mutex<HashMap<Uuid, models::Place>>>,
-    pub vaccines: HashMap<Uuid, models::Vaccine>,
-    pub identity: Option<String>,
-}
-
-
-impl async_graphql::Context for GraphQLContext {}
-
-*/
 pub fn get_place_by_id(context: &Context<'_>, id: Uuid) -> FieldResult<Place> {
 
 let places = context.data::<Arc<Mutex<HashMap<Uuid, Place>>>>()?.lock().unwrap();

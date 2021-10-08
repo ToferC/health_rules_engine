@@ -25,7 +25,7 @@ async fn main() -> std::io::Result<()> {
         Err(_) => String::from("test"),
     };
 
-    let SECRET_KEY = env::var("SECRET_KEY").expect("Unable to find secret key");
+    let secret_key = env::var("SECRET_KEY").expect("Unable to find secret key");
 
     let (host, port) = if environment == "production" {
         (env::var("HOST").unwrap(), env::var("PORT").unwrap())
@@ -57,7 +57,7 @@ async fn main() -> std::io::Result<()> {
             .configure(handlers::init_routes)
             .wrap(middleware::Logger::default())
             .wrap(IdentityService::new(
-                CookieIdentityPolicy::new(SECRET_KEY.as_bytes())
+                CookieIdentityPolicy::new(secret_key.as_bytes())
                     .name("auth")
                     .path("/graphiql")
                     .domain(domain.clone())

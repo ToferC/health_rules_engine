@@ -1,4 +1,3 @@
-
 use std::{io::stdin};
 use chrono::prelude::*;
 use chrono::Duration;
@@ -44,14 +43,23 @@ pub fn init() {
     let conn = connection().expect("Failed to get DB connection");
     embedded_migrations::run(&conn).unwrap();
 
-    
-    println!("Would you like to add demo data? (yes/no)");
+    println!("Would you like to add base countries, places and vaccines data? (yes/no)");
     
     let mut response = String::new();
     stdin().read_line(&mut response).expect("Unable to read input");
     
     if response.trim() == "yes" || response.trim() == "y" {
-        println!("Adding Demo Data");
+        println!("Adding Country, Place and Vaccine Data");
+        pre_populate_db_schema(&conn);
+    };
+
+    println!("Would you like to add traveller demo data? (yes/no)");
+    
+    let mut response = String::new();
+    stdin().read_line(&mut response).expect("Unable to read input");
+    
+    if response.trim() == "yes" || response.trim() == "y" {
+        println!("Adding Traveller Demo Data");
         populate_db_with_demo_data(&conn);
     };
     
@@ -64,11 +72,8 @@ pub fn connection() -> Result<DbConnection, CustomError> {
         .map_err(|e| CustomError::new(500, format!("Failed getting db connection: {}", e)))
 }
 
-
-/// Testing function to generate dummy data when resetting the database
-/// Started adding unique names to countries, so only works once when DB is reset.
-pub fn populate_db_with_demo_data(conn: &PgConnection) {
-
+/// Creates basic Country, Place and Vaccine entries in the database
+pub fn pre_populate_db_schema(conn: &PgConnection) {
     // Set up countries
     let mut new_countries: Vec<NewCountry> = Vec::new();
 
@@ -101,29 +106,15 @@ pub fn populate_db_with_demo_data(conn: &PgConnection) {
     new_places.push(NewPlace::new("Calgary".to_string(), countries[1].id));
     new_places.push(NewPlace::new("Toronto".to_string(), countries[1].id));
 
-    let mut origins: Vec<Place> = Vec::new();
-    let mut destinations: Vec<Place> = Vec::new();
-
     for np in new_places {
-        let p = Place::create(conn, &np).unwrap();
-
-        if p.country_id != countries[1].id {
-            origins.push(p);
-        } else {
-            destinations.push(p);
-        }
+        let _p = Place::create(conn, &np).unwrap();
     };
-
-    // Set up RNG
-    let mut rng = thread_rng();
 
     // Add Vaccines
 
     let mut new_vaccines = Vec::new();
 
     let approved_on: NaiveDate = Utc.ymd(2021, 09, 21).naive_utc();
-
-    let mut vaccines: Vec<Vaccine> = Vec::new();
 
     new_vaccines.push(
         NewVaccine::new(
@@ -170,9 +161,40 @@ pub fn populate_db_with_demo_data(conn: &PgConnection) {
     ));
 
     for v in new_vaccines {
-        let res = Vaccine::create(conn, &v).unwrap();
-        vaccines.push(res);
+        let _res = Vaccine::create(conn, &v).unwrap();
     }
+}
+
+/// Testing function to generate dummy data when resetting the database
+/// Started adding unique names to countries, so only works once when DB is reset.
+pub fn populate_db_with_demo_data(conn: &PgConnection) {
+
+    // Set up RNG
+    let mut rng = thread_rng();
+
+    // Load country, place and vaccine data
+    
+    let country_hash = Country::load_into_hash(&conn);
+
+    let countries = country_hash.values().cloned().collect::<Vec<Country>>();
+
+    let canada_id = *&country_hash.iter().find(|h| h.1.country_name == "Canada".to_string()).unwrap().0;
+
+    let places_hash = Place::load_into_hash(&conn);
+
+    let mut origins: Vec<Place> = Vec::new();
+    let mut destinations: Vec<Place> = Vec::new();
+
+    for (_, p) in places_hash {
+        if p.country_id == *canada_id {
+            destinations.push(p);
+        } else {
+            origins.push(p);
+        }
+    };
+
+    let vaccine_hash = Vaccine::load_into_hash(&conn);
+    let vaccines = vaccine_hash.values().cloned().collect::<Vec<Vaccine>>();
 
     // Populate with fake population data
 
@@ -180,9 +202,7 @@ pub fn populate_db_with_demo_data(conn: &PgConnection) {
 
         let tg = crate::models::NewTravelGroup::new();
 
-        let res: Result<TravelGroup, Error> = diesel::insert_into(travel_groups::table)
-                .values(&tg)
-                .get_result(conn);
+        let res = TravelGroup::create_travel_group(conn, &tg);
 
         let travel_group = res.unwrap();
 
@@ -256,11 +276,9 @@ pub fn populate_db_with_demo_data(conn: &PgConnection) {
                 false,
             );
 
-            let r = QuarantinePlan::create(conn, &new_qp).unwrap();
+            let _r = QuarantinePlan::create(conn, &new_qp).unwrap();
 
-            println!("{:?}", &r);
-
-            println!("Demo data insert complete");
+            println!("Demo data insert complete: {}", &travel_group.id);
 
         }
     }

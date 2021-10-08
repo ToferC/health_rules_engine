@@ -24,7 +24,8 @@ CREATE TABLE IF NOT EXISTS users (
 CREATE UNIQUE INDEX users__email_idx ON users(email);
 
 CREATE TABLE IF NOT EXISTS travel_groups (
-    id UUID DEFAULT gen_random_uuid() PRIMARY KEY
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    created_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
 CREATE TABLE IF NOT EXISTS places (
@@ -56,7 +57,8 @@ CREATE TABLE IF NOT EXISTS trips (
     arrival_time TIMESTAMP,
     trip_state VARCHAR(64) NOT NULL,
     travel_group_id UUID NOT NULL,
-    person_id UUID NOT NULL
+    person_id UUID NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
 CREATE TABLE IF NOT EXISTS persons (
@@ -70,7 +72,8 @@ CREATE TABLE IF NOT EXISTS persons (
     travel_document_issuer_id UUID NOT NULL,
     travel_group_id UUID NOT NULL,
     approved_access_level VARCHAR NOT NULL,
-    approved_access_granularity VARCHAR NOT NULL
+    approved_access_granularity VARCHAR NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
 CREATE TABLE IF NOT EXISTS public_health_profiles (

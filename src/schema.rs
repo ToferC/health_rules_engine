@@ -51,6 +51,7 @@ table! {
         travel_group_id -> Uuid,
         approved_access_level -> Varchar,
         approved_access_granularity -> Varchar,
+        created_at -> Timestamp,
     }
 }
 
@@ -99,6 +100,7 @@ table! {
 table! {
     travel_groups (id) {
         id -> Uuid,
+        created_at -> Timestamp,
     }
 }
 
@@ -134,6 +136,7 @@ table! {
         trip_state -> Varchar,
         travel_group_id -> Uuid,
         person_id -> Uuid,
+        created_at -> Timestamp,
     }
 }
 

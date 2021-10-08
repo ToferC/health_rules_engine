@@ -1,3 +1,4 @@
+use chrono::NaiveDateTime;
 use serde::{Deserialize, Serialize};
 use diesel::prelude::*;
 use diesel::{self, Insertable, Queryable};
@@ -18,12 +19,17 @@ use super::{Trip, Person};
 /// Referenced through Person, Trip and links to voyage
 pub struct TravelGroup {
     pub id: Uuid,
+    pub created_at: NaiveDateTime,
 }
 
 #[Object]
 impl TravelGroup {
     pub async fn id(&self) -> Uuid {
         self.id
+    }
+
+    pub async fn created_at(&self) -> NaiveDateTime {
+        self.created_at
     }
 
     pub async fn trips(&self, context: &Context<'_>) -> FieldResult<Vec<Trip>> {
@@ -51,12 +57,11 @@ impl TravelGroup {
 
 /// Non-Graphql
 impl TravelGroup {
-    pub fn create_travel_group(&self, context: &Context<'_>, travel_group: NewTravelGroup) -> FieldResult<TravelGroup> {
+    pub fn create_travel_group(conn: &PgConnection, travel_group: &NewTravelGroup) -> FieldResult<TravelGroup> {
         
-        let conn = get_connection_from_context(context);
         let res = diesel::insert_into(travel_groups::table)
             .values(travel_group)
-            .get_result(&conn);
+            .get_result(conn);
 
         graphql_translate(res)
     }
