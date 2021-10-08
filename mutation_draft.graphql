@@ -72,9 +72,8 @@ mutation InputTravel($data: TravelData!) {
 
 { "data": {
     "familyName": "Allison",
-    "givenName":"Chris",
-    "additionalNames":["Stuart"],
-    "birthDate":118384476,
+    "givenName":"Caighlie",
+    "birthDate":"1974-08-26",
     "gender":"male",
     "travelDocumentId": "H043534",
     "travelDocumentIssuer":"Canada",
@@ -89,22 +88,22 @@ mutation InputTravel($data: TravelData!) {
     "destinationName":"Ottawa",
     "destinationCountryName":"Canada",
     "travelIntent":"return home",
-    "scheduledDepartureTime":1632803676,
-    "scheduledArrivalTime":118384476,
-    "departureTime":1632803676,
-    "arrivalTime":118384476,
+    "scheduledDepartureTime":"2015-07-01T08:59:60.123",
+    "scheduledArrivalTime":"2015-07-01T08:59:60.123",
+    "departureTime":"2015-07-01T08:59:60.123",
+    "arrivalTime":"2015-07-01T08:59:60.123",
     "tripState": "in_process",
     "smartHealthcardPk":"HKDIH8978972892",
     "vaccinations":[{
       "vaccineName":"SpikeVax",
-      "providedOn":1624854876,
+      "providedOn":"2015-07-01T08:59:60.123",
       "doseProvider":"Walmart Pharmacy",
       "locationProvided":"Ottawa",
       "countryProvided":"Canada"
     },
       {
         "vaccineName":"Vaxzeria",
-        "providedOn":1630125276,
+        "providedOn":"2015-07-01T08:59:60.123",
         "doseProvider":"Walmart Pharmacy",
         "locationProvided":"Thunder Bay",
         "countryProvided":"Canada"
@@ -113,15 +112,15 @@ mutation InputTravel($data: TravelData!) {
     "covidTest": {
       "testName": "AH-001",
       "testType":"molecular",
-      "dateTaken":1632803676,
+      "dateTaken":"2015-07-01T08:59:60.123",
       "testResult": false
     },
     "quarantinePlan":{
-      "dateCreated": 1632803676,
+      "dateCreated": "2021-09-27",
       "confirmationNoVulnerable":true,
       "postalAddressId":"300 Street Street, Ontario, Canada"
     },
-    "dateTime":1633062876,
+    "dateTime":"2015-07-01T08:59:60.123",
     "cbsaOfficerId": "40654",
     "cbsaId":"HY-783204732-BHN"
 	}

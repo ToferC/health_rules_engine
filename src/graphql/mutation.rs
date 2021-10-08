@@ -9,23 +9,28 @@ pub struct Mutation;
 #[Object]
 impl Mutation {
 
-    #[graphql(name = "postTravelGroupData")]
-    pub async fn post_travel_group_data(
+    #[graphql(name = "travelDataResponse")]
+    /// Receives a Vec<TravelData> containing details from a group of travllers
+    /// and returns a Vec<TravelResponse> containing public health direction for the BSO
+    /// relating to entry to Canada for public health reasons and referrals to mandatory
+    /// random testing. Also includes IDs for Person, Trip, QuarantinePlan
+    /// for further mutations.
+    pub async fn travel_data_response(
         &self,
         context: &Context<'_>,
-        data: TravelData,
-    ) -> FieldResult<TravelResponse> {
+        data: Vec<TravelData>,
+    ) -> FieldResult<Vec<TravelResponse>> {
 
         let mut responses_to_cbsa: Vec<TravelResponse> = Vec::new();
 
-        /*
-        for traveller in data {
-            responses_to_cbsa.push(response);
-        }
-        */
-        let response = data.process(&context)?.into();
         
-        Ok(response)
+        for traveller in data {
+            let response = traveller.process(&context)?.into();
+            responses_to_cbsa.push(response);
+        };
+        
+        
+        Ok(responses_to_cbsa)
     }
 
     pub async fn login_user(
