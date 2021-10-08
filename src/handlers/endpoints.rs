@@ -22,7 +22,7 @@ pub async fn playground_handler() -> HttpResponse {
 }
 
 pub async fn graphql(
-    pg_pool: web::Data<PostgresPool>,
+    //pg_pool: web::Data<PostgresPool>,
     schema: web::Data<AppSchema>,
     req: Request,
 ) -> Response {

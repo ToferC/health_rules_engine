@@ -5,9 +5,8 @@ use diesel::{self, Insertable, PgConnection, Queryable,
 use uuid::Uuid;
 use async_graphql::*;
 
-use crate::graphql::graphql_translate;
+use crate::graphql::{graphql_translate, get_connection_from_context};
 use crate::schema::*;
-use crate::database::POOL;
 
 #[derive(Debug, Clone, Deserialize, Serialize, Insertable, Queryable)]
 #[table_name = "quarantine_plans"]
@@ -50,7 +49,7 @@ impl QuarantinePlan {
     }
 
     pub async fn check_in_history(&self, context: &Context<'_>) -> FieldResult<Vec<CheckInResult>> {
-        let conn = context.data::<POOL>()?.get().expect("Unable to connect to DB");
+        let conn = get_connection_from_context(context);
 
         let res = check_in_results::table
             .filter(check_in_results::quarantine_plan_id.eq(self.id))

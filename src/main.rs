@@ -5,7 +5,7 @@ use tera_text_filters::snake_case;
 use actix_identity::{CookieIdentityPolicy, IdentityService};
 
 use health_rules_engine::database::{self, POOL};
-use health_rules_engine::graphql::{create_schema};
+use health_rules_engine::graphql::{create_schema_with_context};
 use health_rules_engine::AppData;
 use health_rules_engine::handlers;
 
@@ -40,7 +40,7 @@ async fn main() -> std::io::Result<()> {
     println!("Serving on: {}:{}", &host, &port);
 
     // Create Schema
-    let schema = create_schema(POOL.clone());
+    let schema = create_schema_with_context(POOL.clone());
 
     HttpServer::new(move || {
         
@@ -51,9 +51,9 @@ async fn main() -> std::io::Result<()> {
         tera.full_reload().expect("Error running auto reload with Tera");
 
         App::new()
-            .data(POOL.clone())
-            .data(schema.clone())
+            //.data(POOL.clone())
             .data(AppData {tmpl: tera})
+            .data(schema.clone())
             .configure(handlers::init_routes)
             .wrap(middleware::Logger::default())
             .wrap(IdentityService::new(

@@ -2,16 +2,14 @@
 use serde::{Deserialize, Serialize};
 use diesel::{self, Insertable, PgConnection, Queryable,
     ExpressionMethods, QueryDsl, RunQueryDsl};
-use diesel_derive_enum::DbEnum;
 use uuid::Uuid;
 
 use async_graphql::*;
 
 use crate::models::{Vaccination,
     QuarantinePlan, CovidTest};
-use crate::graphql::graphql_translate;
+use crate::graphql::{graphql_translate, get_connection_from_context};
 use crate::schema::*;
-use crate::database::POOL;
 
 
 #[derive(Debug, Clone, Deserialize, Serialize, PartialEq, PartialOrd, Insertable, Queryable)]
@@ -41,7 +39,7 @@ impl PublicHealthProfile {
     }
 
     pub async fn vaccination_history(&self, context: &Context<'_>) -> FieldResult<Vec<Vaccination>> {
-        let conn = context.data::<POOL>()?.get().expect("Unable to connect to DB");
+        let conn = get_connection_from_context(context);
 
         let res = vaccinations::table
             .filter(vaccinations::public_health_profile_id.eq(self.id))
@@ -51,7 +49,7 @@ impl PublicHealthProfile {
     }
 
     pub async fn testing_history(&self, context: &Context<'_>) -> FieldResult<Vec<CovidTest>> {
-        let conn = context.data::<POOL>()?.get().expect("Unable to connect to DB");
+        let conn = get_connection_from_context(context);
 
         let res = covid_test::table
             .filter(covid_test::public_health_profile_id.eq(self.id))
@@ -61,7 +59,7 @@ impl PublicHealthProfile {
     }
 
     pub async fn quarantine_plans(&self, context: &Context<'_>) -> FieldResult<Vec<QuarantinePlan>> {
-        let conn = context.data::<POOL>()?.get().expect("Unable to connect to DB");
+        let conn = get_connection_from_context(context);
 
         let res = quarantine_plans::table
             .filter(quarantine_plans::public_health_profile_id.eq(self.id))

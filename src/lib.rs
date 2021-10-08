@@ -28,7 +28,7 @@ pub mod schema;
 pub mod database;
 pub mod graphql;
 
-use crate::database::{POOL};
+use crate::graphql::{get_connection_from_context};
 use crate::errors::error_handler::CustomError;
 use crate::models::{User, SlimUser, verify};
 
@@ -79,9 +79,11 @@ pub fn get_or_create_place_by_name_and_country_id(context: &Context<'_>, name: S
     let place = match res {
         Some(p) => p,
         None => {
+            let conn = get_connection_from_context(context);
+
             let p = models::NewPlace::new(name, country_id);
             let place = models::Place::create(
-                &context.data::<POOL>()?.get().expect("Unable to connect to db"), 
+                &conn, 
                 &p)?;
             
             places.insert(place.id, place.clone());
@@ -118,9 +120,11 @@ let country = match res {
     None => {
         let c = NewCountry::new(country_name, 0.03);
 
+        let conn = get_connection_from_context(context);
+
         // Insert country into DB
         let country = Country::create(
-            &context.data::<POOL>()?.get().expect("Unable to connec to db"), 
+            &conn, 
             &c)?;
         
         // Insert into Hashmap cache
@@ -162,10 +166,10 @@ pub fn login(
 ) -> FieldResult<SlimUser> {
     use crate::schema::users::dsl::{email, users};
 
-    let conn = &context.data::<Arc<POOL>>()?.get()?;
+    let conn = get_connection_from_context(context);
     let user = users
         .filter(email.eq(user_email))
-        .first::<User>(conn)?;
+        .first::<User>(&conn)?;
 
     match verify(&user, &user_password) {
         true => Ok(user.into()),

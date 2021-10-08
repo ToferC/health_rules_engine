@@ -9,10 +9,9 @@ use async_graphql::*;
 use rand::{Rng, thread_rng};
 
 use crate::schema::*;
-use crate::graphql::graphql_translate;
+use crate::graphql::{graphql_translate, get_connection_from_context};
 use crate::models::{Country, Trip};
 use crate::get_country_by_id;
-use crate::database::POOL;
 
 use super::PublicHealthProfile;
 
@@ -177,7 +176,7 @@ impl Person {
     }
 
     pub async fn public_health_profile(&self, context: &Context<'_>) -> FieldResult<PublicHealthProfile> {
-        let conn = context.data::<POOL>()?.get().expect("Unable to connect to DB");
+        let conn = get_connection_from_context(context);
 
         let res = public_health_profiles::table
             .filter(public_health_profiles::person_id.eq(self.id))
@@ -187,7 +186,7 @@ impl Person {
     }
 
     pub async fn trips(&self, context: &Context<'_>) -> FieldResult<Vec<Trip>> {
-        let conn = context.data::<POOL>()?.get().expect("Unable to connect to DB");
+        let conn = get_connection_from_context(context);
 
         let res = trips::table.
             filter(trips::person_id.eq(self.id))

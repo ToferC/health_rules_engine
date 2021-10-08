@@ -23,7 +23,7 @@ impl Mutation {
             responses_to_cbsa.push(response);
         }
         */
-        let response = data.process(&context)?;
+        let response = data.process(&context)?.into();
         
         Ok(response)
     }

@@ -9,9 +9,8 @@ use async_graphql::*;
 
 use crate::DATE_FORMAT;
 use crate::schema::*;
-use crate::graphql::graphql_translate;
+use crate::graphql::{graphql_translate, get_connection_from_context};
 use crate::models::{Place, Person};
-use crate::database::POOL;
 use crate::{get_place_by_id, get_or_create_country_by_name, get_or_create_place_by_name_and_country_id};
 
 /// Travel information for a TravelGroup
@@ -103,7 +102,7 @@ impl Trip {
 
     pub async fn person(&self, context: &Context<'_>) -> FieldResult<Person> {
 
-        let conn = context.data::<POOL>()?.get().expect("Unable to connect to DB");
+        let conn = get_connection_from_context(context);
 
         let res = persons::table.
             filter(persons::id.eq(self.person_id))

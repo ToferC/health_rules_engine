@@ -8,9 +8,8 @@ use chrono::Utc;
 // use juniper::{FieldResult};
 use async_graphql::*;
 
-use crate::graphql::{graphql_translate};
+use crate::graphql::{graphql_translate, get_connection_from_context};
 use crate::schema::*;
-use crate::database::POOL;
 use crate::get_or_create_country_by_name;
 
 use crate::models::{NewPerson, 
@@ -171,7 +170,7 @@ impl TravelData {
     pub fn process(&self, context: &Context<'_>) -> FieldResult<TravelResponse> {
 
         // Connect to PostgresPool
-        let conn = context.data::<POOL>()?.get().expect("Unable to connec to db");
+        let conn = get_connection_from_context(context);
 
         // set travel_group_id
         let travel_group_id = Uuid::new_v4();
