@@ -1,9 +1,20 @@
+use std::str::FromStr;
+
 use async_graphql::*;
+use async_graphql::guard::Guard;
 use actix_identity::Identity;
 use uuid::Uuid;
 
 use crate::{login};
-use crate::models::{Country, CovidTest, LoginQuery, NewTravelResponse, NewTrip, Person, Place, QuarantinePlan, SlimUser, TravelData, TravelGroup, TravelResponse, Trip, Vaccination, Vaccine};
+use crate::models::{Country, CovidTest, 
+    LoginQuery, NewTravelResponse, 
+    NewTrip, Person, Place, QuarantinePlan, 
+    SlimUser, TravelData, TravelGroup, User,
+    TravelResponse, Trip, Vaccination, Vaccine,
+    hash_password, verify_password,
+    create_token};
+use crate::models::Role as AuthRole;
+use crate::graphql::get_connection_from_context;
 
 pub struct Mutation;
 
@@ -35,21 +46,27 @@ impl Mutation {
         Ok(responses_to_cbsa)
     }
 
-    pub async fn login_user(
+    pub async fn sign_in(
         &self,
         context: &Context<'_>,
         auth_data: LoginQuery,
-    ) -> FieldResult<SlimUser> {
-        
-        login(&auth_data.email, &auth_data.password, &context)
-            .and_then(|res| {
-                let user_string =
-                    serde_json::to_string(&res).map_err(|e| e)?;
+    ) -> Result<String, Error> {
 
-            println!("user_string={}", user_string);
-            //context.identity = Some(user_string);
-            Ok(res)
-        })
+        let conn = get_connection_from_context(&context);
+
+        let maybe_user = User::get_by_email(&auth_data.email, &conn).ok();
+
+        if let Some(user) = maybe_user {
+            if let Ok(matching) = verify_password(&user.hash.to_string(), &auth_data.password) {
+                if matching {
+                    let role = AuthRole::from_str(user.role.as_str())
+                        .expect("Cannot convert &str to AuthRole");
+                    return Ok(create_token(user.id.to_string(), role));
+                }
+            }
+        }
+
+        Err(Error::new("Can't authenticate a user"))
     }
 
     pub async fn ping(

@@ -1,10 +1,12 @@
 // Modelled off https://github.com/clifinger/canduma/blob/master/src/user
 
+use actix_multipart::Field;
 use chrono::prelude::*;
 use serde::{Deserialize, Serialize};
-use diesel::{self, Insertable, Queryable};
+use diesel::{self, ExpressionMethods, Insertable, PgConnection, QueryDsl, Queryable, RunQueryDsl, result::DatabaseErrorInformation};
 use uuid::Uuid;
 use argon2rs::argon2i_simple;
+use async_graphql::*;
 
 use crate::{errors::error_handler::CustomError, schema::*};
 
@@ -17,7 +19,7 @@ pub struct UserInstance {
 pub struct User {
     pub id: Uuid,
     #[graphql(skip)]
-    pub hash: Vec<u8>,
+    pub hash: String,
     #[graphql(skip)]
     pub salt: String,
     pub email: String,
@@ -29,10 +31,28 @@ pub struct User {
     pub approved_by_user_uid: Option<Uuid>,
 }
 
+impl User {
+    pub fn get_by_email(email: &String, conn: &PgConnection) -> FieldResult<Self> {
+        let user = users::table
+            .filter(users::email.eq(email))
+            .get_result(conn)?;
+
+        Ok(user)
+    }
+
+    pub fn create(user: InsertableUser, conn: &PgConnection) -> FieldResult<Self> {
+        let user = diesel::insert_into(users::table)
+            .values(&user)
+            .get_result(conn)?;
+
+        Ok(user)
+    }
+}
+
 #[derive(Debug, Clone, Deserialize, Serialize, Insertable)]
 #[table_name = "users"]
 pub struct InsertableUser {
-    pub hash: Vec<u8>,
+    pub hash: String,
     pub salt: String,
     pub email: String,
     pub role: String,
@@ -77,7 +97,7 @@ impl From<UserData> for InsertableUser {
         } = user_data;
         
         let salt = make_salt();
-        let hash = make_hash(&password, &salt).to_vec();
+        let hash = make_hash(&password, &salt);
 
         Self {
             email,
@@ -135,14 +155,17 @@ pub fn make_salt() -> String {
     password
 }
 
-pub fn make_hash(password: &str, salt: &str) -> [u8; argon2rs::defaults::LENGTH] {
-    argon2i_simple(password, salt)
+pub fn make_hash(password: &str, salt: &str) -> String {
+    let hash = argon2i_simple(password, salt);
+
+    String::from_utf8(hash.to_vec()).expect("Unable to conver hash to String")
 }
 
 pub fn verify(user: &User, password: &str) -> bool {
     let User { hash, salt, ..} = user;
 
-    make_hash(password, salt) == hash.as_ref()
+    let computed_hash = make_hash(password, salt);
+    computed_hash == hash.to_owned()
 }
 
 pub fn has_role(user: &LoggedUser, role: &str) -> core::result::Result<bool, CustomError> {

@@ -143,7 +143,7 @@ table! {
 table! {
     users (id) {
         id -> Uuid,
-        hash -> Bytea,
+        hash -> Varchar,
         salt -> Varchar,
         email -> Varchar,
         role -> Varchar,

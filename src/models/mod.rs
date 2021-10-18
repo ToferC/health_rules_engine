@@ -12,6 +12,7 @@ mod travel_group;
 mod access_log;
 mod user;
 mod messages;
+mod auth;
 
 pub use self::person::*;
 pub use self::trip::*;
@@ -27,3 +28,4 @@ pub use self::place::{Place, NewPlace};
 pub use self::country::{Country, NewCountry};
 pub use self::postal_address::*;
 pub use messages::*;
+pub use auth::*;

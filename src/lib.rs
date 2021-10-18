@@ -10,6 +10,9 @@ extern crate async_graphql;
 #[macro_use]
 extern crate shrinkwraprs;
 
+#[macro_use]
+extern crate strum_macros;
+
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 use async_graphql::*;
