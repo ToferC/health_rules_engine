@@ -11,9 +11,8 @@ CREATE TYPE access_level_enum AS ENUM (
 CREATE TABLE IF NOT EXISTS users (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     hash VARCHAR(255) NOT NULL,
-    salt VARCHAR(255) NOT NULL,
     email VARCHAR(128) UNIQUE NOT NULL UNIQUE,
-    role VARCHAR(64) NOT NULL DEFAULT 'user',
+    role VARCHAR(64) NOT NULL DEFAULT 'USER',
     name VARCHAR(256) NOT NULL,
     access_level VARCHAR(64) NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),

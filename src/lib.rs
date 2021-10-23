@@ -33,7 +33,7 @@ pub mod graphql;
 
 use crate::graphql::{get_connection_from_context};
 use crate::errors::error_handler::CustomError;
-use crate::models::{User, SlimUser, verify};
+use crate::models::{SlimUser, User, verify_password};
 
 const DATE_FORMAT: &str = "%Y-%m-%d %H:%M:%S";
 
@@ -159,8 +159,8 @@ pub fn login(
         .filter(email.eq(user_email))
         .first::<User>(&conn)?;
 
-    match verify(&user, &user_password) {
-        true => Ok(user.into()),
-        false => Err(Error::new("No match for user / password")),
+    match verify_password(&user.hash, &user_password) {
+        Ok(true) => Ok(user.into()),
+        _ => Err(Error::new("No match for user / password")),
     }
 }

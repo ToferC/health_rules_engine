@@ -6,13 +6,9 @@ use actix_identity::Identity;
 use uuid::Uuid;
 
 use crate::{login};
-use crate::models::{Country, CovidTest, 
-    LoginQuery, NewTravelResponse, 
-    NewTrip, Person, Place, QuarantinePlan, 
-    SlimUser, TravelData, TravelGroup, User,
-    TravelResponse, Trip, Vaccination, Vaccine,
-    hash_password, verify_password,
-    create_token};
+use crate::models::{InsertableUser, LoginQuery, TravelData, TravelResponse,
+    User, UserData, create_token, decode_token,
+    verify_password};
 use crate::models::Role as AuthRole;
 use crate::graphql::get_connection_from_context;
 
@@ -46,22 +42,43 @@ impl Mutation {
         Ok(responses_to_cbsa)
     }
 
+    pub async fn create_user(
+        &self,
+        context: &Context<'_>,
+        user_data: UserData,
+    ) -> User {
+            let new_user = InsertableUser::from(user_data);
+
+            let created_user = User::create(new_user, &get_connection_from_context(context))
+                .expect("Unable to create user");
+
+            created_user
+        }
+
     pub async fn sign_in(
         &self,
         context: &Context<'_>,
-        auth_data: LoginQuery,
+        input: LoginQuery,
     ) -> Result<String, Error> {
 
         let conn = get_connection_from_context(&context);
 
-        let maybe_user = User::get_by_email(&auth_data.email, &conn).ok();
+        let maybe_user = User::get_by_email(&input.email, &conn).ok();
 
         if let Some(user) = maybe_user {
-            if let Ok(matching) = verify_password(&user.hash.to_string(), &auth_data.password) {
+
+            if let Ok(matching) = verify_password(&user.hash.to_string(), &input.password) {
                 if matching {
                     let role = AuthRole::from_str(user.role.as_str())
                         .expect("Cannot convert &str to AuthRole");
-                    return Ok(create_token(user.id.to_string(), role));
+
+                    // Return the token which would be accepted by the ArriveCan 
+                    // app and used to authenticate actions
+                    let token = create_token(user.id.to_string(), role);
+
+                    println!("JWT: {}\nData{:?}", &token, decode_token(&token));
+
+                    return Ok(token);
                 }
             }
         }

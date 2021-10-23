@@ -9,6 +9,7 @@ use argon2rs::argon2i_simple;
 use async_graphql::*;
 
 use crate::{errors::error_handler::CustomError, schema::*};
+use crate::models::hash_password;
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct UserInstance {
@@ -20,8 +21,6 @@ pub struct User {
     pub id: Uuid,
     #[graphql(skip)]
     pub hash: String,
-    #[graphql(skip)]
-    pub salt: String,
     pub email: String,
     pub role: String,
     pub name: String,
@@ -53,7 +52,6 @@ impl User {
 #[table_name = "users"]
 pub struct InsertableUser {
     pub hash: String,
-    pub salt: String,
     pub email: String,
     pub role: String,
     pub name: String,
@@ -96,16 +94,15 @@ impl From<UserData> for InsertableUser {
             ..
         } = user_data;
         
-        let salt = make_salt();
-        let hash = make_hash(&password, &salt);
+        let hash = hash_password(&password)
+            .expect("Unable to hash password");
 
         Self {
             email,
             hash,
-            salt,
             created_at: chrono::Utc::now().naive_utc(),
             name,
-            role: "user".to_owned(),
+            role: "USER".to_owned(),
             access_key: "".to_owned(),
             access_level: "detailed".to_owned(),
             approved_by_user_uid: None,
@@ -138,6 +135,7 @@ pub struct LoginQuery {
     pub password: String,
 }
 
+/*
 pub fn make_salt() -> String {
     use rand::Rng;
     const CHARSET: &[u8] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZ\
@@ -163,7 +161,7 @@ pub fn make_hash(password: &str, salt: &str) -> String {
 
 pub fn verify(user: &User, password: &str) -> bool {
     let User { hash, salt, ..} = user;
-
+    
     let computed_hash = make_hash(password, salt);
     computed_hash == hash.to_owned()
 }
@@ -174,3 +172,4 @@ pub fn has_role(user: &LoggedUser, role: &str) -> core::result::Result<bool, Cus
         _ => Err(CustomError::new(501, "Not Authorized".to_string())),
     }
 }
+*/

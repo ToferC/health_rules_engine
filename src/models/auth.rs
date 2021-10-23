@@ -7,6 +7,8 @@ use jsonwebtoken::{encode, EncodingKey, Header};
 use serde::{Deserialize, Serialize};
 use lazy_static::lazy_static;
 use argonautica::{Error, Hasher, Verifier};
+use async_graphql::guard::Guard;
+use async_graphql::*;
 
 lazy_static! {
     static ref JWT_SECRET_KEY: String = 
@@ -18,7 +20,7 @@ lazy_static! {
         std::env::var("PASSWORD_SECRET_KEY").expect("Can't read PASSWORD_SECRET_KEY");
 }
 
-#[derive(Deserialize, Serialize)]
+#[derive(Deserialize, Serialize, Debug)]
 pub struct Claims {
     pub sub: String,
     pub exp: i64,
@@ -30,6 +32,21 @@ pub struct Claims {
 pub enum Role {
     Admin,
     User,
+}
+
+struct RoleGuard {
+    role: Role,
+}
+
+#[async_trait::async_trait]
+impl Guard for RoleGuard {
+    async fn check(&self, context: &Context<'_>) -> Result<()> {
+        if context.data_opt::<Role>() == Some(&self.role) {
+            Ok(())
+        } else {
+            Err("Forbidden".into())
+        }
+    }
 }
 
 pub fn create_token(username: String, role: Role) -> String {
@@ -63,7 +80,7 @@ pub fn get_role(http_request: HttpRequest) -> Option<Role> {
         })
 }
 
-fn decode_token(token: &str) -> TokenData<Claims> {
+pub fn decode_token(token: &str) -> TokenData<Claims> {
     decode::<Claims>(
         &token,
         &DecodingKey::from_secret(JWT_SECRET_KEY.as_ref()),

@@ -144,7 +144,6 @@ table! {
     users (id) {
         id -> Uuid,
         hash -> Varchar,
-        salt -> Varchar,
         email -> Varchar,
         role -> Varchar,
         name -> Varchar,
