@@ -32,7 +32,6 @@ pub mod database;
 pub mod graphql;
 
 use crate::graphql::{get_connection_from_context};
-use crate::errors::error_handler::CustomError;
 use crate::models::{SlimUser, User, verify_password};
 
 const DATE_FORMAT: &str = "%Y-%m-%d %H:%M:%S";

@@ -6,7 +6,7 @@ use jsonwebtoken::{decode, DecodingKey, TokenData, Validation};
 use jsonwebtoken::{encode, EncodingKey, Header};
 use serde::{Deserialize, Serialize};
 use lazy_static::lazy_static;
-use argonautica::{Error, Hasher, Verifier};
+use argonautica::{Hasher, Verifier};
 use async_graphql::guard::Guard;
 use async_graphql::*;
 
@@ -40,7 +40,7 @@ struct RoleGuard {
 
 #[async_trait::async_trait]
 impl Guard for RoleGuard {
-    async fn check(&self, context: &Context<'_>) -> Result<()> {
+    async fn check(&self, context: &Context<'_>) -> Result<(), async_graphql::Error> {
         if context.data_opt::<Role>() == Some(&self.role) {
             Ok(())
         } else {
@@ -89,14 +89,14 @@ pub fn decode_token(token: &str) -> TokenData<Claims> {
     .expect("Can't decode token")
 }
 
-pub fn hash_password(password: &str) -> Result<String, Error> {
+pub fn hash_password(password: &str) -> Result<String, argonautica::Error> {
     Hasher::default()
         .with_password(password)
         .with_secret_key(PASSWORD_SECRET_KEY.as_str())
         .hash()
 }
 
-pub fn verify_password(hash: &str, password: &str) -> Result<bool, Error> {
+pub fn verify_password(hash: &str, password: &str) -> Result<bool, argonautica::Error> {
     Verifier::default()
         .with_hash(hash)
         .with_password(password)
