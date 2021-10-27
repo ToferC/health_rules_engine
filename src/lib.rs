@@ -35,6 +35,7 @@ use crate::graphql::{get_connection_from_context};
 use crate::models::{SlimUser, User, verify_password};
 
 const DATE_FORMAT: &str = "%Y-%m-%d %H:%M:%S";
+const TOKEN_DURATION: i64 = 7200;
 
 pub struct AppData {
     pub tmpl: Tera

@@ -8,6 +8,8 @@ use serde::{Deserialize, Serialize};
 use lazy_static::lazy_static;
 use argonautica::{Hasher, Verifier};
 use crate::common_utils::Role;
+use crate::TOKEN_DURATION;
+use jsonwebtoken::errors::*;
 
 lazy_static! {
     static ref JWT_SECRET_KEY: String = 
@@ -21,16 +23,16 @@ lazy_static! {
 
 #[derive(Deserialize, Serialize, Debug)]
 pub struct Claims {
-    pub user_id: String,
+    pub sub: String,
     pub exp: i64,
     pub role: String,
 }
 
 pub fn create_token(user_id: String, role: Role) -> String {
-    let exp_time = Local::now() + Duration::minutes(120);
+    let exp_time = Local::now() + Duration::seconds(TOKEN_DURATION);
 
     let claims = Claims {
-        user_id: user_id,
+        sub: user_id,
         exp: exp_time.timestamp(),
         role: role.to_string(),
     };
@@ -43,11 +45,11 @@ pub fn create_token(user_id: String, role: Role) -> String {
     .expect("Can't create token")
 }
 
-pub fn get_role_and_id(http_request: HttpRequest) -> Option<(Role, uuid::Uuid)> {
+pub fn get_claim(http_request: HttpRequest) -> Result<(Role, uuid::Uuid, i64), jsonwebtoken::errors::Error> {
 
     println!("{:?}", &http_request.headers().get("Authorization"));
 
-    http_request
+    let token_data = http_request
         .headers()
         .get("Authorization")
         .and_then(|header_value| {
@@ -56,20 +58,34 @@ pub fn get_role_and_id(http_request: HttpRequest) -> Option<(Role, uuid::Uuid)> 
                 let jwt = s[jwt_start_index..s.len()].to_string();
                 let token_data = decode_token(&jwt);
 
-                let role = Role::from_str(&token_data.claims.role).expect("Can't parse role");
-                let uuid = uuid::Uuid::from_str(&token_data.claims.user_id).expect("Can't parse CBSA_ID");
-                return (role, uuid.to_owned());
+                token_data
             })
-        })
+        });
+
+        let token = match token_data {
+            Some(td) => {
+                let token = match td {
+                    Ok(t) => t,
+                    Err(e) => return Err(e),
+                };
+                token
+            },
+            None => return Err(jsonwebtoken::errors::Error::from(ErrorKind::InvalidToken)),
+        };
+
+        let role = Role::from_str(&token.claims.role).expect("Can't parse role");
+        let uuid = uuid::Uuid::from_str(&token.claims.sub).expect("Can't parse CBSA_ID");
+        let exp_time = &token.claims.exp;
+
+        Ok((role, uuid.to_owned(), *exp_time))
 }
 
-pub fn decode_token(token: &str) -> TokenData<Claims> {
-    decode::<Claims>(
+pub fn decode_token(token: &str) -> Result<TokenData<Claims>, jsonwebtoken::errors::Error> {
+    Ok(decode::<Claims>(
         &token,
         &DecodingKey::from_secret(JWT_SECRET_KEY.as_ref()),
         &Validation::default(),
-    )
-    .expect("Can't decode token")
+    )?)
 }
 
 pub fn hash_password(password: &str) -> Result<String, argonautica::Error> {

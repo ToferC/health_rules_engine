@@ -16,27 +16,12 @@ pub struct RoleGuard {
 #[async_trait::async_trait]
 impl Guard for RoleGuard {
     async fn check(&self, context: &Context<'_>) -> Result<(), async_graphql::Error> {
+        
         if context.data_opt::<Role>() == Some(&self.role) {
             Ok(())
         } else {
-            Err("Forbidden".into())
-        }
-    }
-}
-
-struct Age(i32);
-
-struct AgeGuard {
-    age: i32,
-}
-
-#[async_trait::async_trait]
-impl Guard for AgeGuard {
-    async fn check(&self, ctx: &Context<'_>) -> Result<()> {
-        if ctx.data_opt::<Age>().map(|name| &name.0) == Some(&self.age) {
-            Ok(())
-        } else {
-            Err("Forbidden - Token Expired".into())
+            let guard_error = context.data_opt::<jsonwebtoken::errors::Error>().expect("Unable to decode token").clone();
+            Err(format!("{:?}", guard_error.kind()).into())
         }
     }
 }

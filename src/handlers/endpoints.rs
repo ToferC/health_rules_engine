@@ -26,11 +26,19 @@ pub async fn graphql(
     
     let mut query = req.into_inner();
 
-    let maybe_role_id = models::get_role_and_id(http_request);
-    if let Some((role, uuid)) = maybe_role_id {
-        query = query.data(role);
-        query = query.data(uuid);
-    }
+    let maybe_role_id = models::get_claim(http_request);
+
+    // insert claim data into query or error for response
+    match maybe_role_id {
+        Ok((role, uuid, exp_time)) => {
+            query = query.data(role);
+            query = query.data(uuid);
+            query = query.data(exp_time)
+        },
+        Err(e) => {
+            query = query.data(e);
+        }
+    };
 
     schema.execute(query).await.into()
 }
