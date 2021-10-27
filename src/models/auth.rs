@@ -7,8 +7,7 @@ use jsonwebtoken::{encode, EncodingKey, Header};
 use serde::{Deserialize, Serialize};
 use lazy_static::lazy_static;
 use argonautica::{Hasher, Verifier};
-use async_graphql::guard::Guard;
-use async_graphql::*;
+use crate::common_utils::Role;
 
 lazy_static! {
     static ref JWT_SECRET_KEY: String = 
@@ -22,39 +21,16 @@ lazy_static! {
 
 #[derive(Deserialize, Serialize, Debug)]
 pub struct Claims {
-    pub sub: String,
+    pub user_id: String,
     pub exp: i64,
     pub role: String,
 }
 
-#[derive(Eq, PartialEq, Display, EnumString)]
-#[strum(serialize_all = "SCREAMING_SNAKE_CASE")]
-pub enum Role {
-    Admin,
-    Operator,
-    User,
-}
-
-pub struct RoleGuard {
-    pub role: Role,
-}
-
-#[async_trait::async_trait]
-impl Guard for RoleGuard {
-    async fn check(&self, context: &Context<'_>) -> Result<(), async_graphql::Error> {
-        if context.data_opt::<Role>() == Some(&self.role) {
-            Ok(())
-        } else {
-            Err("Forbidden".into())
-        }
-    }
-}
-
-pub fn create_token(username: String, role: Role) -> String {
+pub fn create_token(user_id: String, role: Role) -> String {
     let exp_time = Local::now() + Duration::minutes(120);
 
     let claims = Claims {
-        sub: username,
+        user_id: user_id,
         exp: exp_time.timestamp(),
         role: role.to_string(),
     };
@@ -81,7 +57,7 @@ pub fn get_role_and_id(http_request: HttpRequest) -> Option<(Role, uuid::Uuid)> 
                 let token_data = decode_token(&jwt);
 
                 let role = Role::from_str(&token_data.claims.role).expect("Can't parse role");
-                let uuid = uuid::Uuid::from_str(&token_data.claims.sub).expect("Can't parse CBSA_ID");
+                let uuid = uuid::Uuid::from_str(&token_data.claims.user_id).expect("Can't parse CBSA_ID");
                 return (role, uuid.to_owned());
             })
         })

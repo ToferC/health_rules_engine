@@ -8,6 +8,7 @@ use health_rules_engine::database::{self, POOL};
 use health_rules_engine::graphql::{create_schema_with_context};
 use health_rules_engine::AppData;
 use health_rules_engine::handlers;
+use health_rules_engine::common_utils;
 
 #[actix_rt::main]
 async fn main() -> std::io::Result<()> {

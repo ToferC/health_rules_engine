@@ -7,7 +7,7 @@ use uuid::Uuid;
 use crate::models::{InsertableUser, LoginQuery, TravelData, TravelResponse,
     User, UserData, create_token, decode_token,
     verify_password};
-use crate::models::{Role as AuthRole, RoleGuard};
+use crate::common_utils::{Role as AuthRole, RoleGuard};
 use crate::graphql::get_connection_from_context;
 
 pub struct Mutation;
@@ -17,7 +17,10 @@ impl Mutation {
 
     #[graphql(
         name = "travelDataResponse", 
-        guard(RoleGuard(role = "AuthRole::Admin"))
+        guard(or(
+            RoleGuard(role = "AuthRole::Admin"),
+            RoleGuard(role = "AuthRole::Operator")
+        ))
     )]
     /// Receives a Vec<TravelData> containing details from a group of travllers
     /// and returns a Vec<TravelResponse> containing public health direction for the BSO
