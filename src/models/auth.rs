@@ -7,9 +7,10 @@ use jsonwebtoken::{encode, EncodingKey, Header};
 use serde::{Deserialize, Serialize};
 use lazy_static::lazy_static;
 use argonautica::{Hasher, Verifier};
+use jsonwebtoken::errors::*;
+
 use crate::common_utils::Role;
 use crate::TOKEN_DURATION;
-use jsonwebtoken::errors::*;
 
 lazy_static! {
     static ref JWT_SECRET_KEY: String = 
