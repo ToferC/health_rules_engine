@@ -40,7 +40,18 @@ pub fn init() {
     let conn = connection().expect("Failed to get DB connection");
     embedded_migrations::run(&conn).unwrap();
 
-    println!("Would you like to add an admin user, base countries, places and vaccines data? (yes/no)");
+    println!("Would you like to add an administrator? (yes/no)");
+    
+    let mut response = String::new();
+    stdin().read_line(&mut response).expect("Unable to read input");
+    
+    if response.trim() == "yes" || response.trim() == "y" {
+
+        create_admin_user(&conn);
+    };
+
+
+    println!("Would you like to add base countries, places and vaccines data? (yes/no)");
     
     let mut response = String::new();
     stdin().read_line(&mut response).expect("Unable to read input");
@@ -48,22 +59,6 @@ pub fn init() {
     if response.trim() == "yes" || response.trim() == "y" {
         println!("Adding Country, Place and Vaccine Data");
         pre_populate_db_schema(&conn);
-
-        let admin_data = UserData {
-            name: "Chris Abelard".to_string(),
-            email: "test123@testing.com".to_string(),
-            password: "WhoLetYouIn".to_string(),
-        };
-
-        let mut test_admin = InsertableUser::from(admin_data);
-
-        test_admin.role = "ADMIN".to_owned();
-
-        let admin = User::create(test_admin, &conn)
-            .expect("Unable to create admin");
-
-        println!("Admin created: {:?}", &admin);
-
     };
 
     println!("Would you like to add traveller demo data? (yes/no)");
@@ -174,6 +169,41 @@ pub fn pre_populate_db_schema(conn: &PgConnection) {
     for v in new_vaccines {
         let _res = Vaccine::create(conn, &v).unwrap();
     }
+}
+
+/// Create an administrative user. An admin account is needed to create additional users and access
+/// some guarded mutations.
+pub fn create_admin_user(conn: &PgConnection) {
+
+        println!("What is the administrator's name?");
+
+        let mut name_input = String::new();
+        stdin().read_line(&mut name_input).expect("Unable to read name");
+
+        println!("What is the administrator's email address?");
+
+        let mut email_input = String::new();
+        stdin().read_line(&mut email_input).expect("Unable to read email");
+
+        println!("Enter the administrator password?");
+
+        let mut password_input = String::new();
+        stdin().read_line(&mut password_input).expect("Unable to read password");
+        
+        let admin_data = UserData {
+            name: name_input.trim().to_owned(),
+            email: email_input.trim().to_owned(),
+            password: password_input.trim().to_owned(),
+        };
+    
+        let mut test_admin = InsertableUser::from(admin_data);
+    
+        test_admin.role = "ADMIN".to_owned();
+    
+        let admin = User::create(test_admin, &conn)
+            .expect("Unable to create admin");
+    
+        println!("Admin created: {:?}", &admin);
 }
 
 /// Testing function to generate dummy data when resetting the database

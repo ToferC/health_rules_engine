@@ -124,5 +124,5 @@ mutation InputTravel($data: [TravelData!]!) {
 
 // Headers
 {
-    "Authorization": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIyODQyNDUyZC01NDkzLTQzNDEtOTc2OC1iOTUxMzExZTYzMDMiLCJleHAiOjE2MzUzMDAwNTksInJvbGUiOiJBRE1JTiJ9._9_WM3abhZwT_rXybSU9nyM24K9muiBRNi2283l_Faw"
+    "Authorization": "Bearer $JWT"
 }
