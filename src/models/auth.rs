@@ -34,8 +34,8 @@ pub enum Role {
     User,
 }
 
-struct RoleGuard {
-    role: Role,
+pub struct RoleGuard {
+    pub role: Role,
 }
 
 #[async_trait::async_trait]
@@ -67,6 +67,9 @@ pub fn create_token(username: String, role: Role) -> String {
 }
 
 pub fn get_role(http_request: HttpRequest) -> Option<Role> {
+
+    println!("{:?}", &http_request.headers().get("Authorization"));
+
     http_request
         .headers()
         .get("Authorization")

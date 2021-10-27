@@ -9,7 +9,7 @@ use crate::{login};
 use crate::models::{InsertableUser, LoginQuery, TravelData, TravelResponse,
     User, UserData, create_token, decode_token,
     verify_password};
-use crate::models::Role as AuthRole;
+use crate::models::{Role as AuthRole, RoleGuard};
 use crate::graphql::get_connection_from_context;
 
 pub struct Mutation;
@@ -42,6 +42,7 @@ impl Mutation {
         Ok(responses_to_cbsa)
     }
 
+    #[graphql(guard(RoleGuard(role = "AuthRole::Admin")))]
     pub async fn create_user(
         &self,
         context: &Context<'_>,

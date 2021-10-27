@@ -16,7 +16,6 @@ extern crate strum_macros;
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 use async_graphql::*;
-use async_graphql::futures_util::__private::async_await;
 use models::{Country, NewCountry, Place, Vaccine};
 use tera::{Tera};
 

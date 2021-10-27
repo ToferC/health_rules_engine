@@ -1,4 +1,4 @@
-use actix_web::{web, HttpResponse};
+use actix_web::{web, HttpResponse, HttpRequest};
 use actix_web_httpauth::extractors::AuthExtractorConfig;
 use async_graphql::http::GraphQLPlaygroundConfig;
 
@@ -6,10 +6,10 @@ use async_graphql::http::GraphQLPlaygroundConfig;
 //use juniper::http::playground::playground_source;
 use std::sync::Arc;
 use async_graphql::*;
-use async_graphql::{EmptyMutation, EmptySubscription, Schema};
 use async_graphql_actix_web::{Request, Response};
 
 use crate::{database::PostgresPool};
+use crate::models;
 use crate::graphql::{Query, Mutation, AppSchema};
 
 
@@ -24,10 +24,16 @@ pub async fn playground_handler() -> HttpResponse {
 pub async fn graphql(
     //pg_pool: web::Data<PostgresPool>,
     schema: web::Data<AppSchema>,
+    http_request: HttpRequest,
     req: Request,
 ) -> Response {
     
-    let query = req.into_inner();
+    let mut query = req.into_inner();
+
+    let maybe_role = models::get_role(http_request);
+    if let Some(role) = maybe_role {
+        query = query.data(role);
+    }
 
     schema.execute(query).await.into()
 }

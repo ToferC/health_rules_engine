@@ -24,6 +24,7 @@ use crate::models::{Country, NewCountry, NewPerson, NewPlace,
     NewPublicHealthProfile, NewTrip, NewVaccination, 
     NewVaccine, Person, Place, PublicHealthProfile, TravelGroup, 
     Trip, Vaccine, Vaccination, CovidTest};
+use crate::models::{User, UserData, InsertableUser};
 
 use crate::schema::*;
 
@@ -51,6 +52,22 @@ pub fn init() {
     if response.trim() == "yes" || response.trim() == "y" {
         println!("Adding Country, Place and Vaccine Data");
         pre_populate_db_schema(&conn);
+
+        let admin_data = UserData {
+            name: "Chris Abelard".to_string(),
+            email: "test123@testing.com".to_string(),
+            password: "WhoLetYouIn".to_string(),
+        };
+
+        let mut test_admin = InsertableUser::from(admin_data);
+
+        test_admin.role = "ADMIN".to_owned();
+
+        let admin = User::create(test_admin, &conn)
+            .expect("Unable to create admin");
+
+        println!("Admin created: {:?}", &admin);
+
     };
 
     println!("Would you like to add traveller demo data? (yes/no)");
