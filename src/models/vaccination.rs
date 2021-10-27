@@ -9,7 +9,7 @@ use crate::DATE_FORMAT;
 use crate::models::{Place, Vaccine};
 use crate::graphql::graphql_translate;
 use crate::schema::*;
-use crate::{get_country_by_id, get_or_create_country_by_name, get_vaccine_by_id, 
+use crate::{get_or_create_country_by_name, get_vaccine_by_id, 
     get_vaccine_by_name, get_place_by_id, get_or_create_place_by_name_and_country_id};
 
 

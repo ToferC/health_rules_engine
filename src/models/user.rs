@@ -1,14 +1,12 @@
 // Modelled off https://github.com/clifinger/canduma/blob/master/src/user
 
-use actix_multipart::Field;
 use chrono::prelude::*;
 use serde::{Deserialize, Serialize};
-use diesel::{self, ExpressionMethods, Insertable, PgConnection, QueryDsl, Queryable, RunQueryDsl, result::DatabaseErrorInformation};
+use diesel::{self, ExpressionMethods, Insertable, PgConnection, QueryDsl, Queryable, RunQueryDsl};
 use uuid::Uuid;
-use argon2rs::argon2i_simple;
 use async_graphql::*;
 
-use crate::{errors::error_handler::CustomError, schema::*};
+use crate::{schema::*};
 use crate::models::hash_password;
 
 #[derive(Debug, Clone, Deserialize, Serialize)]

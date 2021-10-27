@@ -2,10 +2,8 @@ use std::str::FromStr;
 
 use async_graphql::*;
 use async_graphql::guard::Guard;
-use actix_identity::Identity;
 use uuid::Uuid;
 
-use crate::{login};
 use crate::models::{InsertableUser, LoginQuery, TravelData, TravelResponse,
     User, UserData, create_token, decode_token,
     verify_password};
@@ -17,7 +15,10 @@ pub struct Mutation;
 #[Object]
 impl Mutation {
 
-    #[graphql(name = "travelDataResponse")]
+    #[graphql(
+        name = "travelDataResponse", 
+        guard(RoleGuard(role = "AuthRole::Admin"))
+    )]
     /// Receives a Vec<TravelData> containing details from a group of travllers
     /// and returns a Vec<TravelResponse> containing public health direction for the BSO
     /// relating to entry to Canada for public health reasons and referrals to mandatory
@@ -29,12 +30,14 @@ impl Mutation {
         data: Vec<TravelData>,
     ) -> FieldResult<Vec<TravelResponse>> {
 
+        let cbsa_id = context.data_opt::<Uuid>().expect("Unable to parse CBSA ID");
+
         let mut responses_to_cbsa: Vec<TravelResponse> = Vec::new();
 
         let travel_group_id = Uuid::new_v4();
 
         for traveller in data {
-            let response = traveller.process(&context, travel_group_id)?.into();
+            let response = traveller.process(&context, travel_group_id, *cbsa_id)?.into();
             responses_to_cbsa.push(response);
         };
         

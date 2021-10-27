@@ -1,5 +1,6 @@
+// Mutation
 mutation InputTravel($data: [TravelData!]!) {
-  postTravelGroupData(data: $data) {
+  travelDataResponse(data: $data) {
     postStatus
     id
     personId
@@ -11,7 +12,8 @@ mutation InputTravel($data: [TravelData!]!) {
     details
   }
 }
-  
+
+// Data
 { "data": [{
     "familyName": "Allison",
     "givenName":"Link",
@@ -63,8 +65,7 @@ mutation InputTravel($data: [TravelData!]!) {
       "postalAddressId":"300 Street Street, Ontario, Canada"
     },
     "dateTime":"2015-07-01T08:59:60.123",
-    "cbsaOfficerId": "40654",
-    "cbsaId":"HY-783204732-BHN"
+    "cbsaOfficerId": "40654"
 },
 {
   "familyName": "Allison",
@@ -117,7 +118,11 @@ mutation InputTravel($data: [TravelData!]!) {
       "postalAddressId":"300 Street Street, Ontario, Canada"
     },
     "dateTime":"2015-07-01T08:59:60.123",
-    "cbsaOfficerId": "40654",
-    "cbsaId":"HY-783204732-BHN"
+    "cbsaOfficerId": "40654"
 }]
+}
+
+// Headers
+{
+    "Authorization": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIyODQyNDUyZC01NDkzLTQzNDEtOTc2OC1iOTUxMzExZTYzMDMiLCJleHAiOjE2MzUzMDAwNTksInJvbGUiOiJBRE1JTiJ9._9_WM3abhZwT_rXybSU9nyM24K9muiBRNi2283l_Faw"
 }

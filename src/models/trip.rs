@@ -3,8 +3,6 @@ use serde::{Deserialize, Serialize};
 use diesel::{self, Insertable, PgConnection, Queryable, ExpressionMethods};
 use diesel::{RunQueryDsl, QueryDsl};
 use uuid::Uuid;
-use diesel_derive_enum::DbEnum;
-//use juniper::{FieldResult};
 use async_graphql::*;
 
 use crate::DATE_FORMAT;

@@ -14,7 +14,7 @@ use crate::get_or_create_country_by_name;
 
 use crate::models::{NewPerson, 
     NewPublicHealthProfile, NewTrip, NewVaccination, Trip,
-    Person, PublicHealthProfile, TravelGroup, SlimQuarantinePlan,
+    Person, PublicHealthProfile, SlimQuarantinePlan,
     Vaccination, CovidTest, SlimCovidTest, SlimVaccination};
 
 use super::{NewCovidTest, NewQuarantinePlan, QuarantinePlan};
@@ -163,7 +163,6 @@ pub struct TravelData {
 
     // CBSA Officer ID
     pub cbsa_officer_id: String,
-    pub cbsa_id: String,
 }
 
 impl TravelData {
@@ -171,6 +170,7 @@ impl TravelData {
             &self, 
             context: &Context<'_>,
             travel_group_id: Uuid,
+            cbsa_id: Uuid,
         ) -> FieldResult<TravelResponse> {
 
         // Connect to PostgresPool
@@ -247,7 +247,7 @@ impl TravelData {
             public_health_profile.id, 
             &self.covid_test);
 
-        let covid_test = CovidTest::create(&conn, &new_test)
+        let _covid_test = CovidTest::create(&conn, &new_test)
             .expect("Unable to create new covid test");
 
         // Add QuarantinePlan
@@ -256,7 +256,7 @@ impl TravelData {
             &self.quarantine_plan
         );
 
-        let quarantine_plan = QuarantinePlan::create(&conn, &new_plan)
+        let _quarantine_plan = QuarantinePlan::create(&conn, &new_plan)
             .expect("Unable to create new quarantine plan");
 
 
@@ -268,7 +268,7 @@ impl TravelData {
             "OK".to_string(),
             trip.id,
             person.id,
-            self.cbsa_id.to_owned(),
+            cbsa_id.to_string(),
             "I".to_string(),
             true,
             false,

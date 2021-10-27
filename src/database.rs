@@ -3,8 +3,6 @@ use chrono::prelude::*;
 use chrono::Duration;
 use diesel::pg::PgConnection;
 use diesel::r2d2::ConnectionManager;
-use diesel::prelude::*;
-use diesel::result::Error;
 use lazy_static::lazy_static;
 use r2d2::{self};
 use rand::Rng;
@@ -26,8 +24,6 @@ use crate::models::{Country, NewCountry, NewPerson, NewPlace,
     Trip, Vaccine, Vaccination, CovidTest};
 use crate::models::{User, UserData, InsertableUser};
 
-use crate::schema::*;
-
 #[macro_use]
 embed_migrations!();
 
@@ -44,7 +40,7 @@ pub fn init() {
     let conn = connection().expect("Failed to get DB connection");
     embedded_migrations::run(&conn).unwrap();
 
-    println!("Would you like to add base countries, places and vaccines data? (yes/no)");
+    println!("Would you like to add an admin user, base countries, places and vaccines data? (yes/no)");
     
     let mut response = String::new();
     stdin().read_line(&mut response).expect("Unable to read input");
@@ -81,7 +77,6 @@ pub fn init() {
     };
     
     println!("Database and connection initialized");
-
 }
 
 pub fn connection() -> Result<DbConnection, CustomError> {
@@ -128,7 +123,6 @@ pub fn pre_populate_db_schema(conn: &PgConnection) {
     };
 
     // Add Vaccines
-
     let mut new_vaccines = Vec::new();
 
     let approved_on: NaiveDate = Utc.ymd(2021, 09, 21).naive_utc();

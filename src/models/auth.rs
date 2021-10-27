@@ -31,6 +31,7 @@ pub struct Claims {
 #[strum(serialize_all = "SCREAMING_SNAKE_CASE")]
 pub enum Role {
     Admin,
+    Operator,
     User,
 }
 
@@ -66,7 +67,7 @@ pub fn create_token(username: String, role: Role) -> String {
     .expect("Can't create token")
 }
 
-pub fn get_role(http_request: HttpRequest) -> Option<Role> {
+pub fn get_role_and_id(http_request: HttpRequest) -> Option<(Role, uuid::Uuid)> {
 
     println!("{:?}", &http_request.headers().get("Authorization"));
 
@@ -78,7 +79,10 @@ pub fn get_role(http_request: HttpRequest) -> Option<Role> {
                 let jwt_start_index = "Bearer ".len();
                 let jwt = s[jwt_start_index..s.len()].to_string();
                 let token_data = decode_token(&jwt);
-                Role::from_str(&token_data.claims.role).expect("Can't parse role")
+
+                let role = Role::from_str(&token_data.claims.role).expect("Can't parse role");
+                let uuid = uuid::Uuid::from_str(&token_data.claims.sub).expect("Can't parse CBSA_ID");
+                return (role, uuid.to_owned());
             })
         })
 }
