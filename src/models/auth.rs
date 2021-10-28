@@ -58,7 +58,7 @@ pub fn get_claim(http_request: HttpRequest) -> Result<(Role, uuid::Uuid, i64), j
                 let jwt_start_index = "Bearer ".len();
                 let jwt = s[jwt_start_index..s.len()].to_string();
                 let token_data = decode_token(&jwt);
-
+                println!("TOKEN: {:?}", &token_data);
                 token_data
             })
         });

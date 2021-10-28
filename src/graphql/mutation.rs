@@ -18,8 +18,8 @@ impl Mutation {
     #[graphql(
         name = "travelDataResponse", 
         guard(or(
-            RoleGuard(role = "AuthRole::Admin"),
-            RoleGuard(role = "AuthRole::Operator")
+            RoleGuard(role = "AuthRole::Operator"),
+            RoleGuard(role = "AuthRole::Admin")
         ))
     )]
     /// Receives a Vec<TravelData> containing details from a group of travllers

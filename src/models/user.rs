@@ -60,10 +60,13 @@ pub struct InsertableUser {
 }
 
 #[derive(Debug, Deserialize, Serialize, InputObject)]
+/// Input Struct to create a new user. Only accessible by Administrators.
 pub struct UserData {
     pub name: String,
     pub email: String,
     pub password: String,
+    /// Role in system: USER, OPERATOR, ADMIN
+    pub role: String,
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone, SimpleObject)]
@@ -89,6 +92,7 @@ impl From<UserData> for InsertableUser {
             name,
             email,
             password,
+            role,
             ..
         } = user_data;
         
@@ -100,7 +104,7 @@ impl From<UserData> for InsertableUser {
             hash,
             created_at: chrono::Utc::now().naive_utc(),
             name,
-            role: "USER".to_owned(),
+            role,
             access_key: "".to_owned(),
             access_level: "detailed".to_owned(),
             approved_by_user_uid: None,

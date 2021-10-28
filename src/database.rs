@@ -56,11 +56,10 @@ pub fn init() {
                 name: admin_name.trim().to_owned(),
                 email: admin_email.trim().to_owned(),
                 password: admin_pwd.trim().to_owned(),
+                role: "ADMIN".to_owned(),
             };
         
-            let mut test_admin = InsertableUser::from(admin_data);
-        
-            test_admin.role = "ADMIN".to_owned();
+            let test_admin = InsertableUser::from(admin_data);
         
             let admin = User::create(test_admin, &conn)
                 .expect("Unable to create admin");
@@ -228,6 +227,7 @@ pub fn create_admin_user(conn: &PgConnection) {
             name: name_input.trim().to_owned(),
             email: email_input.trim().to_owned(),
             password: password_input.trim().to_owned(),
+            role: "ADMIN".to_owned(),
         };
     
         let mut test_admin = InsertableUser::from(admin_data);
