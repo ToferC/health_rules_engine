@@ -20,8 +20,11 @@ impl Guard for RoleGuard {
         if context.data_opt::<Role>() == Some(&self.role) {
             Ok(())
         } else {
-            let guard_error = context.data_opt::<jsonwebtoken::errors::Error>().expect("Unable to decode token").clone();
-            Err(format!("{:?}", guard_error.kind()).into())
+            let guard_error = context.data_opt::<jsonwebtoken::errors::Error>().clone();
+            match guard_error {
+                Some(e) => return Err(format!("{:?}", e.kind()).into()),
+                None => return Err("Unable to decode token".into())
+            }
         }
     }
 }
