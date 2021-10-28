@@ -40,38 +40,72 @@ pub fn init() {
     let conn = connection().expect("Failed to get DB connection");
     embedded_migrations::run(&conn).unwrap();
 
-    println!("Would you like to add an administrator? (yes/no)");
+    // Auto-add admin if does not exist
+    let admin_name = env::var("ADMIN_NAME").expect("Unable to load admin name");
+    let admin_email = env::var("ADMIN_EMAIL").expect("Unable to load admin email");
+    let admin_pwd = env::var("ADMIN_PASSWORD").expect("Unable to load admin password");
     
-    let mut response = String::new();
-    stdin().read_line(&mut response).expect("Unable to read input");
-    
-    if response.trim() == "yes" || response.trim() == "y" {
+    let admin = User::get_by_email(&admin_email, &conn);
 
-        create_admin_user(&conn);
-    };
+    match admin {
+        // Checking admin and if not, add default data structures
+        Ok(u) => println!("Admin exists {:?} - bypass setup", &u),
+        Err(_e) => {
 
+            let admin_data = UserData {
+                name: admin_name.trim().to_owned(),
+                email: admin_email.trim().to_owned(),
+                password: admin_pwd.trim().to_owned(),
+            };
+        
+            let mut test_admin = InsertableUser::from(admin_data);
+        
+            test_admin.role = "ADMIN".to_owned();
+        
+            let admin = User::create(test_admin, &conn)
+                .expect("Unable to create admin");
+        
+            println!("Admin created: {:?}", &admin);
 
-    println!("Would you like to add base countries, places and vaccines data? (yes/no)");
+            pre_populate_db_schema(&conn);
+
+            populate_db_with_demo_data(&conn);
+        }
+    }
+    /*
     
-    let mut response = String::new();
-    stdin().read_line(&mut response).expect("Unable to read input");
-    
-    if response.trim() == "yes" || response.trim() == "y" {
-        println!("Adding Country, Place and Vaccine Data");
+    if env::var("ENVIRONMENT").unwrap() == "production" {
+        // Production system
+
         pre_populate_db_schema(&conn);
-    };
 
-    println!("Would you like to add traveller demo data? (yes/no)");
-    
-    let mut response = String::new();
-    stdin().read_line(&mut response).expect("Unable to read input");
-    
-    if response.trim() == "yes" || response.trim() == "y" {
-        println!("Adding Traveller Demo Data");
         populate_db_with_demo_data(&conn);
-    };
+    } else {
+        // Not production
     
-    println!("Database and connection initialized");
+        println!("Would you like to add base countries, places and vaccines data? (yes/no)");
+        
+        let mut response = String::new();
+        stdin().read_line(&mut response).expect("Unable to read input");
+        
+        if response.trim() == "yes" || response.trim() == "y" {
+            println!("Adding Country, Place and Vaccine Data");
+            pre_populate_db_schema(&conn);
+        };
+    
+        println!("Would you like to add traveller demo data? (yes/no)");
+        
+        let mut response = String::new();
+        stdin().read_line(&mut response).expect("Unable to read input");
+        
+        if response.trim() == "yes" || response.trim() == "y" {
+            println!("Adding Traveller Demo Data");
+            populate_db_with_demo_data(&conn);
+        };
+        
+        println!("Database and connection initialized");
+    }
+    */
 }
 
 pub fn connection() -> Result<DbConnection, CustomError> {
