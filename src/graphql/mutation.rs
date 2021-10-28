@@ -17,7 +17,7 @@ impl Mutation {
 
     #[graphql(
         name = "travelDataResponse", 
-        guard(or(
+        guard(race(
             RoleGuard(role = "AuthRole::Operator"),
             RoleGuard(role = "AuthRole::Admin")
         ))
