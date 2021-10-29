@@ -5,7 +5,7 @@ use diesel::{RunQueryDsl, QueryDsl};
 use uuid::Uuid;
 use async_graphql::*;
 
-use crate::DATE_FORMAT;
+use crate::config_variables::DATE_FORMAT;
 use crate::schema::*;
 use crate::graphql::{graphql_translate, get_connection_from_context};
 use crate::models::{Place, Person};

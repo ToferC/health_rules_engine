@@ -10,7 +10,7 @@ use argonautica::{Hasher, Verifier};
 use jsonwebtoken::errors::*;
 
 use crate::common_utils::Role;
-use crate::TOKEN_DURATION;
+use crate::config_variables::TOKEN_DURATION;
 
 lazy_static! {
     static ref JWT_SECRET_KEY: String = 

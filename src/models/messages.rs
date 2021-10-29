@@ -5,12 +5,13 @@ use serde::{Serialize, Deserialize};
 use uuid::Uuid;
 use chrono::prelude::*;
 use chrono::Utc;
-// use juniper::{FieldResult};
+use rand::Rng;
 use async_graphql::*;
 
 use crate::graphql::{graphql_translate, get_connection_from_context};
 use crate::schema::*;
 use crate::get_or_create_country_by_name;
+use crate::config_variables::MANDATORY_TESTING_RATE;
 
 use crate::models::{NewPerson, 
     NewPublicHealthProfile, NewTrip, NewVaccination, Trip,
@@ -261,7 +262,14 @@ impl TravelData {
 
 
         // Call health_rules_engine
-         
+        // Determine if traveller is referred for mandatory testing
+        let mut rng = rand::thread_rng();
+
+        let mut random_testing_referral = false;
+
+        if rng.gen::<f64>() < MANDATORY_TESTING_RATE {
+            random_testing_referral = true;
+        };
 
         // Build TravelResponse
         let new_tr = NewTravelResponse::new(
@@ -270,7 +278,7 @@ impl TravelData {
             person.id,
             cbsa_id.to_string(),
             "I".to_string(),
-            true,
+            random_testing_referral,
             false,
             "None".to_string()
         );

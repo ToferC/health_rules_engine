@@ -5,7 +5,7 @@ use diesel::{self, Insertable, PgConnection, Queryable,
     RunQueryDsl, QueryDsl, ExpressionMethods};
 use uuid::Uuid;
 
-use crate::DATE_FORMAT;
+use crate::config_variables::DATE_FORMAT;
 use crate::models::{Place, Vaccine};
 use crate::graphql::graphql_translate;
 use crate::schema::*;
