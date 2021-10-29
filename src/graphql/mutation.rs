@@ -10,6 +10,8 @@ use crate::models::{InsertableUser, LoginQuery, TravelData, TravelResponse,
 use crate::common_utils::{Role as AuthRole, RoleGuard};
 use crate::graphql::get_connection_from_context;
 
+use super::graphql_translate;
+
 pub struct Mutation;
 
 #[Object]
@@ -17,7 +19,7 @@ impl Mutation {
 
     #[graphql(
         name = "travelDataResponse", 
-        guard(race(
+        guard(or(
             RoleGuard(role = "AuthRole::Operator"),
             RoleGuard(role = "AuthRole::Admin")
         ))
@@ -53,11 +55,10 @@ impl Mutation {
         &self,
         context: &Context<'_>,
         user_data: UserData,
-    ) -> User {
+    ) -> FieldResult<User> {
             let new_user = InsertableUser::from(user_data);
 
-            let created_user = User::create(new_user, &get_connection_from_context(context))
-                .expect("Unable to create user");
+            let created_user = User::create(new_user, &get_connection_from_context(context));
 
             created_user
         }
