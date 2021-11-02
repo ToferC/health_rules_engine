@@ -15,7 +15,8 @@ Any data shown or generated will be fake. No real data will be used in this prot
 - [x] Develop models
 - [x] Generate fake data
 - [x] Build graphql query API
-- [ ] Build mutation API
-- [ ] Secure API with JWT
-- [ ] Develop or find Auth solution
+- [x] Build mutation API
+- [ ] Build Rules Engine
+- [x] Secure API with JWT
+- [x] Develop or find Auth solution
 - [ ] Develop analytics framework
