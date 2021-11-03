@@ -17,6 +17,10 @@ use crate::handlers::{
 pub fn init_routes(config: &mut web::ServiceConfig) {
     config.service(index);
     config.service(api_base);
+    // API use
     config.route("/graphql", web::post().to(graphql));
-    config.route("/graphql", web::get().to(playground_handler));
+    config.route("/graphql", web::get().to(graphql));
+    // Playground
+    config.route("/playground", web::post().to(graphql));
+    config.route("/playground", web::get().to(playground_handler));
 }
