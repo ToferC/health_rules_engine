@@ -5,13 +5,12 @@ use diesel::{self, Insertable, PgConnection, Queryable,
 use uuid::Uuid;
 
 use async_graphql::*;
-use async_graphql::guard::Guard;
+use crate::common_utils::{is_analyst};
 
 use crate::models::{Vaccination,
     QuarantinePlan, CovidTest};
 use crate::graphql::{graphql_translate, get_connection_from_context};
 use crate::schema::*;
-use crate::common_utils::{Role as AuthRole, RoleGuard};
 
 
 #[derive(Debug, Clone, Deserialize, Serialize, PartialEq, PartialOrd, Insertable, Queryable)]
@@ -29,13 +28,10 @@ impl PublicHealthProfile {
         Ok(self.id.clone())
     }
 
-    #[graphql(
-        guard(or(or(
-            RoleGuard(role = "AuthRole::Analyst"),
-            RoleGuard(role = "AuthRole::Operator")),
-            RoleGuard(role = "AuthRole::Admin")
-        ))
-    )]
+    #[graphql(visible = "is_analyst")]
+    /// Returns the unique UID for the person associated to 
+    /// the PublicHealthProfile.
+    /// Authorized roles: Analyst, Admin
     pub async fn person_id(&self) -> FieldResult<Uuid> {
         Ok(self.person_id.clone())
     }

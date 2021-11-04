@@ -15,6 +15,7 @@ DROP TABLE IF EXISTS trips;
 DROP TABLE IF EXISTS countries;
 DROP TABLE IF EXISTS places;
 DROP TABLE IF EXISTS travel_groups;
+DROP TABLE IF EXISTS valid_roles;
 
 DROP TYPE IF EXISTS access_level_enum;
 DROP TYPE IF EXISTS trip_state_enum;

@@ -8,6 +8,8 @@ use uuid::Uuid;
 use async_graphql::*;
 use rand::{Rng, thread_rng};
 
+use crate::common_utils::is_admin;
+
 use crate::schema::*;
 use crate::graphql::{graphql_translate, get_connection_from_context};
 use crate::models::{Country, Trip};
@@ -147,14 +149,17 @@ impl Person {
 #[Object]
 impl Person {
 
+    #[graphql(visible = "is_admin")]
     pub async fn family_name(&self) -> FieldResult<String> {
         Ok(self.family_name.to_owned())
     }
 
+    #[graphql(visible = "is_admin")]
     pub async fn given_name(&self) -> FieldResult<String> {
         Ok(self.given_name.to_owned())
     }
 
+    #[graphql(visible = "is_admin")]
     pub async fn additional_names(&self) -> FieldResult<Option<Vec<String>>> {
         Ok(self.additional_names.to_owned())
     }
@@ -172,8 +177,12 @@ impl Person {
     }
 
     pub async fn travel_document_issuer(&self, context: &Context<'_>) -> FieldResult<Country> {
-
         get_country_by_id(context, self.travel_document_issuer_id)
+    }
+
+    #[graphql(visible = "is_admin")]
+    pub async fn travel_document_id(&self) -> FieldResult<String> {
+        Ok(self.travel_document_id.to_owned())
     }
 
     pub async fn public_health_profile(&self, context: &Context<'_>) -> FieldResult<PublicHealthProfile> {

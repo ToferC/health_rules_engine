@@ -8,11 +8,21 @@ CREATE TYPE access_level_enum AS ENUM (
     'open'
 );
 
+CREATE TABLE IF NOT EXISTS valid_roles (
+   role VARCHAR(64) PRIMARY KEY
+);
+
+INSERT INTO valid_roles (role) VALUES
+    ('ADMIN'),
+    ('USER'),
+    ('ANALYST'),
+    ('OPERATOR');
+
 CREATE TABLE IF NOT EXISTS users (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     hash VARCHAR(255) NOT NULL,
     email VARCHAR(128) UNIQUE NOT NULL UNIQUE,
-    role VARCHAR(64) NOT NULL DEFAULT 'USER',
+    role VARCHAR(64) REFERENCES valid_roles (role) ON UPDATE CASCADE DEFAULT 'USER' NOT NULL,
     name VARCHAR(256) NOT NULL,
     access_level VARCHAR(64) NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),

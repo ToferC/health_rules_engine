@@ -24,14 +24,20 @@ impl Guard for RoleGuard {
             let guard_error = context.data_opt::<jsonwebtoken::errors::Error>().clone();
             match guard_error {
                 Some(e) => return Err(format!("{:?}", e.kind()).into()),
-                None => return Err("Unable to decode token".into())
+                None => return Err("No authentication token found".into())
             }
         }
     }
 }
 
-pub struct IsAdmin(bool);
+/// Field will be visible to users with Role::Admin and
+/// Role::Analyst
+pub fn is_analyst(ctx: &Context<'_>) -> bool {
+    ctx.data_opt::<Role>() == Some(&Role::Admin) ||
+    ctx.data_opt::<Role>() == Some(&Role::Analyst)
+}
 
+/// Field will only be visible to users with Role::Admin
 pub fn is_admin(ctx: &Context<'_>) -> bool {
     ctx.data_opt::<Role>() == Some(&Role::Admin)
 }

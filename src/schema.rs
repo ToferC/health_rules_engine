@@ -178,6 +178,14 @@ table! {
     }
 }
 
+table! {
+    valid_roles (role) {
+        role -> Varchar,
+    }
+}
+
+joinable!(users -> valid_roles (role));
+
 allow_tables_to_appear_in_same_query!(
     check_in_results,
     countries,
@@ -194,4 +202,5 @@ allow_tables_to_appear_in_same_query!(
     users,
     vaccinations,
     vaccines,
+    valid_roles,
 );

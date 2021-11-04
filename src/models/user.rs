@@ -6,7 +6,8 @@ use diesel::{self, ExpressionMethods, Insertable, PgConnection, QueryDsl, Querya
 use uuid::Uuid;
 use async_graphql::*;
 
-use crate::{schema::*, common_utils::is_admin};
+use crate::{schema::*};
+use crate::common_utils::{is_admin};
 use crate::models::hash_password;
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
@@ -23,12 +24,13 @@ pub struct User {
     pub email: String,
     pub role: String,
     pub name: String,
-    #[graphql(visible = "is_admin")]
     pub access_level: String, // AccessLevelEnum
     pub created_at: NaiveDateTime,
     #[graphql(visible = "is_admin")]
+    /// Access Level: Admin
     pub access_key: String,
     #[graphql(visible = "is_admin")]
+    /// Access Level: Admin
     pub approved_by_user_uid: Option<Uuid>,
 }
 
