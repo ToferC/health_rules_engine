@@ -6,9 +6,11 @@ use diesel::{self, Insertable, PgConnection, Queryable, ExpressionMethods};
 use diesel::{RunQueryDsl, QueryDsl};
 use uuid::Uuid;
 use async_graphql::*;
+use async_graphql::guard::{Guard};
 use rand::{Rng, thread_rng};
 
-use crate::common_utils::is_admin;
+use crate::common_utils::{is_admin, Role as AuthRole, RoleGuard,
+    is_analyst, AssociatedGuardAnalyst};
 
 use crate::schema::*;
 use crate::graphql::{graphql_translate, get_connection_from_context};
@@ -149,17 +151,26 @@ impl Person {
 #[Object]
 impl Person {
 
-    #[graphql(visible = "is_admin")]
+    #[graphql(
+        guard(AssociatedGuardAnalyst()),
+        visible = "is_analyst",
+    )]
     pub async fn family_name(&self) -> FieldResult<String> {
         Ok(self.family_name.to_owned())
     }
 
-    #[graphql(visible = "is_admin")]
+    #[graphql(
+        guard(AssociatedGuardAnalyst()),
+        visible = "is_analyst",
+    )]
     pub async fn given_name(&self) -> FieldResult<String> {
         Ok(self.given_name.to_owned())
     }
 
-    #[graphql(visible = "is_admin")]
+    #[graphql(
+        guard(AssociatedGuardAnalyst()),
+        visible = "is_analyst",
+    )]
     pub async fn additional_names(&self) -> FieldResult<Option<Vec<String>>> {
         Ok(self.additional_names.to_owned())
     }
@@ -180,7 +191,10 @@ impl Person {
         get_country_by_id(context, self.travel_document_issuer_id)
     }
 
-    #[graphql(visible = "is_admin")]
+    #[graphql(
+        guard(AssociatedGuardAnalyst()),
+        visible = "is_analyst",
+    )]
     pub async fn travel_document_id(&self) -> FieldResult<String> {
         Ok(self.travel_document_id.to_owned())
     }

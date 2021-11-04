@@ -30,11 +30,56 @@ impl Guard for RoleGuard {
     }
 }
 
+pub struct AssociatedGuardAdmin;
+pub struct AssociatedGuardAnalyst;
+
+pub struct AssociatedGuardOperator;
+
+#[async_trait::async_trait]
+impl Guard for AssociatedGuardAdmin {
+    async fn check(&self, ctx: &Context<'_>) -> Result<()> {
+        if is_admin(ctx) {
+            Ok(())
+        } else {
+            Err("Access Denied: Admin auth needed.".into())
+        }
+    }
+}
+
+#[async_trait::async_trait]
+impl Guard for AssociatedGuardAnalyst {
+    async fn check(&self, ctx: &Context<'_>) -> Result<()> {
+        if is_analyst(ctx) {
+            Ok(())
+        } else {
+            Err("Access Denied: Analyst or higher auth needed".into())
+        }
+    }
+}
+
+#[async_trait::async_trait]
+impl Guard for AssociatedGuardOperator {
+    async fn check(&self, ctx: &Context<'_>) -> Result<()> {
+        if is_operator(ctx) {
+            Ok(())
+        } else {
+            Err("Access Denied: Analyst or higher auth needed".into())
+        }
+    }
+}
+
 /// Field will be visible to users with Role::Admin and
 /// Role::Analyst
 pub fn is_analyst(ctx: &Context<'_>) -> bool {
     ctx.data_opt::<Role>() == Some(&Role::Admin) ||
     ctx.data_opt::<Role>() == Some(&Role::Analyst)
+}
+
+/// Field will be visible to users with Role::Admin and
+/// Role::Analyst
+pub fn is_operator(ctx: &Context<'_>) -> bool {
+    ctx.data_opt::<Role>() == Some(&Role::Admin) ||
+    ctx.data_opt::<Role>() == Some(&Role::Operator)
 }
 
 /// Field will only be visible to users with Role::Admin

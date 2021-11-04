@@ -5,7 +5,8 @@ use diesel::{self, Insertable, PgConnection, Queryable,
 use uuid::Uuid;
 
 use async_graphql::*;
-use crate::common_utils::{is_analyst};
+use async_graphql::guard::Guard;
+use crate::common_utils::{is_analyst, AssociatedGuardAnalyst};
 
 use crate::models::{Vaccination,
     QuarantinePlan, CovidTest};
@@ -28,7 +29,10 @@ impl PublicHealthProfile {
         Ok(self.id.clone())
     }
 
-    #[graphql(visible = "is_analyst")]
+    #[graphql(
+        guard(AssociatedGuardAnalyst()),
+        visible = "is_analyst",
+    )]
     /// Returns the unique UID for the person associated to 
     /// the PublicHealthProfile.
     /// Authorized roles: Analyst, Admin
@@ -36,6 +40,10 @@ impl PublicHealthProfile {
         Ok(self.person_id.clone())
     }
 
+    #[graphql(
+        guard(AssociatedGuardAnalyst()),
+        visible = "is_analyst",
+    )]
     pub async fn smart_healthcard_pk(&self) -> FieldResult<String> {
         match &self.smart_healthcard_pk {
             Some(key) => Ok(key.to_owned()),

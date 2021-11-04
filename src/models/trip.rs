@@ -4,11 +4,13 @@ use diesel::{self, Insertable, PgConnection, Queryable, ExpressionMethods};
 use diesel::{RunQueryDsl, QueryDsl};
 use uuid::Uuid;
 use async_graphql::*;
+use async_graphql::guard::Guard;
 
 use crate::config_variables::DATE_FORMAT;
 use crate::schema::*;
 use crate::graphql::{graphql_translate, get_connection_from_context};
 use crate::models::{Place, Person};
+use crate::common_utils::{is_analyst, AssociatedGuardAnalyst};
 use crate::{get_place_by_id, get_or_create_country_by_name, get_or_create_place_by_name_and_country_id};
 
 /// Travel information for a TravelGroup
@@ -56,6 +58,10 @@ impl Trip {
         }
     }
 
+    #[graphql(
+        guard(AssociatedGuardAnalyst()),
+        visible = "is_analyst",
+    )]
     pub async fn booking_id(&self) -> FieldResult<String> {
         match &self.booking_id {
             Some(i) => Ok(i.to_owned()),

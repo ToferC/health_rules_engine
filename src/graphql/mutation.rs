@@ -7,7 +7,9 @@ use uuid::Uuid;
 use crate::models::{InsertableUser, LoginQuery, TravelData, TravelResponse,
     User, UserData, create_token, decode_token,
     verify_password, UserUpdate, hash_password};
-use crate::common_utils::{Role as AuthRole, RoleGuard};
+use crate::common_utils::{Role as AuthRole,
+    is_operator, AssociatedGuardOperator,
+    is_admin, AssociatedGuardAdmin};
 use crate::graphql::get_connection_from_context;
 
 pub struct Mutation;
@@ -17,10 +19,8 @@ impl Mutation {
 
     #[graphql(
         name = "travelDataResponse", 
-        guard(or(
-            RoleGuard(role = "AuthRole::Operator"),
-            RoleGuard(role = "AuthRole::Admin")
-        ))
+        guard(AssociatedGuardOperator()),
+        visible = "is_operator",
     )]
     /// Receives a Vec<TravelData> containing details from a group of travllers
     /// and returns a Vec<TravelResponse> containing public health direction for the BSO
@@ -47,7 +47,10 @@ impl Mutation {
         Ok(responses_to_cbsa)
     }
 
-    #[graphql(guard(RoleGuard(role = "AuthRole::Admin")))]
+    #[graphql(
+        guard(AssociatedGuardAdmin()),
+        visible = "is_admin",
+    )]
     pub async fn create_user(
         &self,
         context: &Context<'_>,
@@ -60,7 +63,10 @@ impl Mutation {
         created_user
     }
 
-    #[graphql(guard(RoleGuard(role = "AuthRole::Admin")))]
+    #[graphql(
+        guard(AssociatedGuardAdmin()),
+        visible = "is_admin",
+    )]
     pub async fn update_user_role(
         &self,
         context: &Context<'_>,

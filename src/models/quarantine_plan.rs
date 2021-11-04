@@ -3,8 +3,11 @@ use serde::{Deserialize, Serialize};
 use diesel::{self, Insertable, PgConnection, Queryable,
     ExpressionMethods, QueryDsl, RunQueryDsl};
 use uuid::Uuid;
-use async_graphql::*;
 
+use async_graphql::*;
+use async_graphql::guard::Guard;
+
+use crate::common_utils::{is_analyst, AssociatedGuardAnalyst};
 use crate::graphql::{graphql_translate, get_connection_from_context};
 use crate::schema::*;
 
@@ -24,6 +27,10 @@ pub struct QuarantinePlan {
 
 #[Object]
 impl QuarantinePlan {
+    #[graphql(
+        guard(AssociatedGuardAnalyst()),
+        visible = "is_analyst",
+    )]
     pub async fn id(&self) -> FieldResult<Uuid> {
         Ok(self.id.clone())
     }
@@ -40,6 +47,10 @@ impl QuarantinePlan {
         Ok(self.confirmation_no_vulnerable)
     }
 
+    #[graphql(
+        guard(AssociatedGuardAnalyst()),
+        visible = "is_analyst",
+    )]
     pub async fn postal_address_id(&self) -> FieldResult<String> {
         Ok(self.postal_address_id.to_owned())
     }
@@ -48,6 +59,10 @@ impl QuarantinePlan {
         Ok(self.active)
     }
 
+    #[graphql(
+        guard(AssociatedGuardAnalyst()),
+        visible = "is_analyst",
+    )]
     pub async fn check_in_history(&self, context: &Context<'_>) -> FieldResult<Vec<CheckInResult>> {
         let conn = get_connection_from_context(context);
 
