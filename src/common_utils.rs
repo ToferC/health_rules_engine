@@ -6,6 +6,7 @@ use async_graphql::*;
 pub enum Role {
     Admin,
     Operator,
+    Analyst,
     User,
 }
 
@@ -27,4 +28,10 @@ impl Guard for RoleGuard {
             }
         }
     }
+}
+
+pub struct IsAdmin(bool);
+
+pub fn is_admin(ctx: &Context<'_>) -> bool {
+    ctx.data_opt::<Role>() == Some(&Role::Admin)
 }

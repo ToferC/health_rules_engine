@@ -6,11 +6,9 @@ use uuid::Uuid;
 
 use crate::models::{InsertableUser, LoginQuery, TravelData, TravelResponse,
     User, UserData, create_token, decode_token,
-    verify_password};
+    verify_password, UserUpdate, hash_password};
 use crate::common_utils::{Role as AuthRole, RoleGuard};
 use crate::graphql::get_connection_from_context;
-
-use super::graphql_translate;
 
 pub struct Mutation;
 
@@ -46,7 +44,6 @@ impl Mutation {
             responses_to_cbsa.push(response);
         };
         
-        
         Ok(responses_to_cbsa)
     }
 
@@ -56,12 +53,48 @@ impl Mutation {
         context: &Context<'_>,
         user_data: UserData,
     ) -> FieldResult<User> {
-            let new_user = InsertableUser::from(user_data);
+        let new_user = InsertableUser::from(user_data);
 
-            let created_user = User::create(new_user, &get_connection_from_context(context));
+        let created_user = User::create(new_user, &get_connection_from_context(context));
 
-            created_user
-        }
+        created_user
+    }
+
+    #[graphql(guard(RoleGuard(role = "AuthRole::Admin")))]
+    pub async fn update_user_role(
+        &self,
+        context: &Context<'_>,
+        user_data: UserUpdate,
+    ) -> FieldResult<User> {
+
+        let conn = get_connection_from_context(context);
+
+        let mut target_user = User::get_by_id(&user_data.id, &conn)?;
+
+        match user_data.name {
+            Some(s) => target_user.name = s,
+            None => (),
+        };
+
+        match user_data.email {
+            Some(s) => target_user.email = s,
+            None => (),
+        };
+
+        match user_data.password {
+            Some(s) => target_user.hash = hash_password(&s)?,
+            None => (),
+        };
+
+        match user_data.role {
+            Some(s) => target_user.role = s,
+            None => (),
+        };
+
+        let updated_user = target_user.update(&conn);
+
+        updated_user
+    }
 
     pub async fn sign_in(
         &self,
@@ -92,17 +125,5 @@ impl Mutation {
         }
 
         Err(Error::new("Can't authenticate a user"))
-    }
-
-    pub async fn ping(
-        &self,
-        _context: &Context<'_>,
-        data: String,
-    ) -> String {
-        if data == "PING".to_string() {
-            "PONG".to_string()
-        } else {
-            "WRONG".to_string()
-        }
     }
 }
