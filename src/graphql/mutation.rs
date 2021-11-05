@@ -48,6 +48,7 @@ impl Mutation {
     }
 
     #[graphql(
+        name = "createUser",
         guard(AssociatedGuardAdmin()),
         visible = "is_admin",
     )]
@@ -64,10 +65,11 @@ impl Mutation {
     }
 
     #[graphql(
+        name = "updateUser",
         guard(AssociatedGuardAdmin()),
         visible = "is_admin",
     )]
-    pub async fn update_user_role(
+    pub async fn update_user(
         &self,
         context: &Context<'_>,
         user_data: UserUpdate,
@@ -77,24 +79,20 @@ impl Mutation {
 
         let mut target_user = User::get_by_id(&user_data.id, &conn)?;
 
-        match user_data.name {
-            Some(s) => target_user.name = s,
-            None => (),
+        if let Some(s) = user_data.name {
+            target_user.name = s;
         };
 
-        match user_data.email {
-            Some(s) => target_user.email = s,
-            None => (),
+        if let Some(s) = user_data.email {
+            target_user.email = s;
         };
 
-        match user_data.password {
-            Some(s) => target_user.hash = hash_password(&s)?,
-            None => (),
+        if let Some(s) = user_data.password {
+            target_user.hash = hash_password(&s)?;
         };
 
-        match user_data.role {
-            Some(s) => target_user.role = s,
-            None => (),
+        if let Some(s) = user_data.role {
+            target_user.role = s;
         };
 
         let updated_user = target_user.update(&conn);

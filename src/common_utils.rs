@@ -63,7 +63,7 @@ impl Guard for AssociatedGuardOperator {
         if is_operator(ctx) {
             Ok(())
         } else {
-            Err("Access Denied: Analyst or higher auth needed".into())
+            Err("Access Denied: Operator or higher auth needed".into())
         }
     }
 }

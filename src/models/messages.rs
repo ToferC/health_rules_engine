@@ -232,53 +232,45 @@ impl TravelData {
             .expect("Unable to find or create profile");
 
         // Add vaccinations
-
-        match &self.vaccinations {
-            Some(vaccinations) => {
-                let mut vaccination_history: Vec<Vaccination> = Vec::new();
-                
-                for slim_v in vaccinations {
-        
-                    let nv = NewVaccination::from(
-                        context, 
-                        &slim_v, 
-                        public_health_profile.id).expect("Unable to create NewVaccination");
-        
-                    let v = Vaccination::get_or_create(&conn, &nv)
-                        .expect("Unable to find or create vaccination");
-                    vaccination_history.push(v);
-                };
-            },
-            None => println!("No vaccinations found"),
+        if let Some(vaccinations) = &self.vaccinations {
+            let mut vaccination_history: Vec<Vaccination> = Vec::new();
+            
+            for slim_v in vaccinations {
+    
+                let nv = NewVaccination::from(
+                    context, 
+                    &slim_v, 
+                    public_health_profile.id).expect("Unable to create NewVaccination");
+    
+                let v = Vaccination::get_or_create(&conn, &nv)
+                    .expect("Unable to find or create vaccination");
+                vaccination_history.push(v);
+            };
         }
         
         // Add Covid-Test if exists
-        match &self.covid_test {
+        if let Some(t) = &self.covid_test {
             // Add CovidTest -> update to get or create
-            Some(t) => {
-                let new_test = NewCovidTest::from(
-                public_health_profile.id, 
-                &t);
+            
+            let new_test = NewCovidTest::from(
+            public_health_profile.id, 
+            &t);
     
             let _covid_test = CovidTest::create(&conn, &new_test)
                 .expect("Unable to create new covid test");
-            },
-            None => println!("No COVID test found"),
         }
 
         // Add QuarantinePlan if exists
-        match &self.quarantine_plan {
+        if let Some(p) = &self.quarantine_plan {
             // Add CovidTest -> update to get or create
-            Some(p) => {
-                let new_plan = NewQuarantinePlan::from(
-                public_health_profile.id,
-                &p
+
+            let new_plan = NewQuarantinePlan::from(
+            public_health_profile.id,
+            &p
             );
     
             let _quarantine_plan = QuarantinePlan::create(&conn, &new_plan)
                 .expect("Unable to create new quarantine plan");
-            },
-            None => println!("No quarantine plan found"),
         }
 
         // Call health_rules_engine
