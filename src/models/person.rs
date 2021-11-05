@@ -9,7 +9,7 @@ use async_graphql::*;
 use async_graphql::guard::{Guard};
 use rand::{Rng, thread_rng};
 
-use crate::common_utils::{is_admin, Role as AuthRole, RoleGuard,
+use crate::common_utils::{
     is_analyst, AssociatedGuardAnalyst};
 
 use crate::schema::*;
@@ -19,13 +19,12 @@ use crate::get_country_by_id;
 
 use super::PublicHealthProfile;
 
-// use super::trip::{Country};
-// use super::access_log::{AccessLevel, Granularity};
-
 #[derive(Debug, Clone, Deserialize, Serialize, Queryable, Insertable)]
 #[table_name = "persons"]
 /// Referenced by PublicHealthProfile
 /// Referenced by Trip
+/// Need to add disaggregated data on vulnerable populations
+/// and do this ethically.
 pub struct Person {
     pub id: Uuid,
     pub family_name: String,
@@ -195,6 +194,8 @@ impl Person {
         guard(AssociatedGuardAnalyst()),
         visible = "is_analyst",
     )]
+    /// This is personally identifiable information and can only be accessed
+    /// by Analyst or Admin roles.
     pub async fn travel_document_id(&self) -> FieldResult<String> {
         Ok(self.travel_document_id.to_owned())
     }

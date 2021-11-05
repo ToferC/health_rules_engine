@@ -24,7 +24,6 @@ use crate::models::{Country, NewCountry, NewPerson, NewPlace,
     Trip, Vaccine, Vaccination, CovidTest};
 use crate::models::{User, UserData, InsertableUser};
 
-#[macro_use]
 embed_migrations!();
 
 lazy_static! {
@@ -36,6 +35,7 @@ lazy_static! {
 }
 
 pub fn init() {
+
     lazy_static::initialize(&POOL);
     let conn = connection().expect("Failed to get DB connection");
     embedded_migrations::run(&conn).unwrap();

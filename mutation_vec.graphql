@@ -38,6 +38,7 @@ mutation InputTravel($data: [TravelData!]!) {
     "arrivalTime":"2015-07-01T08:59:60.123",
     "tripState": "in_process",
     "smartHealthcardPk":"HKDIH8978972892",
+  	"vaccinationRequired":true,
     "vaccinations":[{
       "vaccineName":"SpikeVax",
       "providedOn":"2015-07-01T08:59:60.123",
@@ -53,12 +54,14 @@ mutation InputTravel($data: [TravelData!]!) {
         "countryProvided":"Canada"
       }
     ],
+  	"covidTestRequired":true,
     "covidTest": {
       "testName": "AH-001",
       "testType":"molecular",
       "dateTaken":"2015-07-01T08:59:60.123",
       "testResult": false
     },
+  	"quarantinePlanRequired":true,
     "quarantinePlan":{
       "dateCreated": "2021-09-27",
       "confirmationNoVulnerable":true,
@@ -91,6 +94,7 @@ mutation InputTravel($data: [TravelData!]!) {
     "arrivalTime":"2015-07-01T08:59:60.123",
     "tripState": "in_process",
     "smartHealthcardPk":"HKDIH8978972892",
+  	"vaccinationRequired":true,
     "vaccinations":[{
       "vaccineName":"SpikeVax",
       "providedOn":"2015-07-01T08:59:60.123",
@@ -106,12 +110,14 @@ mutation InputTravel($data: [TravelData!]!) {
         "countryProvided":"Canada"
       }
     ],
+  	"covidTestRequired":true,
     "covidTest": {
       "testName": "AH-001",
       "testType":"molecular",
       "dateTaken":"2015-07-01T08:59:60.123",
       "testResult": false
     },
+  	"quarantinePlanRequired":true,
     "quarantinePlan":{
       "dateCreated": "2021-09-27",
       "confirmationNoVulnerable":true,

@@ -4,7 +4,7 @@ use async_graphql::*;
 use async_graphql::guard::Guard;
 use uuid::Uuid;
 
-use crate::models::{InsertableUser, LoginQuery, TravelData, TravelResponse,
+use crate::models::{InsertableUser, LoginQuery, TravelData, PILResponse,
     User, UserData, create_token, decode_token,
     verify_password, UserUpdate, hash_password};
 use crate::common_utils::{Role as AuthRole,
@@ -18,7 +18,7 @@ pub struct Mutation;
 impl Mutation {
 
     #[graphql(
-        name = "travelDataResponse", 
+        name = "PILQuery", 
         guard(AssociatedGuardOperator()),
         visible = "is_operator",
     )]
@@ -31,11 +31,11 @@ impl Mutation {
         &self,
         context: &Context<'_>,
         data: Vec<TravelData>,
-    ) -> FieldResult<Vec<TravelResponse>> {
+    ) -> FieldResult<Vec<PILResponse>> {
 
         let cbsa_id = context.data_opt::<Uuid>().expect("Unable to parse CBSA ID");
 
-        let mut responses_to_cbsa: Vec<TravelResponse> = Vec::new();
+        let mut responses_to_cbsa: Vec<PILResponse> = Vec::new();
 
         let travel_group_id = Uuid::new_v4();
 

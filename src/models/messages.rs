@@ -23,7 +23,7 @@ use super::{NewCovidTest, NewQuarantinePlan, QuarantinePlan};
 #[derive(Debug, Clone, Serialize, Deserialize, SimpleObject, Queryable)]
 /// A struct representing the API response for a specific traveller
 /// Likely to be part of a Vec<TravelResponse>
-pub struct TravelResponse {
+pub struct PILResponse {
     pub id: Uuid,
     pub post_status: String,
     pub trip_id: Uuid,
@@ -36,8 +36,8 @@ pub struct TravelResponse {
     pub details: Option<String>,
 }
 
-impl TravelResponse {
-    pub fn create(conn: &PgConnection, travel_response: &NewTravelResponse) -> FieldResult<TravelResponse> {
+impl PILResponse {
+    pub fn create(conn: &PgConnection, travel_response: &NewPILResponse) -> FieldResult<PILResponse> {
         let res = diesel::insert_into(travel_responses::table)
             .values(travel_response)
             .get_result(conn);
@@ -51,7 +51,7 @@ impl TravelResponse {
 /// A struct representing the API response for a specific traveller
 /// Likely to be part of a Vec<TravelResponse>
 /// Will also be added to database for audit and data purposes.
-pub struct NewTravelResponse {
+pub struct NewPILResponse {
     pub post_status: String,
     pub trip_id: Uuid,
     pub person_id: Uuid,
@@ -63,7 +63,7 @@ pub struct NewTravelResponse {
     pub details: Option<String>,
 }
 
-impl NewTravelResponse {
+impl NewPILResponse {
     pub fn new(
             post_status: String,
             trip_id: Uuid,
@@ -81,7 +81,7 @@ impl NewTravelResponse {
             None
         };
 
-        NewTravelResponse {
+        NewPILResponse {
             post_status,
             trip_id,
             person_id,
@@ -146,18 +146,21 @@ pub struct TravelData {
     /// May already be in system. Likely need to do a validation
     /// By date_time and provider constraint
     /// Otherwise, add new vaccinations to system
-    pub vaccinations: Vec<SlimVaccination>,
+    pub vaccination_required: bool,
+    pub vaccinations: Option<Vec<SlimVaccination>>,
 
     /// CovidTest
     /// Very likely to be new each time we interact, but not
     /// necessarily for frequent travellers or workers
-    pub covid_test: SlimCovidTest,
+    pub covid_test_required: bool,
+    pub covid_test: Option<SlimCovidTest>,
 
     /// QuarantinePlan
     /// Also likely to be unique for each traveller.
     /// Possible to be required or not required based on 
     /// environment. Consider making optional.
-    pub quarantine_plan: SlimQuarantinePlan,
+    pub quarantine_plan_required: bool,
+    pub quarantine_plan: Option<SlimQuarantinePlan>,
 
     // Time of api post
     pub date_time: NaiveDateTime,
@@ -172,7 +175,7 @@ impl TravelData {
             context: &Context<'_>,
             travel_group_id: Uuid,
             cbsa_id: Uuid,
-        ) -> FieldResult<TravelResponse> {
+        ) -> FieldResult<PILResponse> {
 
         // Connect to PostgresPool
         let conn = get_connection_from_context(context);
@@ -229,37 +232,54 @@ impl TravelData {
             .expect("Unable to find or create profile");
 
         // Add vaccinations
-        let mut vaccination_history: Vec<Vaccination> = Vec::new();
+
+        match &self.vaccinations {
+            Some(vaccinations) => {
+                let mut vaccination_history: Vec<Vaccination> = Vec::new();
+                
+                for slim_v in vaccinations {
         
-        for slim_v in &self.vaccinations {
-
-            let nv = NewVaccination::from(
-                context, 
-                &slim_v, 
-                public_health_profile.id).expect("Unable to create NewVaccination");
-
-            let v = Vaccination::get_or_create(&conn, &nv)
-                .expect("Unable to find or create vaccination");
-            vaccination_history.push(v);
+                    let nv = NewVaccination::from(
+                        context, 
+                        &slim_v, 
+                        public_health_profile.id).expect("Unable to create NewVaccination");
+        
+                    let v = Vaccination::get_or_create(&conn, &nv)
+                        .expect("Unable to find or create vaccination");
+                    vaccination_history.push(v);
+                };
+            },
+            None => println!("No vaccinations found"),
         }
         
-        // Add CovidTest -> update to get or create
-        let new_test = NewCovidTest::from(
-            public_health_profile.id, 
-            &self.covid_test);
+        // Add Covid-Test if exists
+        match &self.covid_test {
+            // Add CovidTest -> update to get or create
+            Some(t) => {
+                let new_test = NewCovidTest::from(
+                public_health_profile.id, 
+                &t);
+    
+            let _covid_test = CovidTest::create(&conn, &new_test)
+                .expect("Unable to create new covid test");
+            },
+            None => println!("No COVID test found"),
+        }
 
-        let _covid_test = CovidTest::create(&conn, &new_test)
-            .expect("Unable to create new covid test");
-
-        // Add QuarantinePlan
-        let new_plan = NewQuarantinePlan::from(
-            public_health_profile.id,
-            &self.quarantine_plan
-        );
-
-        let _quarantine_plan = QuarantinePlan::create(&conn, &new_plan)
-            .expect("Unable to create new quarantine plan");
-
+        // Add QuarantinePlan if exists
+        match &self.quarantine_plan {
+            // Add CovidTest -> update to get or create
+            Some(p) => {
+                let new_plan = NewQuarantinePlan::from(
+                public_health_profile.id,
+                &p
+            );
+    
+            let _quarantine_plan = QuarantinePlan::create(&conn, &new_plan)
+                .expect("Unable to create new quarantine plan");
+            },
+            None => println!("No quarantine plan found"),
+        }
 
         // Call health_rules_engine
         // Determine if traveller is referred for mandatory testing
@@ -272,7 +292,7 @@ impl TravelData {
         };
 
         // Build TravelResponse
-        let new_tr = NewTravelResponse::new(
+        let new_tr = NewPILResponse::new(
             "OK".to_string(),
             trip.id,
             person.id,
@@ -283,7 +303,7 @@ impl TravelData {
             "None".to_string()
         );
 
-        let travel_response = TravelResponse::create(&conn, &new_tr)?;
+        let travel_response = PILResponse::create(&conn, &new_tr)?;
         Ok(travel_response)
     }
 }
