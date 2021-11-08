@@ -42,7 +42,7 @@ impl Mutation {
         for traveller in data {
             let response = traveller.process(&context, travel_group_id, *cbsa_id)?.into();
             responses_to_cbsa.push(response);
-        };
+        };        
         
         Ok(responses_to_cbsa)
     }

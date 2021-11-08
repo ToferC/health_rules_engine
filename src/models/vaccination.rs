@@ -21,6 +21,11 @@ pub struct Vaccination {
     pub dose_provider: String,
     pub location_provided_id: Uuid, // Place
     pub provided_on: NaiveDateTime,
+
+    #[graphql(
+        guard(AssociatedGuardAnalyst()),
+        visible = "is_analyst",
+    )]
     pub public_health_profile_id: Uuid,
 }
 
