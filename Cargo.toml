@@ -33,6 +33,7 @@ lazy_static = "1.4"
 
 dotenv = "0.15.0"
 futures = "0.3.5"
+rdkafka = { version = "0.26.0", features = ["cmake-build"]}
 
 serde = "1.0.130"
 serde_derive = "1.0"

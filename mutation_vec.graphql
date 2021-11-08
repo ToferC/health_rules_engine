@@ -1,6 +1,6 @@
 // Mutation
 mutation InputTravel($data: [TravelData!]!) {
-  travelDataResponse(data: $data) {
+  PILResponse(data: $data) {
     postStatus
     id
     personId

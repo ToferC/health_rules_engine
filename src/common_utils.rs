@@ -41,7 +41,7 @@ impl Guard for AssociatedGuardAdmin {
         if is_admin(ctx) {
             Ok(())
         } else {
-            Err("Access Denied: Admin auth needed.".into())
+            Err("Access Denied: Admin auth needed".into())
         }
     }
 }
