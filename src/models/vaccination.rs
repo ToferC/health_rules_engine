@@ -5,6 +5,9 @@ use diesel::{self, Insertable, PgConnection, Queryable,
     RunQueryDsl, QueryDsl, ExpressionMethods};
 use uuid::Uuid;
 
+use async_graphql::guard::Guard;
+use crate::common_utils::{AnalystGuard, is_analyst};
+
 use crate::config_variables::DATE_FORMAT;
 use crate::models::{Place, Vaccine};
 use crate::graphql::graphql_translate;
@@ -21,11 +24,6 @@ pub struct Vaccination {
     pub dose_provider: String,
     pub location_provided_id: Uuid, // Place
     pub provided_on: NaiveDateTime,
-
-    #[graphql(
-        guard(AssociatedGuardAnalyst()),
-        visible = "is_analyst",
-    )]
     pub public_health_profile_id: Uuid,
 }
 
@@ -46,6 +44,14 @@ impl Vaccination {
 
     pub async fn provided_on(&self) -> FieldResult<String> {
         Ok(self.provided_on.format(DATE_FORMAT).to_string())
+    }
+
+    #[graphql(
+        guard(AnalystGuard()),
+        visible = "is_analyst",
+    )]
+    pub async fn public_health_profile_id(&self) -> FieldResult<Uuid> {
+        Ok(self.public_health_profile_id)
     }
 }
 

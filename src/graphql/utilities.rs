@@ -7,7 +7,9 @@ use diesel::r2d2::ConnectionManager;
 use r2d2::PooledConnection;
 
 use crate::models::{Country, Place, Vaccine,};
-use crate::graphql::{Query, Mutation};
+use crate::graphql::{Query, Mutation, Subscription};
+
+use crate::kafka::{create_producer};
 
 pub fn graphql_translate<T>(res: Result<T, diesel::result::Error>) -> FieldResult<T> {
     match res {
@@ -16,7 +18,7 @@ pub fn graphql_translate<T>(res: Result<T, diesel::result::Error>) -> FieldResul
     }
 }
 
-pub type AppSchema = Schema<Query, Mutation, EmptySubscription>;
+pub type AppSchema = Schema<Query, Mutation, Subscription>;
 
 pub fn create_schema_with_context(pg_pool: PostgresPool) -> async_graphql::Schema<Query, Mutation, EmptySubscription> {
     
@@ -28,13 +30,20 @@ pub fn create_schema_with_context(pg_pool: PostgresPool) -> async_graphql::Schem
     let places = Arc::new(Mutex::new(Place::load_into_hash(&cloned_conn)));
     let vaccines = Vaccine::load_into_hash(&cloned_conn);
     let identity: Option<String> = None;
+
+    let kafka_consumer_counter = Mutex::new(0);
     
     Schema::build(Query, Mutation, EmptySubscription)
+        // Database connection
         .data(arc_pool)
+        // Live cached data -> may want to remove once dataloaders in place
         .data(countries)
         .data(places)
         .data(vaccines)
         .data(identity)
+        // Kafka
+        .data(create_producer())
+        .data(kafka_consumer_counter)
         .finish()
 }
 

@@ -8,8 +8,8 @@ use crate::models::{InsertableUser, LoginQuery, TravelData, PILResponse,
     User, UserData, create_token, decode_token,
     verify_password, UserUpdate, hash_password};
 use crate::common_utils::{Role as AuthRole,
-    is_operator, AssociatedGuardOperator,
-    is_admin, AssociatedGuardAdmin};
+    is_operator, OperatorGuard,
+    is_admin, AdminGuard};
 use crate::graphql::get_connection_from_context;
 
 pub struct Mutation;
@@ -19,7 +19,7 @@ impl Mutation {
 
     #[graphql(
         name = "PILQuery", 
-        guard(AssociatedGuardOperator()),
+        guard(OperatorGuard()),
         visible = "is_operator",
     )]
     /// Receives a Vec<TravelData> containing details from a group of travllers
@@ -40,7 +40,10 @@ impl Mutation {
         let travel_group_id = Uuid::new_v4();
 
         for traveller in data {
-            let response = traveller.process(&context, travel_group_id, *cbsa_id)?.into();
+            let response = traveller.process(&context, travel_group_id, *cbsa_id)
+                .await?
+                .into();
+                
             responses_to_cbsa.push(response);
         };        
         
@@ -49,7 +52,7 @@ impl Mutation {
 
     #[graphql(
         name = "createUser",
-        guard(AssociatedGuardAdmin()),
+        guard(AdminGuard()),
         visible = "is_admin",
     )]
     pub async fn create_user(
@@ -66,7 +69,7 @@ impl Mutation {
 
     #[graphql(
         name = "updateUser",
-        guard(AssociatedGuardAdmin()),
+        guard(AdminGuard()),
         visible = "is_admin",
     )]
     pub async fn update_user(

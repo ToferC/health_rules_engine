@@ -6,7 +6,7 @@ use uuid::Uuid;
 
 use async_graphql::*;
 use async_graphql::guard::Guard;
-use crate::common_utils::{is_analyst, AssociatedGuardAnalyst};
+use crate::common_utils::{is_analyst, AnalystGuard};
 
 use crate::models::{Vaccination,
     QuarantinePlan, CovidTest};
@@ -30,7 +30,7 @@ impl PublicHealthProfile {
     }
 
     #[graphql(
-        guard(AssociatedGuardAnalyst()),
+        guard(AnalystGuard()),
         visible = "is_analyst",
     )]
     /// Returns the unique UID for the person associated to 
@@ -41,7 +41,7 @@ impl PublicHealthProfile {
     }
 
     #[graphql(
-        guard(AssociatedGuardAnalyst()),
+        guard(AnalystGuard()),
         visible = "is_analyst",
     )]
     pub async fn smart_healthcard_pk(&self) -> FieldResult<String> {

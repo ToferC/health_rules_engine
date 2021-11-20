@@ -8,7 +8,7 @@ use async_graphql::*;
 use async_graphql::guard::Guard;
 
 use crate::{schema::*};
-use crate::common_utils::{is_admin, AssociatedGuardAdmin};
+use crate::common_utils::{is_admin, AdminGuard};
 use crate::models::hash_password;
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
@@ -19,7 +19,7 @@ pub struct UserInstance {
 #[derive(Debug, Clone, Deserialize, Serialize, SimpleObject, Queryable, AsChangeset)]
 pub struct User {
     #[graphql(
-        guard(AssociatedGuardAdmin()),
+        guard(AdminGuard()),
         visible = "is_admin",
     )]
     pub id: Uuid,
@@ -27,28 +27,28 @@ pub struct User {
     pub hash: String,
 
     #[graphql(
-        guard(AssociatedGuardAdmin()),
+        guard(AdminGuard()),
         visible = "is_admin",
     )]
     pub email: String,
     pub role: String,
 
     #[graphql(
-        guard(AssociatedGuardAdmin()),
+        guard(AdminGuard()),
         visible = "is_admin",
     )]
     pub name: String,
     pub access_level: String, // AccessLevelEnum
     pub created_at: NaiveDateTime,
     #[graphql(
-        guard(AssociatedGuardAdmin()),
+        guard(AdminGuard()),
         visible = "is_admin",
     )]
     /// Access Level: Admin
     pub access_key: String,
 
     #[graphql(
-        guard(AssociatedGuardAdmin()),
+        guard(AdminGuard()),
         visible = "is_admin",
     )]
     /// Access Level: Admin

@@ -7,7 +7,7 @@ use uuid::Uuid;
 use async_graphql::*;
 use async_graphql::guard::Guard;
 
-use crate::common_utils::{is_analyst, AssociatedGuardAnalyst};
+use crate::common_utils::{is_analyst, AnalystGuard};
 use crate::graphql::{graphql_translate, get_connection_from_context};
 use crate::schema::*;
 
@@ -28,7 +28,7 @@ pub struct QuarantinePlan {
 #[Object]
 impl QuarantinePlan {
     #[graphql(
-        guard(AssociatedGuardAnalyst()),
+        guard(AnalystGuard()),
         visible = "is_analyst",
     )]
     pub async fn id(&self) -> FieldResult<Uuid> {
@@ -48,7 +48,7 @@ impl QuarantinePlan {
     }
 
     #[graphql(
-        guard(AssociatedGuardAnalyst()),
+        guard(AnalystGuard()),
         visible = "is_analyst",
     )]
     pub async fn postal_address_id(&self) -> FieldResult<String> {
@@ -60,7 +60,7 @@ impl QuarantinePlan {
     }
 
     #[graphql(
-        guard(AssociatedGuardAnalyst()),
+        guard(AnalystGuard()),
         visible = "is_analyst",
     )]
     pub async fn check_in_history(&self, context: &Context<'_>) -> FieldResult<Vec<CheckInResult>> {

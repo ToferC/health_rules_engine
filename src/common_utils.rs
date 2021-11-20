@@ -30,13 +30,13 @@ impl Guard for RoleGuard {
     }
 }
 
-pub struct AssociatedGuardAdmin;
-pub struct AssociatedGuardAnalyst;
+pub struct AdminGuard;
+pub struct AnalystGuard;
 
-pub struct AssociatedGuardOperator;
+pub struct OperatorGuard;
 
 #[async_trait::async_trait]
-impl Guard for AssociatedGuardAdmin {
+impl Guard for AdminGuard {
     async fn check(&self, ctx: &Context<'_>) -> Result<()> {
         if is_admin(ctx) {
             Ok(())
@@ -47,7 +47,7 @@ impl Guard for AssociatedGuardAdmin {
 }
 
 #[async_trait::async_trait]
-impl Guard for AssociatedGuardAnalyst {
+impl Guard for AnalystGuard {
     async fn check(&self, ctx: &Context<'_>) -> Result<()> {
         if is_analyst(ctx) {
             Ok(())
@@ -58,7 +58,7 @@ impl Guard for AssociatedGuardAnalyst {
 }
 
 #[async_trait::async_trait]
-impl Guard for AssociatedGuardOperator {
+impl Guard for OperatorGuard {
     async fn check(&self, ctx: &Context<'_>) -> Result<()> {
         if is_operator(ctx) {
             Ok(())

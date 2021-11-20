@@ -7,9 +7,11 @@ use chrono::prelude::*;
 use chrono::Utc;
 use rand::Rng;
 use async_graphql::*;
+use rdkafka::{producer::FutureProducer};
 
 use crate::graphql::{graphql_translate, get_connection_from_context};
 use crate::schema::*;
+use crate::kafka::send_message;
 use crate::get_or_create_country_by_name;
 use crate::config_variables::MANDATORY_TESTING_RATE;
 
@@ -170,7 +172,7 @@ pub struct TravelData {
 }
 
 impl TravelData {
-    pub fn process(
+    pub async fn process(
             &self, 
             context: &Context<'_>,
             travel_group_id: Uuid,
@@ -221,6 +223,16 @@ impl TravelData {
         );
 
         let trip = Trip::create(&conn, &new_trip).expect("Unable to create trip");
+
+        // Create Kafka producer and send message for Trip subscription service
+        let producer = context
+            .data::<FutureProducer>()
+            .expect("Can't get Kafka producer");
+
+        let trip_message = serde_json::to_string(&trip)
+            .expect("Can't serialize Trip");
+
+        send_message(producer, trip_message).await;
 
         // Add or get PublicHealthProfile
         let profile = NewPublicHealthProfile::new(

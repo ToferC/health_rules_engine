@@ -31,6 +31,7 @@ pub mod database;
 pub mod graphql;
 pub mod common_utils;
 pub mod config_variables;
+pub mod kafka;
 
 use crate::graphql::{get_connection_from_context};
 use crate::models::{SlimUser, User, verify_password};
