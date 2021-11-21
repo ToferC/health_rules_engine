@@ -2,20 +2,20 @@
 name = "health_rules_engine"
 version = "0.1.0"
 authors = ["christopherallison <cgeist7@gmail.com>"]
-edition = "2018"
+edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-actix-web = "3.0"
+actix-web = "4.0.0-beta.11"
 actix-web-httpauth = { git = "https://github.com/actix/actix-web-httpauth" }
-actix-rt = "1.1.1"
+actix-rt = "2.4.0"
 actix-multipart = "0.2.0"
 actix-service = "1.0.6"
 actix-identity = "0.3"
 
-async-graphql = { version = "2.0", features = ["uuid", "chrono", "chrono-tz"] }
-async-graphql-actix-web = "2.0"
+async-graphql = { version = "3.0.6", features = ["uuid", "chrono", "chrono-tz"] }
+async-graphql-actix-web = "3.0.6"
 
 argon2rs = "0.2"
 argonautica = "0.2.0"
@@ -32,8 +32,9 @@ uuid = { version = "0.8.2", features = ["serde", "v4"]}
 lazy_static = "1.4"
 
 dotenv = "0.15.0"
-futures = "0.3.5"
-rdkafka = { version = "0.25.0"}
+futures = "0.3.17"
+rdkafka = { version = "0.25.0", features = ["cmake-build"]}
+async-stream = "0.3.2"
 
 serde = "1.0.130"
 serde_derive = "1.0"

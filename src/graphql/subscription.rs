@@ -1,13 +1,9 @@
-use std::str::FromStr;
 use std::sync::Mutex;
 
 use async_graphql::*;
 use futures::{Stream, StreamExt};
-use rdkafka::{producer::FutureProducer, Message};
+use rdkafka::{Message};
 
-use crate::common_utils::Role;
-use crate::get_connection_from_context;
-use crate::kafka;
 use crate::kafka::create_consumer;
 use crate::kafka::get_kafka_consumer_group;
 use crate::models::Trip;
@@ -16,10 +12,11 @@ pub struct Subscription;
 
 #[Subscription]
 impl Subscription {
+    /// Subscription service that returns a stream of the latest trips created
     async fn latest_trip<'ctx>(
         &self, 
         ctx: &'ctx Context<'_>,
-    ) -> impl Stream<Item = String> + 'ctx {
+    ) -> impl Stream<Item = Trip> + 'ctx {
         let kafka_consumer_counter = ctx 
             .data::<Mutex<i32>>()
             .expect("Can't get Kafka consumer counter");
@@ -37,7 +34,7 @@ impl Subscription {
                         let message = String::from_utf8_lossy(payload).to_string();
                         serde_json::from_str(&message).expect("Can't deserialize Trip")
                     }
-                    Err(e) => format!("Error while Kafka message processing: {}", e)
+                    Err(e) => panic!("Error while Kafka message processing: {}", e)
                 };
             }
         }

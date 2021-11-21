@@ -17,7 +17,7 @@ lazy_static! {
 
 pub(crate) fn create_producer() -> FutureProducer {
     ClientConfig::new()
-        .set("boostrap.servers", KAFKA_BROKER.as_str())
+        .set("bootstrap.servers", KAFKA_BROKER.as_str())
         .set("message.timeout.ms", "5000")
         .create()
         .expect("Producer creation failed")
@@ -29,7 +29,7 @@ pub(crate) fn create_consumer(group_id: String) -> StreamConsumer {
         .set("bootstrap.servers", KAFKA_BROKER.as_str())
         .set("enable.partition.eof", "false")
         .set("session.timeout.ms", "6000")
-        .set("enamble.auto.commit", "true")
+        .set("enable.auto.commit", "true")
         .set_log_level(RDKafkaLogLevel::Debug)
         .create()
         .expect("Consumer creation failed");

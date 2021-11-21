@@ -1,8 +1,7 @@
 use std::env;
-use actix_web::{App, HttpServer, middleware};
+use actix_web::{web, App, HttpServer, middleware};
 use tera::{Tera};
 use tera_text_filters::snake_case;
-use actix_identity::{CookieIdentityPolicy, IdentityService};
 
 use health_rules_engine::database::{self, POOL};
 use health_rules_engine::graphql::{create_schema_with_context};
@@ -25,7 +24,7 @@ async fn main() -> std::io::Result<()> {
         Err(_) => String::from("test"),
     };
 
-    let secret_key = env::var("SECRET_KEY").expect("Unable to find secret key");
+    let _secret_key = env::var("SECRET_KEY").expect("Unable to find secret key");
 
     let (host, port) = if environment == "production" {
         (env::var("HOST").unwrap(), env::var("PORT").unwrap())
@@ -33,14 +32,14 @@ async fn main() -> std::io::Result<()> {
         (String::from("127.0.0.1"), String::from("8088"))
     };
 
-    let domain = host.clone();
+    let _domain = host.clone();
 
     println!("{}", env!("CARGO_MANIFEST_DIR"));
 
     println!("Serving on: {}:{}", &host, &port);
 
     // Create Schema
-    let schema = create_schema_with_context(POOL.clone());
+    let schema = web::Data::new(create_schema_with_context(POOL.clone()));
 
     HttpServer::new(move || {
         
@@ -52,18 +51,10 @@ async fn main() -> std::io::Result<()> {
 
         App::new()
             //.data(POOL.clone())
-            .data(AppData {tmpl: tera})
-            .data(schema.clone())
-            .configure(handlers::init_routes)
+            .configure(handlers::configure_services)
+            .app_data(schema.clone())
+            .app_data(AppData {tmpl: tera})
             .wrap(middleware::Logger::default())
-            .wrap(IdentityService::new(
-                CookieIdentityPolicy::new(secret_key.as_bytes())
-                    .name("auth")
-                    .path("/graphiql")
-                    .domain(domain.clone())
-                    .max_age(86400)
-                    .secure(false)
-            ))
     })
     .bind(format!("{}:{}", host, port))?
     .run()

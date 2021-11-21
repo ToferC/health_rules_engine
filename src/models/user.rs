@@ -5,10 +5,9 @@ use serde::{Deserialize, Serialize};
 use diesel::{self, ExpressionMethods, Insertable, PgConnection, QueryDsl, Queryable, RunQueryDsl};
 use uuid::Uuid;
 use async_graphql::*;
-use async_graphql::guard::Guard;
 
 use crate::{schema::*};
-use crate::common_utils::{is_admin, AdminGuard};
+use crate::common_utils::{is_admin, RoleGuard, Role as AuthRole};
 use crate::models::hash_password;
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
@@ -19,7 +18,7 @@ pub struct UserInstance {
 #[derive(Debug, Clone, Deserialize, Serialize, SimpleObject, Queryable, AsChangeset)]
 pub struct User {
     #[graphql(
-        guard(AdminGuard()),
+        guard = "RoleGuard::new(AuthRole::Admin)",
         visible = "is_admin",
     )]
     pub id: Uuid,
@@ -27,28 +26,28 @@ pub struct User {
     pub hash: String,
 
     #[graphql(
-        guard(AdminGuard()),
+        guard = "RoleGuard::new(AuthRole::Admin)",
         visible = "is_admin",
     )]
     pub email: String,
     pub role: String,
 
     #[graphql(
-        guard(AdminGuard()),
+        guard = "RoleGuard::new(AuthRole::Admin)",
         visible = "is_admin",
     )]
     pub name: String,
     pub access_level: String, // AccessLevelEnum
     pub created_at: NaiveDateTime,
     #[graphql(
-        guard(AdminGuard()),
+        guard = "RoleGuard::new(AuthRole::Admin)",
         visible = "is_admin",
     )]
     /// Access Level: Admin
     pub access_key: String,
 
     #[graphql(
-        guard(AdminGuard()),
+        guard = "RoleGuard::new(AuthRole::Admin)",
         visible = "is_admin",
     )]
     /// Access Level: Admin

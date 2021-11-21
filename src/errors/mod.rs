@@ -61,12 +61,12 @@ pub mod error_handler {
 
             match status_code.as_u16() {
                 406 => {
-                    return HttpResponse::Found().header("Location", "/not_authorized").finish()
+                    return HttpResponse::Found().append_header(("Location", "/not_authorized")).finish()
                 },
                 i if i > 500 => {
-                    return HttpResponse::Found().header("Location","/internal_server_error").finish()
+                    return HttpResponse::Found().append_header(("Location","/internal_server_error")).finish()
                 },
-                _ => return HttpResponse::Found().header("Location","/internal_server_error").finish()
+                _ => return HttpResponse::Found().append_header(("Location","/internal_server_error")).finish()
             };
         }
     }

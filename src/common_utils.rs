@@ -1,7 +1,7 @@
-use async_graphql::guard::Guard;
+use async_graphql::Guard;
 use async_graphql::*;
 
-#[derive(Eq, PartialEq, Display, EnumString)]
+#[derive(Eq, PartialEq, Display, EnumString, Copy, Clone)]
 #[strum(serialize_all = "SCREAMING_SNAKE_CASE")]
 pub enum Role {
     Admin,
@@ -14,56 +14,24 @@ pub struct RoleGuard {
     pub role: Role,
 }
 
+impl RoleGuard {
+    pub fn new(role: Role) -> Self {
+        Self { role }
+    }
+}
+
 #[async_trait::async_trait]
 impl Guard for RoleGuard {
     async fn check(&self, context: &Context<'_>) -> Result<(), async_graphql::Error> {
         
-        if context.data_opt::<Role>() == Some(&self.role) {
+        if context.data_opt::<Role>() == Some(&self.role) || context.data_opt::<Role>() == Some(&Role::Admin) {
             Ok(())
         } else {
             let guard_error = context.data_opt::<jsonwebtoken::errors::Error>().clone();
             match guard_error {
                 Some(e) => return Err(format!("{:?}", e.kind()).into()),
-                None => return Err("No authentication token found".into())
+                None => return Err(format!("Access denied: {} role required", &self.role).into())
             }
-        }
-    }
-}
-
-pub struct AdminGuard;
-pub struct AnalystGuard;
-
-pub struct OperatorGuard;
-
-#[async_trait::async_trait]
-impl Guard for AdminGuard {
-    async fn check(&self, ctx: &Context<'_>) -> Result<()> {
-        if is_admin(ctx) {
-            Ok(())
-        } else {
-            Err("Access Denied: Admin auth needed".into())
-        }
-    }
-}
-
-#[async_trait::async_trait]
-impl Guard for AnalystGuard {
-    async fn check(&self, ctx: &Context<'_>) -> Result<()> {
-        if is_analyst(ctx) {
-            Ok(())
-        } else {
-            Err("Access Denied: Analyst or higher auth needed".into())
-        }
-    }
-}
-
-#[async_trait::async_trait]
-impl Guard for OperatorGuard {
-    async fn check(&self, ctx: &Context<'_>) -> Result<()> {
-        if is_operator(ctx) {
-            Ok(())
-        } else {
-            Err("Access Denied: Operator or higher auth needed".into())
         }
     }
 }

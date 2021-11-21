@@ -34,7 +34,6 @@ pub mod config_variables;
 pub mod kafka;
 
 use crate::graphql::{get_connection_from_context};
-use crate::models::{SlimUser, User, verify_password};
 
 pub struct AppData {
     pub tmpl: Tera
@@ -144,22 +143,3 @@ let res = context.data::<HashMap<Uuid, Vaccine>>()?
 
 
 pub type Pool = r2d2::Pool<ConnectionManager<PgConnection>>;
-
-// Other utilities
-pub fn login(
-    user_email: &str,
-    user_password: &str,
-    context: &Context<'_>,
-) -> FieldResult<SlimUser> {
-    use crate::schema::users::dsl::{email, users};
-
-    let conn = get_connection_from_context(context);
-    let user = users
-        .filter(email.eq(user_email))
-        .first::<User>(&conn)?;
-
-    match verify_password(&user.hash, &user_password) {
-        Ok(true) => Ok(user.into()),
-        _ => Err(Error::new("No match for user / password")),
-    }
-}

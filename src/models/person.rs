@@ -6,11 +6,10 @@ use diesel::{self, Insertable, PgConnection, Queryable, ExpressionMethods};
 use diesel::{RunQueryDsl, QueryDsl};
 use uuid::Uuid;
 use async_graphql::*;
-use async_graphql::guard::{Guard};
 use rand::{Rng, thread_rng};
 
 use crate::common_utils::{
-    is_analyst, AnalystGuard};
+    is_analyst, RoleGuard, Role as AuthRole};
 
 use crate::schema::*;
 use crate::graphql::{graphql_translate, get_connection_from_context};
@@ -151,7 +150,7 @@ impl Person {
 impl Person {
 
     #[graphql(
-        guard(AnalystGuard()),
+        guard = "RoleGuard::new(AuthRole::Analyst)",
         visible = "is_analyst",
     )]
     pub async fn family_name(&self) -> FieldResult<String> {
@@ -159,7 +158,7 @@ impl Person {
     }
 
     #[graphql(
-        guard(AnalystGuard()),
+        guard = "RoleGuard::new(AuthRole::Analyst)",
         visible = "is_analyst",
     )]
     pub async fn given_name(&self) -> FieldResult<String> {
@@ -167,7 +166,7 @@ impl Person {
     }
 
     #[graphql(
-        guard(AnalystGuard()),
+        guard = "RoleGuard::new(AuthRole::Analyst)",
         visible = "is_analyst",
     )]
     pub async fn additional_names(&self) -> FieldResult<Option<Vec<String>>> {
@@ -191,7 +190,7 @@ impl Person {
     }
 
     #[graphql(
-        guard(AnalystGuard()),
+        guard = "RoleGuard::new(AuthRole::Analyst)",
         visible = "is_analyst",
     )]
     /// This is personally identifiable information and can only be accessed

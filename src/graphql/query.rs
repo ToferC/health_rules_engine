@@ -3,14 +3,13 @@ use diesel::{QueryDsl, ExpressionMethods};
 use crate::schema::*;
 
 use async_graphql::*;
-use async_graphql::guard::Guard;
 
 use crate::models::{Person, QuarantinePlan, User,
     TravelGroup, Trip, Vaccination, CovidTest};
 use uuid::Uuid;
 
 use crate::graphql::{graphql_translate, get_connection_from_context};
-use crate::common_utils::{AdminGuard, is_admin};
+use crate::common_utils::{RoleGuard, is_admin, Role as AuthRole};
 
 pub struct Query;
 
@@ -187,7 +186,7 @@ impl Query {
 
     #[graphql(
         name = "allUsers",
-        guard(AdminGuard()),
+        guard = "RoleGuard::new(AuthRole::Admin)",
         visible = "is_admin",
     )]
     /// Returns a vector of all users
@@ -201,7 +200,7 @@ impl Query {
 
     #[graphql(
         name = "getUserByEmail",
-        guard(AdminGuard()),
+        guard = "RoleGuard::new(AuthRole::Admin)",
         visible = "is_admin",
     )]
     /// Returns a vector of all users
@@ -215,7 +214,7 @@ impl Query {
 
     #[graphql(
         name = "getUserById",
-        guard(AdminGuard()),
+        guard = "RoleGuard::new(AuthRole::Admin)",
         visible = "is_admin",
     )]
     /// Returns a vector of all users

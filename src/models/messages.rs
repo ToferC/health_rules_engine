@@ -232,6 +232,7 @@ impl TravelData {
         let trip_message = serde_json::to_string(&trip)
             .expect("Can't serialize Trip");
 
+        println!("Sending Message to Subscription");
         send_message(producer, trip_message).await;
 
         // Add or get PublicHealthProfile

@@ -20,7 +20,7 @@ pub fn graphql_translate<T>(res: Result<T, diesel::result::Error>) -> FieldResul
 
 pub type AppSchema = Schema<Query, Mutation, Subscription>;
 
-pub fn create_schema_with_context(pg_pool: PostgresPool) -> async_graphql::Schema<Query, Mutation, EmptySubscription> {
+pub fn create_schema_with_context(pg_pool: PostgresPool) -> async_graphql::Schema<Query, Mutation, Subscription> {
     
     let cloned_conn = pg_pool.clone().get().expect("Unable to connect to db");
     
@@ -33,7 +33,7 @@ pub fn create_schema_with_context(pg_pool: PostgresPool) -> async_graphql::Schem
 
     let kafka_consumer_counter = Mutex::new(0);
     
-    Schema::build(Query, Mutation, EmptySubscription)
+    Schema::build(Query, Mutation, Subscription)
         // Database connection
         .data(arc_pool)
         // Live cached data -> may want to remove once dataloaders in place

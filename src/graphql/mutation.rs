@@ -1,15 +1,14 @@
 use std::str::FromStr;
 
 use async_graphql::*;
-use async_graphql::guard::Guard;
 use uuid::Uuid;
 
 use crate::models::{InsertableUser, LoginQuery, TravelData, PILResponse,
     User, UserData, create_token, decode_token,
     verify_password, UserUpdate, hash_password};
 use crate::common_utils::{Role as AuthRole,
-    is_operator, OperatorGuard,
-    is_admin, AdminGuard};
+    is_operator,
+    is_admin, RoleGuard};
 use crate::graphql::get_connection_from_context;
 
 pub struct Mutation;
@@ -19,7 +18,7 @@ impl Mutation {
 
     #[graphql(
         name = "PILQuery", 
-        guard(OperatorGuard()),
+        guard = "RoleGuard::new(AuthRole::Operator)",
         visible = "is_operator",
     )]
     /// Receives a Vec<TravelData> containing details from a group of travllers
@@ -52,7 +51,7 @@ impl Mutation {
 
     #[graphql(
         name = "createUser",
-        guard(AdminGuard()),
+        guard = "RoleGuard::new(AuthRole::Admin)",
         visible = "is_admin",
     )]
     pub async fn create_user(
@@ -69,7 +68,7 @@ impl Mutation {
 
     #[graphql(
         name = "updateUser",
-        guard(AdminGuard()),
+        guard = "RoleGuard::new(AuthRole::Admin)",
         visible = "is_admin",
     )]
     pub async fn update_user(

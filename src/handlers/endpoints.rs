@@ -1,28 +1,27 @@
-use actix_web::{web, HttpResponse, HttpRequest};
-use async_graphql::http::GraphQLPlaygroundConfig;
+use actix_web::{web, HttpResponse, HttpRequest, Result};
+use async_graphql::http::{GraphQLPlaygroundConfig, playground_source};
+use async_graphql::Schema;
 
-//use juniper::http::{GraphQLRequest};
-//use juniper::http::playground::playground_source;
-use async_graphql_actix_web::{Request, Response};
+use async_graphql_actix_web::{GraphQLSubscription,
+    GraphQLRequest, GraphQLResponse};
 
 use crate::models;
 use crate::graphql::{AppSchema};
 
 
 pub async fn playground_handler() -> HttpResponse {
-    let html = async_graphql::http::playground_source(
-        GraphQLPlaygroundConfig::new("/graphql"));
     HttpResponse::Ok()
         .content_type("text/html; charset=utf-8")
-        .body(html)
+        .body(playground_source(
+            GraphQLPlaygroundConfig::new("/graphql").subscription_endpoint("/graphql"),
+        ))
 }
 
 pub async fn graphql(
-    //pg_pool: web::Data<PostgresPool>,
     schema: web::Data<AppSchema>,
     http_request: HttpRequest,
-    req: Request,
-) -> Response {
+    req: GraphQLRequest,
+) -> GraphQLResponse {
     
     let mut query = req.into_inner();
 
@@ -41,4 +40,12 @@ pub async fn graphql(
     };
 
     schema.execute(query).await.into()
+}
+
+pub async fn graphql_ws(
+    schema: web::Data<AppSchema>,
+    req: HttpRequest,
+    payload: web::Payload,
+) -> Result<HttpResponse> {
+    GraphQLSubscription::new(Schema::clone(&*schema)).start(&req, payload)
 }
