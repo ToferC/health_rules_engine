@@ -9,6 +9,8 @@ use crate::models::{InsertableUser, LoginQuery, TravelData, PILResponse,
 use crate::common_utils::{Role as AuthRole,
     is_operator,
     is_admin, RoleGuard};
+use rdkafka::producer::FutureProducer;
+use crate::kafka::send_message;
 use crate::graphql::get_connection_from_context;
 
 pub struct Mutation;
@@ -44,6 +46,18 @@ impl Mutation {
                 .into();
                 
             responses_to_cbsa.push(response);
+
+            // Create Kafka producer and send message for subscription service
+            let producer = context
+                .data::<FutureProducer>()
+                .expect("Can't get Kafka producer");
+
+            // Sent ArriveCan messages to Kafka
+            let arrivecan_message = serde_json::to_string(&traveller)
+                .expect("Can't serialize ArriveCan PIL message");
+
+            println!("Sending ArriveCan PIL Message to Subscription");
+            send_message(producer, "arrivecan_pil", arrivecan_message).await;
         };        
         
         Ok(responses_to_cbsa)

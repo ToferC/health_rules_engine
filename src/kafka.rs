@@ -23,7 +23,7 @@ pub(crate) fn create_producer() -> FutureProducer {
         .expect("Producer creation failed")
 }
 
-pub(crate) fn create_consumer(group_id: String) -> StreamConsumer {
+pub(crate) fn create_consumer(group_id: String, topic: &str) -> StreamConsumer {
     let consumer: StreamConsumer = ClientConfig::new()
         .set("group.id", &group_id)
         .set("bootstrap.servers", KAFKA_BROKER.as_str())
@@ -35,7 +35,7 @@ pub(crate) fn create_consumer(group_id: String) -> StreamConsumer {
         .expect("Consumer creation failed");
 
     consumer
-        .subscribe(&[&KAFKA_TOPIC])
+        .subscribe(&[topic])
         .expect("Can't subscribe to specified topics");
 
     consumer
@@ -47,10 +47,10 @@ pub(crate) fn get_kafka_consumer_group(kafka_consumer_counter: &Mutex<i32>) -> S
     format!("graphql-group-{}", *counter)
 }
 
-pub(crate) async fn send_message(producer: &FutureProducer, message: String) {
+pub(crate) async fn send_message(producer: &FutureProducer, topic: &str, message: String) {
     let send_to_kafka_result = producer
         .send(
-            FutureRecord::to(&KAFKA_TOPIC)
+            FutureRecord::to(topic)
                 .payload(&message)
                 .key("new_trip"),
             Timeout::After(Duration::from_secs(0)),
@@ -58,7 +58,7 @@ pub(crate) async fn send_message(producer: &FutureProducer, message: String) {
         .await;
 
     match send_to_kafka_result {
-        Ok(_) => println!("Message was sent"),
+        Ok(_) => println!("Message was sent to topic: {}", topic),
         Err(res) => println!("Message wasn't sent: {}", res.0),
     }
 }

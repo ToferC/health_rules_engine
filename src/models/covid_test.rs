@@ -94,7 +94,8 @@ impl NewCovidTest {
     }
 }
 
-#[derive(Debug, Clone, Deserialize, Serialize, InputObject)]
+#[derive(Debug, Clone, Deserialize, Serialize, InputObject, SimpleObject)]
+#[graphql(input_name = "SlimCovidTestInput")]
 pub struct SlimCovidTest {
     pub test_name: String,
     pub test_type: String, // TestType

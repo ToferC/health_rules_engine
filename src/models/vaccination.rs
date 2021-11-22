@@ -167,7 +167,8 @@ impl NewVaccination {
     }
 }
 
-#[derive(Debug, Clone, Deserialize, Serialize, PartialEq, PartialOrd, InputObject)]
+#[derive(Debug, Clone, Deserialize, Serialize, PartialEq, PartialOrd, InputObject, SimpleObject)]
+#[graphql(input_name = "SlimVaccinationInput")]
 /// Basic text data used to create a Vaccination object
 pub struct SlimVaccination {
     pub vaccine_name: String,

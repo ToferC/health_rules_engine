@@ -97,7 +97,8 @@ impl NewPILResponse {
     }
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, InputObject)]
+#[derive(Debug, Clone, Serialize, Deserialize, InputObject, SimpleObject)]
+#[graphql(input_name = "TravelDataInput")]
 /// Struct for data submitted by CBSA on query of ArriveCan.
 /// Likely to be part of a Vec<TravelData> that will be 
 /// combined into a TravelGroup.
@@ -182,6 +183,11 @@ impl TravelData {
         // Connect to PostgresPool
         let conn = get_connection_from_context(context);
 
+        // Create Kafka producer and send message for subscription service
+        let producer = context
+            .data::<FutureProducer>()
+            .expect("Can't get Kafka producer");
+
         // Identify country        
         let country = get_or_create_country_by_name(context, self.travel_document_issuer.to_owned())?;
 
@@ -223,17 +229,6 @@ impl TravelData {
         );
 
         let trip = Trip::create(&conn, &new_trip).expect("Unable to create trip");
-
-        // Create Kafka producer and send message for Trip subscription service
-        let producer = context
-            .data::<FutureProducer>()
-            .expect("Can't get Kafka producer");
-
-        let trip_message = serde_json::to_string(&trip)
-            .expect("Can't serialize Trip");
-
-        println!("Sending Message to Subscription");
-        send_message(producer, trip_message).await;
 
         // Add or get PublicHealthProfile
         let profile = NewPublicHealthProfile::new(
@@ -285,6 +280,22 @@ impl TravelData {
             let _quarantine_plan = QuarantinePlan::create(&conn, &new_plan)
                 .expect("Unable to create new quarantine plan");
         }
+
+        // KAFKA
+
+        // Sent Person messages to Kafka
+        let person_message = serde_json::to_string(&person)
+            .expect("Can't serialize Person");
+
+        println!("Sending Person Message to Subscription");
+        send_message(producer, "people", person_message).await;
+
+        // Sent Trip messages to Kafka
+        let trip_message = serde_json::to_string(&trip)
+            .expect("Can't serialize Trip");
+
+        println!("Sending Message to Subscription");
+        send_message(producer, "trips", trip_message).await;
 
         // Call health_rules_engine
         // Determine if traveller is referred for mandatory testing

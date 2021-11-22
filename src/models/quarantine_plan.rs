@@ -128,7 +128,8 @@ impl NewQuarantinePlan {
     }
 }
 
-#[derive(Debug, Clone, Deserialize, Serialize, InputObject)]
+#[derive(Debug, Clone, Deserialize, Serialize, InputObject, SimpleObject)]
+#[graphql(input_name = "SlimQuarantinePlanInput")]
 pub struct SlimQuarantinePlan {
     pub date_created: NaiveDate,
     pub confirmation_no_vulnerable: bool,
