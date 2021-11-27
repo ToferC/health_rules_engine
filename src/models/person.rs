@@ -9,7 +9,7 @@ use async_graphql::*;
 use rand::{Rng, thread_rng};
 
 use crate::common_utils::{
-    is_analyst, RoleGuard, Role as AuthRole};
+    is_analyst, RoleGuard, Role};
 
 use crate::schema::*;
 use crate::graphql::{graphql_translate, get_connection_from_context};
@@ -150,7 +150,7 @@ impl Person {
 impl Person {
 
     #[graphql(
-        guard = "RoleGuard::new(AuthRole::Analyst)",
+        guard = "RoleGuard::new(Role::Analyst)",
         visible = "is_analyst",
     )]
     pub async fn family_name(&self) -> FieldResult<String> {
@@ -158,7 +158,7 @@ impl Person {
     }
 
     #[graphql(
-        guard = "RoleGuard::new(AuthRole::Analyst)",
+        guard = "RoleGuard::new(Role::Analyst)",
         visible = "is_analyst",
     )]
     pub async fn given_name(&self) -> FieldResult<String> {
@@ -166,7 +166,7 @@ impl Person {
     }
 
     #[graphql(
-        guard = "RoleGuard::new(AuthRole::Analyst)",
+        guard = "RoleGuard::new(Role::Analyst)",
         visible = "is_analyst",
     )]
     pub async fn additional_names(&self) -> FieldResult<Option<Vec<String>>> {
@@ -190,7 +190,7 @@ impl Person {
     }
 
     #[graphql(
-        guard = "RoleGuard::new(AuthRole::Analyst)",
+        guard = "RoleGuard::new(Role::Analyst)",
         visible = "is_analyst",
     )]
     /// This is personally identifiable information and can only be accessed

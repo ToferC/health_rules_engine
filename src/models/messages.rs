@@ -288,14 +288,14 @@ impl TravelData {
             .expect("Can't serialize Person");
 
         println!("Sending Person Message to Subscription");
-        send_message(producer, "people", person_message).await;
+        send_message(producer, "people", person_message, "CBSA".to_string()).await;
 
         // Sent Trip messages to Kafka
         let trip_message = serde_json::to_string(&trip)
             .expect("Can't serialize Trip");
 
         println!("Sending Message to Subscription");
-        send_message(producer, "trips", trip_message).await;
+        send_message(producer, "trips", trip_message, "CBSA".to_string()).await;
 
         // Call health_rules_engine
         // Determine if traveller is referred for mandatory testing

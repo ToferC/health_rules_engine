@@ -1,5 +1,8 @@
 use std::sync::Mutex;
 use std::time::Duration;
+use std::boxed::Box;
+use std::fs::File;
+use std::io::{BufReader, BufRead};
 
 use lazy_static::lazy_static;
 use rdkafka::config::RDKafkaLogLevel;
@@ -9,16 +12,55 @@ use rdkafka::util::Timeout;
 use rdkafka::ClientConfig;
 
 lazy_static! {
-    static ref KAFKA_BROKER: String = 
-        std::env::var("KAFKA_BROKER").expect("Can't read Kafka broker address");
-    static ref KAFKA_TOPIC: String = 
-        std::env::var("KAFKA_TOPIC").expect("Can't read Kafka topic name");
+    static ref BOOTSTRAP_SERVERS: String = 
+        std::env::var("BOOTSTRAP_SERVERS").expect("Can't read Kafka broker address");
+    static ref SECURITY_PROTOCOL: String = 
+        std::env::var("SECURITY_PROTOCOL").expect("Can't read Kafka security protocol");
+    static ref SASL_MECHANISMS: String = 
+        std::env::var("SASL_MECHANISMS").expect("Can't read Kafka sasl.mechanisms");
+    static ref SASL_USERNAME: String = 
+        std::env::var("SASL_USERNAME").expect("Can't read Kafka sasl.username");
+    static ref SASL_PASSWORD: String = 
+        std::env::var("SASL_PASSWORD").expect("Can't read Kafka sasl.password");
+}
+
+pub fn get_kafka_config() -> Result<ClientConfig, Box<dyn std::error::Error>> {
+    let mut kafka_config = ClientConfig::new();
+
+    let file = File::open(".kafka_config")?;
+
+    for line in BufReader::new(&file).lines() {
+        let cur_line: String = line?.trim().to_string();
+
+        if cur_line.starts_with('#') || cur_line.len() < 1 {
+            continue;
+        }
+        let key_value: Vec<&str> = cur_line.split("=").collect();
+        kafka_config.set(
+            *key_value.get(0).ok_or("malformed key")?,
+            *key_value.get(1).ok_or("malformed value")?,
+        );
+    }
+
+    Ok(kafka_config)
+
 }
 
 pub(crate) fn create_producer() -> FutureProducer {
+    get_kafka_config().unwrap()
+        .create()
+        .expect("Producer creation failed")
+}
+
+pub(crate) fn _create_producer_old() -> FutureProducer {
     ClientConfig::new()
-        .set("bootstrap.servers", KAFKA_BROKER.as_str())
+        .set("bootstrap.servers", BOOTSTRAP_SERVERS.as_str())
         .set("message.timeout.ms", "5000")
+        .set("security.protocol", SECURITY_PROTOCOL.as_str())
+        .set("sasl.mechanisms", SASL_MECHANISMS.as_str())
+        .set("sasl.username", SASL_USERNAME.as_str())
+        .set("sasl.password", SASL_PASSWORD.as_str())
+        .set("api.version.request", "false")
         .create()
         .expect("Producer creation failed")
 }
@@ -26,7 +68,11 @@ pub(crate) fn create_producer() -> FutureProducer {
 pub(crate) fn create_consumer(group_id: String, topic: &str) -> StreamConsumer {
     let consumer: StreamConsumer = ClientConfig::new()
         .set("group.id", &group_id)
-        .set("bootstrap.servers", KAFKA_BROKER.as_str())
+        .set("bootstrap.servers", "pkc-ymrq7.us-east-2.aws.confluent.cloud:9092")
+        .set("security.protocol", SECURITY_PROTOCOL.as_str())
+        .set("sasl.mechanisms", SASL_MECHANISMS.as_str())
+        .set("sasl.username", SASL_USERNAME.as_str())
+        .set("sasl.password", SASL_PASSWORD.as_str())
         .set("enable.partition.eof", "false")
         .set("session.timeout.ms", "6000")
         .set("enable.auto.commit", "true")
@@ -35,7 +81,7 @@ pub(crate) fn create_consumer(group_id: String, topic: &str) -> StreamConsumer {
         .expect("Consumer creation failed");
 
     consumer
-        .subscribe(&[topic])
+        .subscribe(&vec![topic])
         .expect("Can't subscribe to specified topics");
 
     consumer
@@ -47,13 +93,13 @@ pub(crate) fn get_kafka_consumer_group(kafka_consumer_counter: &Mutex<i32>) -> S
     format!("graphql-group-{}", *counter)
 }
 
-pub(crate) async fn send_message(producer: &FutureProducer, topic: &str, message: String) {
+pub(crate) async fn send_message(producer: &FutureProducer, topic: &str, message: String, key: String) {
     let send_to_kafka_result = producer
         .send(
             FutureRecord::to(topic)
                 .payload(&message)
-                .key("new_trip"),
-            Timeout::After(Duration::from_secs(0)),
+                .key(&key),
+            Timeout::After(Duration::from_secs(3)),
         )
         .await;
 

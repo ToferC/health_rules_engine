@@ -9,7 +9,7 @@ use crate::config_variables::DATE_FORMAT;
 use crate::schema::*;
 use crate::graphql::{graphql_translate, get_connection_from_context};
 use crate::models::{Place, Person};
-use crate::common_utils::{is_analyst, RoleGuard, Role as AuthRole};
+use crate::common_utils::{is_analyst, RoleGuard, Role};
 use crate::{get_place_by_id, get_or_create_country_by_name, get_or_create_place_by_name_and_country_id};
 
 /// Travel information for a TravelGroup
@@ -58,7 +58,7 @@ impl Trip {
     }
 
     #[graphql(
-        guard = "RoleGuard::new(AuthRole::Analyst)",
+        guard = "RoleGuard::new(Role::Analyst)",
         visible = "is_analyst",
     )]
     pub async fn booking_id(&self) -> FieldResult<String> {

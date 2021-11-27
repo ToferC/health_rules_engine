@@ -6,7 +6,7 @@ use uuid::Uuid;
 use crate::models::{InsertableUser, LoginQuery, TravelData, PILResponse,
     User, UserData, create_token, decode_token,
     verify_password, UserUpdate, hash_password};
-use crate::common_utils::{Role as AuthRole,
+use crate::common_utils::{Role,
     is_operator,
     is_admin, RoleGuard};
 use rdkafka::producer::FutureProducer;
@@ -20,7 +20,7 @@ impl Mutation {
 
     #[graphql(
         name = "PILQuery", 
-        guard = "RoleGuard::new(AuthRole::Operator)",
+        guard = "RoleGuard::new(Role::Operator)",
         visible = "is_operator",
     )]
     /// Receives a Vec<TravelData> containing details from a group of travllers
@@ -57,7 +57,7 @@ impl Mutation {
                 .expect("Can't serialize ArriveCan PIL message");
 
             println!("Sending ArriveCan PIL Message to Subscription");
-            send_message(producer, "arrivecan_pil", arrivecan_message).await;
+            send_message(producer, "arrivecan_pil", arrivecan_message, "CBSA".to_string()).await;
         };        
         
         Ok(responses_to_cbsa)
@@ -65,7 +65,7 @@ impl Mutation {
 
     #[graphql(
         name = "createUser",
-        guard = "RoleGuard::new(AuthRole::Admin)",
+        guard = "RoleGuard::new(Role::Admin)",
         visible = "is_admin",
     )]
     pub async fn create_user(
@@ -82,7 +82,7 @@ impl Mutation {
 
     #[graphql(
         name = "updateUser",
-        guard = "RoleGuard::new(AuthRole::Admin)",
+        guard = "RoleGuard::new(Role::Admin)",
         visible = "is_admin",
     )]
     pub async fn update_user(
@@ -130,8 +130,8 @@ impl Mutation {
 
             if let Ok(matching) = verify_password(&user.hash.to_string(), &input.password) {
                 if matching {
-                    let role = AuthRole::from_str(user.role.as_str())
-                        .expect("Cannot convert &str to AuthRole");
+                    let role = Role::from_str(user.role.as_str())
+                        .expect("Cannot convert &str to Role");
 
                     // Return the token which would be accepted by the ArriveCan 
                     // app and used to authenticate actions

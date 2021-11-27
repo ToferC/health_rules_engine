@@ -8,7 +8,7 @@ use crate::kafka::create_consumer;
 use crate::kafka::get_kafka_consumer_group;
 use crate::models::TravelData;
 use crate::models::{Trip, Person};
-use crate::common_utils::{RoleGuard, Role as AuthRole, is_analyst};
+use crate::common_utils::{RoleGuard, Role, is_analyst};
 
 pub struct Subscription;
 
@@ -16,7 +16,7 @@ pub struct Subscription;
 impl Subscription {
     /// Subscription service that returns a stream of the latest trips created
     #[graphql(
-        guard = "RoleGuard::new(AuthRole::Analyst)",
+        //guard = "RoleGuard::new(Role::Analyst)",
         visible = "is_analyst",
     )]
     async fn latest_trip<'ctx>(
@@ -48,7 +48,7 @@ impl Subscription {
 
     /// Subscription to live person feed
     #[graphql(
-        guard = "RoleGuard::new(AuthRole::Analyst)",
+        //guard = "RoleGuard::new(Role::Analyst)",
         visible = "is_analyst",
     )]
     async fn latest_person<'ctx>(
@@ -80,7 +80,7 @@ impl Subscription {
 
     /// Subscription to raw ArriveCan feed from PIL
     #[graphql(
-        guard = "RoleGuard::new(AuthRole::Analyst)",
+        //guard = "RoleGuard::new(Role::Analyst)",
         visible = "is_analyst",
     )]
     async fn latest_traveller<'ctx>(

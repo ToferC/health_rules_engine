@@ -1,18 +1,18 @@
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use crate::common_utils::{is_analyst, RoleGuard, Role as AuthRole};
+use crate::common_utils::{is_analyst, RoleGuard, Role};
 
 
 #[derive(Debug, Clone, Deserialize, Serialize, SimpleObject)]
 pub struct PostalAddress {
     #[graphql(
-        guard = "RoleGuard::new(AuthRole::Analyst)",
+        guard = "RoleGuard::new(Role::Analyst)",
         visible = "is_analyst",
     )]
     pub id: Uuid,
     #[graphql(
-        guard = "RoleGuard::new(AuthRole::Analyst)",
+        guard = "RoleGuard::new(Role::Analyst)",
         visible = "is_analyst",
     )]
     pub street_address: String,
@@ -20,17 +20,17 @@ pub struct PostalAddress {
     pub address_region: String,
     pub address_country_id: Uuid,
     #[graphql(
-        guard = "RoleGuard::new(AuthRole::Analyst)",
+        guard = "RoleGuard::new(Role::Analyst)",
         visible = "is_analyst",
     )]
     pub postal_code: String,
     #[graphql(
-        guard = "RoleGuard::new(AuthRole::Analyst)",
+        guard = "RoleGuard::new(Role::Analyst)",
         visible = "is_analyst",
     )]
     pub lattitude: f64,
     #[graphql(
-        guard = "RoleGuard::new(AuthRole::Analyst)",
+        guard = "RoleGuard::new(Role::Analyst)",
         visible = "is_analyst",
     )]
     pub longitude: f64,

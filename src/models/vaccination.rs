@@ -5,7 +5,7 @@ use diesel::{self, Insertable, PgConnection, Queryable,
     RunQueryDsl, QueryDsl, ExpressionMethods};
 use uuid::Uuid;
 
-use crate::common_utils::{RoleGuard, Role as AuthRole, is_analyst};
+use crate::common_utils::{RoleGuard, Role, is_analyst};
 
 use crate::config_variables::DATE_FORMAT;
 use crate::models::{Place, Vaccine};
@@ -46,7 +46,7 @@ impl Vaccination {
     }
 
     #[graphql(
-        guard = "RoleGuard::new(AuthRole::Analyst)",
+        guard = "RoleGuard::new(Role::Analyst)",
         visible = "is_analyst",
     )]
     pub async fn public_health_profile_id(&self) -> FieldResult<Uuid> {

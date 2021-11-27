@@ -9,7 +9,7 @@ use crate::models::{Person, QuarantinePlan, User,
 use uuid::Uuid;
 
 use crate::graphql::{graphql_translate, get_connection_from_context};
-use crate::common_utils::{RoleGuard, is_admin, Role as AuthRole};
+use crate::common_utils::{RoleGuard, is_admin, Role};
 
 pub struct Query;
 
@@ -186,7 +186,7 @@ impl Query {
 
     #[graphql(
         name = "allUsers",
-        guard = "RoleGuard::new(AuthRole::Admin)",
+        guard = "RoleGuard::new(Role::Admin)",
         visible = "is_admin",
     )]
     /// Returns a vector of all users
@@ -200,7 +200,7 @@ impl Query {
 
     #[graphql(
         name = "getUserByEmail",
-        guard = "RoleGuard::new(AuthRole::Admin)",
+        guard = "RoleGuard::new(Role::Admin)",
         visible = "is_admin",
     )]
     /// Returns a vector of all users
@@ -214,7 +214,7 @@ impl Query {
 
     #[graphql(
         name = "getUserById",
-        guard = "RoleGuard::new(AuthRole::Admin)",
+        guard = "RoleGuard::new(Role::Admin)",
         visible = "is_admin",
     )]
     /// Returns a vector of all users

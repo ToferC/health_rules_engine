@@ -32,8 +32,9 @@ lazy_static = "1.4"
 
 dotenv = "0.15.0"
 futures = "0.3.17"
-rdkafka = { version = "0.25.0", features = ["cmake-build"]}
+rdkafka = { version = "0.25.0", features = ["cmake-build", "ssl-vendored"]}
 async-stream = "0.3.2"
+nats = "0.16.0"
 
 serde = "1.0.130"
 serde_derive = "1.0"
