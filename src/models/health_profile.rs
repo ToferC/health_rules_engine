@@ -63,8 +63,8 @@ impl PublicHealthProfile {
     pub async fn testing_history(&self, context: &Context<'_>) -> FieldResult<Vec<CovidTest>> {
         let conn = get_connection_from_context(context);
 
-        let res = covid_test::table
-            .filter(covid_test::public_health_profile_id.eq(self.id))
+        let res = covid_tests::table
+            .filter(covid_tests::public_health_profile_id.eq(self.id))
             .load::<CovidTest>(&conn);
 
         graphql_translate(res)

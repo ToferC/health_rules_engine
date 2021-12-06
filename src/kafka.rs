@@ -46,13 +46,16 @@ pub fn get_kafka_config() -> Result<ClientConfig, Box<dyn std::error::Error>> {
 
 }
 
+/*
 pub(crate) fn create_producer() -> FutureProducer {
     get_kafka_config().unwrap()
         .create()
         .expect("Producer creation failed")
 }
 
-pub(crate) fn _create_producer_old() -> FutureProducer {
+*/
+
+pub(crate) fn create_producer() -> FutureProducer {
     ClientConfig::new()
         .set("bootstrap.servers", BOOTSTRAP_SERVERS.as_str())
         .set("message.timeout.ms", "5000")
