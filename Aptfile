@@ -2,3 +2,4 @@
 clang 
 llvm-dev 
 libclang-dev
+cmake
