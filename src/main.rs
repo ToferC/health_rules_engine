@@ -41,19 +41,22 @@ async fn main() -> std::io::Result<()> {
     // Create Schema
     let schema = web::Data::new(create_schema_with_context(POOL.clone()));
 
+    
     HttpServer::new(move || {
         
         let mut tera = Tera::new(
             "templates/**/*").unwrap();
-
+            
         tera.register_filter("snake_case", snake_case);
         tera.full_reload().expect("Error running auto reload with Tera");
+        
+        let app_data = web::Data::new(AppData {tmpl: tera});
 
         App::new()
             //.data(POOL.clone())
             .configure(handlers::configure_services)
             .app_data(schema.clone())
-            .app_data(AppData {tmpl: tera})
+            .app_data(app_data)
             .wrap(middleware::Logger::default())
     })
     .bind(format!("{}:{}", host, port))?
