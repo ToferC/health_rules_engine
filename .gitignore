@@ -3,4 +3,4 @@
 .env
 .kafka_config
 docker-compose
-Dockerfile
+_Dockerfile
