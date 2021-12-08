@@ -1,6 +1,5 @@
 use std::env;
 use actix_web::{web, App, HttpServer, middleware};
-use diesel::IntoSql;
 use tera::{Tera};
 use tera_text_filters::snake_case;
 
