@@ -30,7 +30,7 @@ async fn main() -> std::io::Result<()> {
     let (host, port) = if environment == "production" {
         (env::var("HOST").unwrap(), env::var("PORT").unwrap())
     } else {
-        (String::from("0.0.0.0"), String::from("8080"))
+        (String::from("0.0.0.0"), String::from("8088"))
     };
 
     let _domain = host.clone();
@@ -60,7 +60,7 @@ async fn main() -> std::io::Result<()> {
             .app_data(app_data)
             .wrap(middleware::Logger::default())
     })
-    .bind((format!("{}", host).as_str(), 8080))?
+    .bind(format!("{}:{}", host, port))?
     .run()
     .await
 }
