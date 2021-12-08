@@ -1,8 +1,5 @@
 use std::sync::Mutex;
 use std::time::Duration;
-use std::boxed::Box;
-use std::fs::File;
-use std::io::{BufReader, BufRead};
 
 use lazy_static::lazy_static;
 use rdkafka::config::RDKafkaLogLevel;
@@ -23,37 +20,6 @@ lazy_static! {
     static ref SASL_PASSWORD: String = 
         std::env::var("SASL_PASSWORD").expect("Can't read Kafka sasl.password");
 }
-
-pub fn get_kafka_config() -> Result<ClientConfig, Box<dyn std::error::Error>> {
-    let mut kafka_config = ClientConfig::new();
-
-    let file = File::open(".kafka_config")?;
-
-    for line in BufReader::new(&file).lines() {
-        let cur_line: String = line?.trim().to_string();
-
-        if cur_line.starts_with('#') || cur_line.len() < 1 {
-            continue;
-        }
-        let key_value: Vec<&str> = cur_line.split("=").collect();
-        kafka_config.set(
-            *key_value.get(0).ok_or("malformed key")?,
-            *key_value.get(1).ok_or("malformed value")?,
-        );
-    }
-
-    Ok(kafka_config)
-
-}
-
-/*
-pub(crate) fn create_producer() -> FutureProducer {
-    get_kafka_config().unwrap()
-        .create()
-        .expect("Producer creation failed")
-}
-
-*/
 
 pub(crate) fn create_producer() -> FutureProducer {
     ClientConfig::new()
