@@ -1,5 +1,6 @@
 use std::env;
 use actix_web::{web, App, HttpServer, middleware};
+use diesel::IntoSql;
 use tera::{Tera};
 use tera_text_filters::snake_case;
 
@@ -29,7 +30,7 @@ async fn main() -> std::io::Result<()> {
     let (host, port) = if environment == "production" {
         (env::var("HOST").unwrap(), env::var("PORT").unwrap())
     } else {
-        (String::from("127.0.0.1"), String::from("8088"))
+        (String::from("0.0.0.0"), String::from("8080"))
     };
 
     let _domain = host.clone();
@@ -59,7 +60,7 @@ async fn main() -> std::io::Result<()> {
             .app_data(app_data)
             .wrap(middleware::Logger::default())
     })
-    .bind(format!("{}:{}", host, port))?
+    .bind((format!("{}", host).as_str(), 8080))?
     .run()
     .await
 }
