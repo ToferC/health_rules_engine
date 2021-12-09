@@ -29,7 +29,7 @@ async fn main() -> std::io::Result<()> {
     let (host, port) = if environment == "production" {
         (env::var("HOST").unwrap(), env::var("PORT").unwrap())
     } else {
-        (String::from("0.0.0.0"), String::from("8088"))
+        (String::from("0.0.0.0"), String::from("8080"))
     };
 
     let _domain = host.clone();

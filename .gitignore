@@ -2,5 +2,3 @@
 /bin
 .env
 .kafka_config
-docker-compose
-_Dockerfile

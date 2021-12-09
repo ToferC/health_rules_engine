@@ -1,0 +1,23 @@
+version: '3.9'
+
+services:
+  db: 
+    image: postgres:latest
+    restart: always
+    environment:
+      - POSTGRES_USER=christopherallison
+      - POSTGRES_PASSWORD=12345 
+      - POSTGRES_DB=health_rules_engine 
+    ports:
+      - 5432:5432
+
+  health-rules-engine:
+    build: .
+    environment:
+      - DATABASE_URL=postgres://christopherallison:12345@db/health_rules_engine?sslmode=disable
+    env_file:
+      - .env
+    depends_on:
+      - db
+    ports:
+      - 18080:8080

@@ -71,40 +71,6 @@ pub fn init() {
             populate_db_with_demo_data(&conn);
         }
     }
-    /*
-    
-    if env::var("ENVIRONMENT").unwrap() == "production" {
-        // Production system
-
-        pre_populate_db_schema(&conn);
-
-        populate_db_with_demo_data(&conn);
-    } else {
-        // Not production
-    
-        println!("Would you like to add base countries, places and vaccines data? (yes/no)");
-        
-        let mut response = String::new();
-        stdin().read_line(&mut response).expect("Unable to read input");
-        
-        if response.trim() == "yes" || response.trim() == "y" {
-            println!("Adding Country, Place and Vaccine Data");
-            pre_populate_db_schema(&conn);
-        };
-    
-        println!("Would you like to add traveller demo data? (yes/no)");
-        
-        let mut response = String::new();
-        stdin().read_line(&mut response).expect("Unable to read input");
-        
-        if response.trim() == "yes" || response.trim() == "y" {
-            println!("Adding Traveller Demo Data");
-            populate_db_with_demo_data(&conn);
-        };
-        
-        println!("Database and connection initialized");
-    }
-    */
 }
 
 pub fn connection() -> Result<DbConnection, CustomError> {
