@@ -13,11 +13,14 @@ services:
 
   health-rules-engine:
     build: .
+    restart: always
     environment:
+      - HOST=0.0.0.0
+      - PORT=8080
       - DATABASE_URL=postgres://christopherallison:12345@db/health_rules_engine?sslmode=disable
     env_file:
       - .env
     depends_on:
       - db
     ports:
-      - 18080:8080
+      - 8080:8080

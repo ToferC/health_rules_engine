@@ -27,9 +27,13 @@ async fn main() -> std::io::Result<()> {
     let _secret_key = env::var("SECRET_KEY").expect("Unable to find secret key");
 
     let (host, port) = if environment == "production" {
-        (env::var("HOST").unwrap(), env::var("PORT").unwrap())
+        let p: u16 = env::var("PORT")
+            .unwrap()
+            .parse()
+            .expect("Unable to convert string to u16");
+        (env::var("HOST").unwrap(), p)
     } else {
-        (String::from("0.0.0.0"), String::from("8080"))
+        (String::from("0.0.0.0"), 8080)
     };
 
     let _domain = host.clone();
@@ -59,7 +63,7 @@ async fn main() -> std::io::Result<()> {
             .app_data(app_data)
             .wrap(middleware::Logger::default())
     })
-    .bind(format!("{}:{}", host, port))?
+    .bind((host, port))?
     .run()
     .await
 }

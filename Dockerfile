@@ -1,5 +1,5 @@
 # Rust
-FROM rust:1.56 as build
+FROM rust:latest as build
 
 # Install dependencies
 RUN apt-get -qq update
@@ -23,6 +23,7 @@ COPY ./Cargo.toml ./Cargo.toml
 
 # Copy over migrations
 COPY ./migrations ./migrations
+COPY ./templates ./templates
 
 # This build to cache dependencies
 RUN cargo build --release
@@ -36,10 +37,13 @@ RUN rm ./target/release/deps/health_rules_engine*
 RUN cargo build --release
 
 # Final base
-FROM rust:1.56
+FROM rust:latest
 
 # Copy final build artifact
 COPY --from=build /health_rules_engine/target/release/health_rules_engine .
 
+EXPOSE 8080
+
 # Set startup command
+
 CMD ["./health_rules_engine"]
