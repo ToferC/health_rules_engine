@@ -8,8 +8,8 @@ use crate::kafka::create_consumer;
 use crate::kafka::get_kafka_consumer_group;
 use crate::models::TravelData;
 use crate::models::{Trip, Person};
-//use crate::common_utils::{is_analyst};
-//use crate::common_utils::{RoleGuard, Role};
+use crate::common_utils::{is_analyst};
+use crate::common_utils::{RoleGuard, Role};
 
 pub struct Subscription;
 
@@ -17,8 +17,8 @@ pub struct Subscription;
 impl Subscription {
     /// Subscription service that returns a stream of the latest trips created
     #[graphql(
-        //guard = "RoleGuard::new(Role::Analyst)",
-        //visible = "is_analyst",
+        guard = "RoleGuard::new(Role::Analyst)",
+        visible = "is_analyst",
     )]
     async fn latest_trip<'ctx>(
         &self, 

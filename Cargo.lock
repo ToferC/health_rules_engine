@@ -213,9 +213,9 @@ dependencies = [
 
 [[package]]
 name = "actix-http"
-version = "3.0.0-beta.16"
+version = "3.0.0-beta.18"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6294c508c1413346857838356f53f45dbfd257ea31dca19470d9ce78750a7d37"
+checksum = "05b95871724d27ac9a23d6db3246b23e4e42cd44a23145e1c6b04b78fb5271da"
 dependencies = [
  "actix-codec 0.4.1",
  "actix-rt 2.5.0",
@@ -231,12 +231,11 @@ dependencies = [
  "encoding_rs",
  "flate2",
  "futures-core",
- "futures-task",
  "h2 0.3.9",
  "http",
  "httparse",
  "httpdate",
- "itoa 0.4.8",
+ "itoa 1.0.1",
  "language-tags 0.3.2",
  "local-channel",
  "log",
@@ -244,7 +243,7 @@ dependencies = [
  "percent-encoding",
  "pin-project-lite 0.2.7",
  "rand 0.8.4",
- "sha-1 0.9.8",
+ "sha-1 0.10.0",
  "smallvec",
  "zstd",
 ]
@@ -302,9 +301,9 @@ dependencies = [
 
 [[package]]
 name = "actix-router"
-version = "0.5.0-beta.3"
+version = "0.5.0-beta.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ddd9f117b910fbcce6e9f45092ffd4ff017785a346d09e2d4fd049f4e20384f4"
+checksum = "b53c1deabdbf3a8a8b9a949123edd3cafb873abd75da96b5933a8b590f9d6dc2"
 dependencies = [
  "bytestring",
  "firestorm",
@@ -362,9 +361,9 @@ dependencies = [
 
 [[package]]
 name = "actix-server"
-version = "2.0.0-rc.1"
+version = "2.0.0-rc.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "78c9b22794b8af1c2e02434873ef858f2a7db40dbbf861ce77a04cd81ac6b767"
+checksum = "c9259b4f3cc9ca96d7d91a7da66b7b01c47653a0da5b0ba3f7f45a344480443b"
 dependencies = [
  "actix-rt 2.5.0",
  "actix-service 2.0.2",
@@ -581,33 +580,32 @@ dependencies = [
 
 [[package]]
 name = "actix-web"
-version = "4.0.0-beta.15"
+version = "4.0.0-beta.19"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4609cf57246040316642d4dc4c03d7f3d4a083a892122829dbd9e6ec8db7cd67"
+checksum = "229d0d2c11d6c734327cf1fbc15dd644b351b440bcb4608349258f5e00605bdc"
 dependencies = [
  "actix-codec 0.4.1",
- "actix-http 3.0.0-beta.16",
+ "actix-http 3.0.0-beta.18",
  "actix-macros 0.2.3",
- "actix-router 0.5.0-beta.3",
+ "actix-router 0.5.0-beta.4",
  "actix-rt 2.5.0",
- "actix-server 2.0.0-rc.1",
+ "actix-server 2.0.0-rc.3",
  "actix-service 2.0.2",
  "actix-utils 3.0.0",
- "actix-web-codegen 0.5.0-beta.6",
+ "actix-web-codegen 0.5.0-rc.1",
  "ahash",
  "bytes 1.1.0",
  "cfg-if 1.0.0",
- "cookie 0.15.1",
+ "cookie 0.16.0",
  "derive_more",
  "encoding_rs",
  "futures-core",
  "futures-util",
- "itoa 0.4.8",
+ "itoa 1.0.1",
  "language-tags 0.3.2",
  "log",
  "mime",
  "once_cell",
- "paste",
  "pin-project-lite 0.2.7",
  "regex",
  "serde",
@@ -621,14 +619,14 @@ dependencies = [
 
 [[package]]
 name = "actix-web-actors"
-version = "4.0.0-beta.8"
+version = "4.0.0-beta.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3852495307c5b7a314ccd414ca0cdcdd8db21c9a95001eea057d36e22d8da327"
+checksum = "fd5113fc4abe81a4d9af208e179f546dfb20482a58431eb57096a81095337889"
 dependencies = [
  "actix",
  "actix-codec 0.4.1",
- "actix-http 3.0.0-beta.16",
- "actix-web 4.0.0-beta.15",
+ "actix-http 3.0.0-beta.18",
+ "actix-web 4.0.0-beta.19",
  "bytes 1.1.0",
  "bytestring",
  "futures-core",
@@ -660,11 +658,11 @@ dependencies = [
 
 [[package]]
 name = "actix-web-codegen"
-version = "0.5.0-beta.6"
+version = "0.5.0-rc.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "30a90b7f6c2fde9a1fe3df4da758c2c3c9d620dfa3eae4da0b6925dc0a13444a"
+checksum = "98a793e4a7bd059e06e1bc1bd9943b57a47f806de3599d2437441682292c333e"
 dependencies = [
- "actix-router 0.5.0-beta.3",
+ "actix-router 0.5.0-beta.4",
  "proc-macro2 1.0.34",
  "quote 1.0.10",
  "syn",
@@ -799,6 +797,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "eab1c04a571841102f5345a8fc0f6bb3d31c315dec879b5c6e42e40ce7ffa34e"
 
 [[package]]
+name = "ascii_utils"
+version = "0.9.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "71938f30533e4d95a6d17aa530939da3842c2ab6f4f84b9dae68447e4129f74a"
+
+[[package]]
 name = "async-channel"
 version = "1.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -841,9 +845,9 @@ dependencies = [
 
 [[package]]
 name = "async-graphql"
-version = "3.0.17"
+version = "3.0.20"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f4bb9740dea18a2a14899ddc605b0f11cd79066df8e6c4358f0f2cc9484c5862"
+checksum = "b7b72874e1b4bebe34cfd204a0d938225a7e25714315a5f714173842b6d16849"
 dependencies = [
  "async-graphql-derive",
  "async-graphql-parser",
@@ -853,6 +857,7 @@ dependencies = [
  "bytes 1.1.0",
  "chrono",
  "chrono-tz 0.5.3",
+ "fast_chemail",
  "fnv",
  "futures-util",
  "http",
@@ -873,13 +878,13 @@ dependencies = [
 
 [[package]]
 name = "async-graphql-actix-web"
-version = "3.0.17"
+version = "3.0.20"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "54efbd9c398fa055aeeb45a9618f802f005639a85dc8a4d185a833da5972bd55"
+checksum = "d9814e999627fb3bdfcb1efeccc0b6ee5caae4050f85bf293e5f80c2779e70c6"
 dependencies = [
  "actix",
- "actix-http 3.0.0-beta.16",
- "actix-web 4.0.0-beta.15",
+ "actix-http 3.0.0-beta.18",
+ "actix-web 4.0.0-beta.19",
  "actix-web-actors",
  "async-channel",
  "async-graphql",
@@ -892,9 +897,9 @@ dependencies = [
 
 [[package]]
 name = "async-graphql-derive"
-version = "3.0.17"
+version = "3.0.20"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0ccc98ac94e3182a3a849ddd6d7c6ff267724193271474912d26eb53135229d9"
+checksum = "646536d653be53fa2ff831d7a4083367d2ea7e333e5710e540596721e598ecad"
 dependencies = [
  "Inflector",
  "async-graphql-parser",
@@ -908,9 +913,9 @@ dependencies = [
 
 [[package]]
 name = "async-graphql-parser"
-version = "3.0.17"
+version = "3.0.20"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "590ad57f309b48ce85195f775c1c5d15a04d625e04aafbb7856abb0525078f83"
+checksum = "b47576aba6c1474888689c5d67a2a7b7f9f650d3122157e00fa14f0c01945f8a"
 dependencies = [
  "async-graphql-value",
  "pest",
@@ -921,9 +926,9 @@ dependencies = [
 
 [[package]]
 name = "async-graphql-value"
-version = "3.0.17"
+version = "3.0.20"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "977033c3d842a700e6cc2be596e054c47f6923a9f8e96ded209a9067b46c73b2"
+checksum = "28a266653068d17107cc3b5d9d9eb245b1a49a43501b2317af4f1959624346d5"
 dependencies = [
  "bytes 1.1.0",
  "indexmap",
@@ -1221,6 +1226,15 @@ name = "block-buffer"
 version = "0.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4152116fd6e9dadb291ae18fc1ec3575ed6d84c29642d97890f4b4a3417297e4"
+dependencies = [
+ "generic-array 0.14.4",
+]
+
+[[package]]
+name = "block-buffer"
+version = "0.10.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f1d36a02058e76b040de25a4464ba1c80935655595b661505c8b39b664828b95"
 dependencies = [
  "generic-array 0.14.4",
 ]
@@ -1525,12 +1539,12 @@ dependencies = [
 
 [[package]]
 name = "cookie"
-version = "0.15.1"
+version = "0.16.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d5f1c7727e460397e56abc4bddc1d49e07a1ad78fc98eb2e1c8f032a58a2f80d"
+checksum = "94d4706de1b0fa5b132270cddffa8585166037822e260a944fe161acd137ca05"
 dependencies = [
  "percent-encoding",
- "time 0.2.27",
+ "time 0.3.5",
  "version_check 0.9.3",
 ]
 
@@ -1592,6 +1606,15 @@ checksum = "d82cfc11ce7f2c3faef78d8a684447b40d503d9681acebed6cb728d45940c4db"
 dependencies = [
  "cfg-if 1.0.0",
  "lazy_static",
+]
+
+[[package]]
+name = "crypto-common"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "683d6b536309245c849479fba3da410962a43ed8e51c26b729208ec0ac2798d0"
+dependencies = [
+ "generic-array 0.14.4",
 ]
 
 [[package]]
@@ -1770,6 +1793,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "digest"
+version = "0.10.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b697d66081d42af4fba142d56918a3cb21dc8eb63372c6b85d14f44fb9c5979b"
+dependencies = [
+ "block-buffer 0.10.0",
+ "crypto-common",
+ "generic-array 0.14.4",
+]
+
+[[package]]
 name = "discard"
 version = "1.0.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1875,6 +1909,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e88a8acf291dafb59c2d96e8f59828f3838bb1a70398823ade51a84de6a6deed"
 
 [[package]]
+name = "fast_chemail"
+version = "0.9.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "495a39d30d624c2caabe6312bfead73e7717692b44e0b32df168c275a2e8e9e4"
+dependencies = [
+ "ascii_utils",
+]
+
+[[package]]
 name = "fastrand"
 version = "1.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1885,9 +1928,9 @@ dependencies = [
 
 [[package]]
 name = "firestorm"
-version = "0.4.6"
+version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "31586bda1b136406162e381a3185a506cdfc1631708dd40cba2f6628d8634499"
+checksum = "4d3d6188b8804df28032815ea256b6955c9625c24da7525f387a7af02fbb8f01"
 
 [[package]]
 name = "flate2"
@@ -2294,7 +2337,7 @@ dependencies = [
  "actix-multipart",
  "actix-rt 2.5.0",
  "actix-service 2.0.2",
- "actix-web 4.0.0-beta.15",
+ "actix-web 4.0.0-beta.19",
  "actix-web-httpauth",
  "alcoholic_jwt",
  "argon2rs",
@@ -3929,6 +3972,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "sha-1"
+version = "0.10.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "028f48d513f9678cda28f6e4064755b3fbb2af6acd672f2c209b62323f7aea0f"
+dependencies = [
+ "cfg-if 1.0.0",
+ "cpufeatures",
+ "digest 0.10.1",
+]
+
+[[package]]
 name = "sha1"
 version = "0.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4278,7 +4332,7 @@ dependencies = [
  "libc",
  "standback",
  "stdweb",
- "time-macros",
+ "time-macros 0.1.1",
  "version_check 0.9.3",
  "winapi 0.3.9",
 ]
@@ -4291,6 +4345,7 @@ checksum = "41effe7cfa8af36f439fac33861b66b049edc6f9a32331e2312660529c1c24ad"
 dependencies = [
  "itoa 0.4.8",
  "libc",
+ "time-macros 0.2.3",
 ]
 
 [[package]]
@@ -4302,6 +4357,12 @@ dependencies = [
  "proc-macro-hack",
  "time-macros-impl",
 ]
+
+[[package]]
+name = "time-macros"
+version = "0.2.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "25eb0ca3468fc0acc11828786797f6ef9aa1555e4a211a60d64cc8e4d1be47d6"
 
 [[package]]
 name = "time-macros-impl"

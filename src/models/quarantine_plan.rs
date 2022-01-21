@@ -14,6 +14,7 @@ use crate::schema::*;
 #[table_name = "quarantine_plans"]
 /// Referenced by compliance check
 /// References public_health_profile
+/// Primary object for QuarantinePlan
 pub struct QuarantinePlan {
     pub id: Uuid,
     pub public_health_profile_id: Uuid,
@@ -85,6 +86,7 @@ impl QuarantinePlan {
 
 #[derive(Debug, Clone, Deserialize, Serialize, InputObject, Insertable)]
 #[table_name = "quarantine_plans"]
+/// Insertable for QuarantinePlan
 pub struct NewQuarantinePlan {
     pub public_health_profile_id: Uuid,
     pub date_created: NaiveDate,
@@ -130,6 +132,7 @@ impl NewQuarantinePlan {
 
 #[derive(Debug, Clone, Deserialize, Serialize, InputObject, SimpleObject)]
 #[graphql(input_name = "SlimQuarantinePlanInput")]
+/// Light data needed to create a quarantine plan
 pub struct SlimQuarantinePlan {
     pub date_created: NaiveDate,
     pub confirmation_no_vulnerable: bool,
@@ -137,6 +140,8 @@ pub struct SlimQuarantinePlan {
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize, SimpleObject, Queryable)]
+/// Object for required check-ins for persons required to quarantine.
+/// Designed for automated or human-conducted check-ins and verifications.
 pub struct CheckInResult {
     pub id: Uuid,
     pub quarantine_plan_id: Uuid,
