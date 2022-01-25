@@ -21,7 +21,7 @@ use crate::models::QuarantinePlan;
 use crate::models::{Country, NewCountry, NewPerson, NewPlace, 
     NewPublicHealthProfile, NewTrip, NewVaccination, 
     NewVaccine, Person, Place, PublicHealthProfile, TravelGroup, 
-    Trip, Vaccine, Vaccination, CovidTest};
+    Trip, Vaccine, Vaccination, CovidTest, SlimAddress, NewPostalAddress, PostalAddress};
 use crate::models::{User, UserData, InsertableUser};
 
 embed_migrations!();
@@ -306,6 +306,18 @@ pub fn populate_db_with_demo_data(conn: &PgConnection) {
             let _c = CovidTest::create(conn, &new_test).expect("Unable to create CovidTest");
 
             // Create Postal Address
+            let quarantine_address = SlimAddress::new(
+                "1011 testing street".to_owned(),
+                *&destination.id,
+                "Default".to_owned(),
+                *&destination.country_id,
+                "K2L 3F1".to_owned(),
+                None,
+            );
+
+            let insertable_address = NewPostalAddress::from(quarantine_address);
+
+            let qa = PostalAddress::create(conn, &insertable_address).expect("Unable to insert PostalAddress");
 
             // Create quarantine plan
             let date_created: NaiveDate = Utc::today().naive_utc() - Duration::days(rng.gen_range(1..14));
@@ -315,7 +327,7 @@ pub fn populate_db_with_demo_data(conn: &PgConnection) {
                 date_created,
                 false,
                 false,
-                "Local Hotel Address".to_string(),
+                *&qa.id,
                 false,
             );
 

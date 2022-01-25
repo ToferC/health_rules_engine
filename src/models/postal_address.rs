@@ -65,6 +65,26 @@ pub struct SlimAddress {
     pub additional_info: Option<String>,
 }
 
+impl SlimAddress {
+    pub fn new(
+        street_address: String,
+        address_locality_id: Uuid,
+        address_region: String,
+        address_country_id: Uuid,
+        postal_code: String,
+        additional_info: Option<String>,
+    ) -> Self {
+        SlimAddress {
+            street_address,
+            address_locality_id,
+            address_region,
+            address_country_id,
+            postal_code,
+            additional_info,
+        }
+    }
+}
+
 #[derive(Debug, Clone, Deserialize, Serialize, SimpleObject, Insertable)]
 #[table_name = "postal_addresses"]
 /// Insertable version of PostalAddress
