@@ -7,10 +7,13 @@ use async_graphql::*;
 use crate::common_utils::{is_analyst, RoleGuard, Role};
 use crate::schema::postal_addresses;
 use crate::graphql::graphql_translate;
+use crate::models::Place;
+use crate::get_place_by_id;
 
 
 #[derive(Debug, Clone, Deserialize, Serialize, SimpleObject, Insertable, Queryable)]
 #[table_name = "postal_addresses"]
+#[graphql(complex)]
 /// Object referring to a geographic location
 pub struct PostalAddress {
     #[graphql(
@@ -23,9 +26,15 @@ pub struct PostalAddress {
         visible = "is_analyst",
     )]
     pub street_address: String,
+
+    #[graphql(visible = false)]
     pub address_locality_id: Uuid,
+
     pub address_region: String,
+
+    #[graphql(visible = false)]
     pub address_country_id: Uuid,
+
     #[graphql(
         guard = "RoleGuard::new(Role::Analyst)",
         visible = "is_analyst",
@@ -51,6 +60,14 @@ impl PostalAddress {
             .get_result(conn);
 
         graphql_translate(res)
+    }
+}
+
+#[ComplexObject]
+impl PostalAddress {
+    pub async fn address_locality(&self, context: &Context<'_>) -> FieldResult<Place> {
+
+        get_place_by_id(context, self.address_locality_id)
     }
 }
 

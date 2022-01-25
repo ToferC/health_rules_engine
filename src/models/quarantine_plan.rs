@@ -9,6 +9,7 @@ use async_graphql::*;
 use crate::common_utils::{is_analyst, RoleGuard, Role};
 use crate::graphql::{graphql_translate, get_connection_from_context};
 use crate::schema::*;
+use crate::models::PostalAddress;
 
 #[derive(Debug, Clone, Deserialize, Serialize, Insertable, Queryable)]
 #[table_name = "quarantine_plans"]
@@ -53,6 +54,20 @@ impl QuarantinePlan {
     )]
     pub async fn postal_address_id(&self) -> FieldResult<Uuid> {
         Ok(self.postal_address_id)
+    }
+
+    #[graphql(
+        guard = "RoleGuard::new(Role::Analyst)",
+        visible = "is_analyst",
+    )]
+    pub async fn quarantine_address(&self, context: &Context<'_>) -> FieldResult<PostalAddress> {
+        let conn = get_connection_from_context(context);
+
+        let res = postal_addresses::table
+            .filter(postal_addresses::id.eq(self.postal_address_id))
+            .first(&conn);
+
+        graphql_translate(res)
     }
 
     pub async fn active(&self) -> FieldResult<bool> {
