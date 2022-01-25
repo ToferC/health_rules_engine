@@ -21,7 +21,7 @@ pub struct QuarantinePlan {
     pub date_created: NaiveDate,
     pub quarantine_required: bool,
     pub confirmation_no_vulnerable: bool,
-    pub postal_address_id: String, // PostalAddress
+    pub postal_address_id: Uuid, // PostalAddress
     pub active: bool,
 }
 
@@ -51,8 +51,8 @@ impl QuarantinePlan {
         guard = "RoleGuard::new(Role::Analyst)",
         visible = "is_analyst",
     )]
-    pub async fn postal_address_id(&self) -> FieldResult<String> {
-        Ok(self.postal_address_id.to_owned())
+    pub async fn postal_address_id(&self) -> FieldResult<Uuid> {
+        Ok(self.postal_address_id)
     }
 
     pub async fn active(&self) -> FieldResult<bool> {
@@ -92,7 +92,7 @@ pub struct NewQuarantinePlan {
     pub date_created: NaiveDate,
     pub quarantine_required: bool,
     pub confirmation_no_vulnerable: bool,
-    pub postal_address_id: String, // PostalAddress
+    pub postal_address_id: Uuid, // PostalAddress
     pub active: bool,
 }
 
@@ -102,7 +102,7 @@ impl NewQuarantinePlan {
         date_created: NaiveDate,
         quarantine_required: bool,
         confirmation_no_vulnerable: bool,
-        postal_address_id: String, // PostalAddress
+        postal_address_id: Uuid, // PostalAddress
         active: bool,
     ) -> Self {
         NewQuarantinePlan {
@@ -124,7 +124,7 @@ impl NewQuarantinePlan {
             date_created: slim_plan.date_created,
             quarantine_required: false, // default
             confirmation_no_vulnerable: slim_plan.confirmation_no_vulnerable,
-            postal_address_id: slim_plan.postal_address_id.to_owned(),
+            postal_address_id: slim_plan.postal_address_id,
             active: false, // default
         } 
     }
@@ -136,7 +136,7 @@ impl NewQuarantinePlan {
 pub struct SlimQuarantinePlan {
     pub date_created: NaiveDate,
     pub confirmation_no_vulnerable: bool,
-    pub postal_address_id: String, // PostalAddress
+    pub postal_address_id: Uuid, // PostalAddress
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize, SimpleObject, Queryable)]

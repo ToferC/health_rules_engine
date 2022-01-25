@@ -305,6 +305,8 @@ pub fn populate_db_with_demo_data(conn: &PgConnection) {
 
             let _c = CovidTest::create(conn, &new_test).expect("Unable to create CovidTest");
 
+            // Create Postal Address
+
             // Create quarantine plan
             let date_created: NaiveDate = Utc::today().naive_utc() - Duration::days(rng.gen_range(1..14));
 

@@ -81,7 +81,7 @@ table! {
         date_created -> Date,
         quarantine_required -> Bool,
         confirmation_no_vulnerable -> Bool,
-        postal_address_id -> Varchar,
+        postal_address_id -> Uuid,
         active -> Bool,
     }
 }

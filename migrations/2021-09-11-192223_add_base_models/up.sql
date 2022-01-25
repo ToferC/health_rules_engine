@@ -117,7 +117,7 @@ CREATE TABLE IF NOT EXISTS quarantine_plans (
     date_created DATE NOT NULL,
     quarantine_required bool NOT NULL,
     confirmation_no_vulnerable bool NOT NULL,
-    postal_address_id VARCHAR NOT NULL,
+    postal_address_id UUID NOT NULL,
     active bool NOT NULL
 );
 

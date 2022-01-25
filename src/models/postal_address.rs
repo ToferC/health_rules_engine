@@ -1,10 +1,16 @@
+use diesel::{PgConnection, Insertable, Queryable};
+use diesel::{RunQueryDsl, QueryDsl};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
+use async_graphql::*;
 
 use crate::common_utils::{is_analyst, RoleGuard, Role};
+use crate::schema::postal_addresses;
+use crate::graphql::graphql_translate;
 
 
-#[derive(Debug, Clone, Deserialize, Serialize, SimpleObject)]
+#[derive(Debug, Clone, Deserialize, Serialize, SimpleObject, Insertable, Queryable)]
+#[table_name = "postal_addresses"]
 /// Object referring to a geographic location
 pub struct PostalAddress {
     #[graphql(
@@ -38,6 +44,16 @@ pub struct PostalAddress {
     pub additional_info: Option<String>,
 }
 
+impl PostalAddress {
+    pub fn create(conn: &PgConnection, address: &NewPostalAddress) -> FieldResult<PostalAddress> {
+        let res = diesel::insert_into(postal_addresses::table)
+            .values(address)
+            .get_result(conn);
+
+        graphql_translate(res)
+    }
+}
+
 #[derive(Debug, Clone, Deserialize, InputObject)]
 /// Data input object for PostalAddress
 pub struct SlimAddress {
@@ -49,7 +65,8 @@ pub struct SlimAddress {
     pub additional_info: Option<String>,
 }
 
-#[derive(Debug, Clone, Deserialize, Serialize, SimpleObject)]
+#[derive(Debug, Clone, Deserialize, Serialize, SimpleObject, Insertable)]
+#[table_name = "postal_addresses"]
 /// Insertable version of PostalAddress
 pub struct NewPostalAddress {
     pub street_address: String,
