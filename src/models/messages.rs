@@ -7,11 +7,11 @@ use chrono::prelude::*;
 use chrono::Utc;
 use rand::Rng;
 use async_graphql::*;
-use rdkafka::{producer::FutureProducer};
+// use rdkafka::{producer::FutureProducer};
 
 use crate::graphql::{graphql_translate, get_connection_from_context};
 use crate::schema::*;
-use crate::kafka::send_message;
+// use crate::kafka::send_message;
 use crate::get_or_create_country_by_name;
 use crate::config_variables::MANDATORY_TESTING_RATE;
 
@@ -183,10 +183,12 @@ impl TravelData {
         // Connect to PostgresPool
         let conn = get_connection_from_context(context);
 
+        /* Remove Kafka service
         // Create Kafka producer and send message for subscription service
         let producer = context
             .data::<FutureProducer>()
             .expect("Can't get Kafka producer");
+        */
 
         // Identify country        
         let country = get_or_create_country_by_name(context, self.travel_document_issuer.to_owned())?;
@@ -287,6 +289,7 @@ impl TravelData {
         let person_message = serde_json::to_string(&person)
             .expect("Can't serialize Person");
 
+        /* Remove Subscription Service until we set up Kafka service
         println!("Sending Person Message to Subscription");
         send_message(producer, "people", person_message, "CBSA".to_string()).await;
 
@@ -296,6 +299,7 @@ impl TravelData {
 
         println!("Sending Message to Subscription");
         send_message(producer, "trips", trip_message, "CBSA".to_string()).await;
+        */
 
         // Call health_rules_engine
         // Determine if traveller is referred for mandatory testing

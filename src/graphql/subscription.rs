@@ -4,8 +4,8 @@ use async_graphql::*;
 use futures::{Stream, StreamExt};
 use rdkafka::{Message};
 
-use crate::kafka::create_consumer;
-use crate::kafka::get_kafka_consumer_group;
+// use crate::kafka::create_consumer;
+// use crate::kafka::get_kafka_consumer_group;
 use crate::models::TravelData;
 use crate::models::{Trip, Person};
 use crate::common_utils::{is_analyst};

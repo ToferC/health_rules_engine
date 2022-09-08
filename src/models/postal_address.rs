@@ -1,5 +1,5 @@
 use diesel::{PgConnection, Insertable, Queryable};
-use diesel::{RunQueryDsl, QueryDsl};
+use diesel::{RunQueryDsl, ExpressionMethods};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 use async_graphql::*;
@@ -11,7 +11,7 @@ use crate::models::Place;
 use crate::get_place_by_id;
 
 
-#[derive(Debug, Clone, Deserialize, Serialize, SimpleObject, Insertable, Queryable)]
+#[derive(Debug, Clone, Deserialize, Serialize, SimpleObject, Insertable, AsChangeset, Queryable)]
 #[table_name = "postal_addresses"]
 #[graphql(complex)]
 /// Object referring to a geographic location
@@ -60,6 +60,15 @@ impl PostalAddress {
             .get_result(conn);
 
         graphql_translate(res)
+    }
+
+    pub fn update(&self, conn: &PgConnection) -> FieldResult<Self> {
+        let res = diesel::update(postal_addresses::table)
+            .filter(postal_addresses::id.eq(&self.id))
+            .set(self)
+            .get_result(conn)?;
+
+        Ok(res)
     }
 }
 
